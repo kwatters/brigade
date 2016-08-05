@@ -5,29 +5,25 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.HashSet;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.xml.XmlConfiguration;
 
-import com.kmwllc.brigade.config.BrigadeConfiguration;
-import com.kmwllc.brigade.config.Configuration;
-import com.kmwllc.brigade.config.ConnectorConfiguration;
-import com.kmwllc.brigade.config.StageConfiguration;
-import com.kmwllc.brigade.config.WorkflowConfiguration;
-import com.kmwllc.brigade.connector.AbstractConnector;
+import com.kmwllc.brigade.config.BrigadeConfig;
+import com.kmwllc.brigade.config.Config;
+import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.connector.ConnectorServer;
-import com.kmwllc.brigade.workflow.Workflow;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
 public class Brigade {
 
 	// brigade is a singleton server instance
 	private static Brigade brigadeServer = null;
-	private BrigadeConfiguration config = null;
+	private BrigadeConfig config = null;
 	private boolean running = false;
 	private Server webServer = null;
 
@@ -42,20 +38,19 @@ public class Brigade {
 
 		// Add and initialize all workflows
 		WorkflowServer ws = WorkflowServer.getInstance();
-		for (WorkflowConfiguration wC : config.getWorkflowConfigs()) {
+		for (WorkflowConfig wC : config.getWorkflowConfigs()) {
 			ws.addWorkflow(wC);
 		}
 
 		// Add all connector configs
 		// Add and initialize all workflows
 		ConnectorServer cS = ConnectorServer.getInstance();
-		for (ConnectorConfiguration cc : config.getConnectorConfigs()) {
+		for (ConnectorConfig cc : config.getConnectorConfigs()) {
 			// Add
 			// Shit need to create a connector server.
 			// Connector w = new Workflow(wc);
 			// WorkflowServer ws = WorkflowServer.getInstance();
 			// ws.addWorkflow("ingest", w);
-
 			cS.addConnector(cc);
 		}
 	}
@@ -91,81 +86,82 @@ public class Brigade {
 
 	/**
 	 * @param args
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 
 		// Start up the Brigade Server
 		Brigade brigadeServer = Brigade.getInstance();
 
-		BrigadeConfiguration config = createBrigadeConfiguration();
+		BrigadeConfig config = createBrigadeConfiguration();
 		brigadeServer.setConfig(config);
-	
 		brigadeServer.start();
 
-		String homeDir = ".";
-		String host = null;
-		String port = null;
-		// String host = "127.0.0.1";
-		// String port = "8080";
-		try {
-			System.out.println("Starting Jetty...");
-			brigadeServer.startJetty(homeDir, host, port);
-			if (host == null) {
-				host = "localhost";
-			} 
-			if (port == null) {
-				port = "8080";
-			}
-			System.out.println("Jetty Started... http://" + host + ":" + port);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+//		String homeDir = ".";
+//		String host = null;
+//		String port = null;
+//		// String host = "127.0.0.1";
+//		// String port = "8080";
+//		
+//		try {
+//			System.out.println("Starting Jetty...");
+//			brigadeServer.startJetty(homeDir, host, port);
+//			if (host == null) {
+//				host = "localhost";
+//			} 
+//			if (port == null) {
+//				port = "8080";
+//			}
+//			System.out.println("Jetty Started... http://" + host + ":" + port);
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//
+//		// Lets start the brigade server up
+//		// and leave it running.
+		// brigadeServer.run();
 
-		// Lets start the brigade server up
-		// and leave it running.
-
-		brigadeServer.run();
-
-		// brigadeServer.shutdown();
+		brigadeServer.startConnector("testConnector");
+		
+		// System.exit(0);
+		System.out.println("Here we are...");
 
 	}
 
-	private static BrigadeConfiguration createBrigadeConfiguration() {
+	private static BrigadeConfig createBrigadeConfiguration() {
 		// TODO Auto-generated method stub
-		BrigadeConfiguration bc = new BrigadeConfiguration();
+		BrigadeConfig bc = new BrigadeConfig();
 
-		WorkflowConfiguration wC = new WorkflowConfiguration();
+		WorkflowConfig wC = new WorkflowConfig("testWorkflow");
 		wC.setName("ingest");
 
-		StageConfiguration s1Conf = new StageConfiguration();
+		StageConfig s1Conf = new StageConfig();
 		s1Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
 		s1Conf.setStageName("set title");
 		s1Conf.setStringParam("fieldName", "title");
 		s1Conf.setStringParam("value", "Hello World.");
 
-		StageConfiguration s2Conf = new StageConfiguration();
+		StageConfig s2Conf = new StageConfig();
 		s2Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
 		s2Conf.setStageName("set title");
 		s2Conf.setStringParam("fieldName", "text");
 		s2Conf.setStringParam("value", "Welcome to Brigade.");
 
-		StageConfiguration s3Conf = new StageConfiguration();
+		StageConfig s3Conf = new StageConfig();
 		s3Conf.setStageName("Solr Sender");
 		s3Conf.setStageClass("com.kmwllc.brigade.stage.SendToSolr");
 		s3Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s3Conf.setStringParam("idField", "id");
 
-		wC.addStageConfig(s1Conf);
-		wC.addStageConfig(s2Conf);
-		wC.addStageConfig(s3Conf);
+		wC.addStage(s1Conf);
+		wC.addStage(s2Conf);
+		wC.addStage(s3Conf);
 		// Create a workflow
 
-		ConnectorConfiguration cC = new ConnectorConfiguration();
-		cC.setConnectorName("testConnector");
-		cC.setWorkflow("ingest");
+		ConnectorConfig cC = new ConnectorConfig("testConnector", "com.kmwllc.brigade.connector.DocumentSequenceConnector");
 		cC.setStringParam("stop", "100000");
-		cC.setConnectorClass("com.kmwllc.brigade.connector.DocumentSequenceConnector");
+		cC.setStringParam("workflowName", "ingest");
 
 		bc.addWorkflowConfig(wC);
 		bc.addConnectorConfig(cC);
@@ -290,11 +286,11 @@ public class Brigade {
 		System.out.println("Stopped jetty...");
 	}
 
-	public Configuration getConfig() {
+	public Config getConfig() {
 		return config;
 	}
 
-	public void setConfig(BrigadeConfiguration config) {
+	public void setConfig(BrigadeConfig config) {
 		this.config = config;
 	}
 
@@ -302,11 +298,11 @@ public class Brigade {
 		return running;
 	}
 
-	public void addConnector(ConnectorConfiguration connectorConfig) {
+	public void addConnector(ConnectorConfig connectorConfig) {
 		config.addConnectorConfig(connectorConfig);
 	}
 
-	public void addWorkflow(WorkflowConfiguration workflowConfig) {
+	public void addWorkflow(WorkflowConfig workflowConfig) {
 		config.addWorkflowConfig(workflowConfig);
 	}
 	

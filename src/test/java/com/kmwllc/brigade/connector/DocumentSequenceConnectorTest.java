@@ -4,40 +4,40 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import com.kmwllc.brigade.config.ConnectorConfiguration;
-import com.kmwllc.brigade.config.StageConfiguration;
-import com.kmwllc.brigade.config.WorkflowConfiguration;
+import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.workflow.Workflow;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
 public class DocumentSequenceConnectorTest {
 
-	public WorkflowConfiguration createWorkflowConfig() throws ClassNotFoundException {
+	public WorkflowConfig createWorkflowConfig() throws ClassNotFoundException {
 		// Create a workflow config
-		WorkflowConfiguration wC = new WorkflowConfiguration();
+		WorkflowConfig wC = new WorkflowConfig("testWorkflow");
 		wC.setName("ingest");
 		
-		StageConfiguration s1Conf = new StageConfiguration();
+		StageConfig s1Conf = new StageConfig();
 		s1Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
 		s1Conf.setStageName("set title");
 		s1Conf.setStringParam("fieldName", "title");
 		s1Conf.setStringParam("value", "Hello World.");
 		
-		StageConfiguration s2Conf = new StageConfiguration();
+		StageConfig s2Conf = new StageConfig();
 		s2Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
 		s2Conf.setStageName("set title");
 		s2Conf.setStringParam("fieldName", "text");
 		s2Conf.setStringParam("value", "Welcome to Brigade.");
 		
-		StageConfiguration s3Conf = new StageConfiguration();
+		StageConfig s3Conf = new StageConfig();
 		s3Conf.setStageName("Solr Sender");
 		s3Conf.setStageClass("com.kmwllc.brigade.stage.SendToSolr");
 		s3Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s3Conf.setStringParam("idField", "id");
 
-		wC.addStageConfig(s1Conf);
-		wC.addStageConfig(s2Conf);
-		wC.addStageConfig(s3Conf);
+		wC.addStage(s1Conf);
+		wC.addStage(s2Conf);
+		wC.addStage(s3Conf);
 		// Create a workflow
 		
 		return wC;
@@ -47,23 +47,24 @@ public class DocumentSequenceConnectorTest {
 	public void testConnector() throws ClassNotFoundException, InterruptedException {
 		// We should initialize the workflow server..
 		
-		WorkflowConfiguration wC = createWorkflowConfig();
+		WorkflowConfig wC = createWorkflowConfig();
 		
 		WorkflowServer ws = WorkflowServer.getInstance();
 		ws.addWorkflow(wC);
 		
-		ConnectorConfiguration config = new ConnectorConfiguration();
-		config.setWorkflow("ingest");
+		ConnectorConfig config = new ConnectorConfig("testconn1", DocumentSequenceConnector.class.getName());
+		// config.setWorkflow("ingest");
 		config.setStringParam("stop", "100000");
 		// We need a way to create these from the platform or something?
 		
 		DocumentSequenceConnector conn = new DocumentSequenceConnector();
-		conn.initialize(config);
+		conn.setConfig(config);
+		conn.initialize();
 
 		// 
 		long start = new Date().getTime();
 		conn.start();
-		conn.shutdown();
+		// conn.shutdown();
 		long delta = new Date().getTime() - start;
 		System.out.println("Took " + delta + " ms.");
 //		System.out.println("Ok.. now sleep,.. and start back up");

@@ -2,7 +2,7 @@ package com.kmwllc.brigade.stage;
 
 import java.util.ArrayList;
 
-import com.kmwllc.brigade.config.StageConfiguration;
+import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 
 public class CopyFieldTest extends AbstractStageTest {
@@ -11,7 +11,7 @@ public class CopyFieldTest extends AbstractStageTest {
 	public AbstractStage createStage() {
 		// TODO Auto-generated method stub
 		CopyField stage = new CopyField();
-		StageConfiguration config = new StageConfiguration();
+		StageConfig config = new StageConfig();
 		config.setStringParam("source", "foo");
 		config.setStringParam("dest", "bar");
 		stage.startStage(config);

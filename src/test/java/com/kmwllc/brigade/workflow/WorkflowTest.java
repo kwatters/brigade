@@ -2,8 +2,8 @@ package com.kmwllc.brigade.workflow;
 
 import org.junit.Test;
 
-import com.kmwllc.brigade.config.StageConfiguration;
-import com.kmwllc.brigade.config.WorkflowConfiguration;
+import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
 
 public class WorkflowTest {
@@ -14,22 +14,22 @@ public class WorkflowTest {
 	public void testWorkflow() throws ClassNotFoundException, InterruptedException {
 
 		// Create a workflow config
-		WorkflowConfiguration wC = new WorkflowConfiguration();
+		WorkflowConfig wC = new WorkflowConfig("testWorkflow");
 
-		StageConfiguration s1Conf = new StageConfiguration();
+		StageConfig s1Conf = new StageConfig();
 		s1Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
 		s1Conf.setStageName("set title");
 		s1Conf.setStringParam("fieldName", "title");
 		s1Conf.setStringParam("value", "Hello World.");
 
-		StageConfiguration s2Conf = new StageConfiguration();
+		StageConfig s2Conf = new StageConfig();
 		s2Conf.setStageName("Solr Sender");
 		s2Conf.setStageClass("com.kmwllc.brigade.stage.SendToSolr");
 		s2Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s2Conf.setStringParam("idField", "id");
 
-		wC.addStageConfig(s1Conf);
-		wC.addStageConfig(s2Conf);
+		wC.addStage(s1Conf);
+		wC.addStage(s2Conf);
 
 		// Create a workflow
 		Workflow w = new Workflow(wC);

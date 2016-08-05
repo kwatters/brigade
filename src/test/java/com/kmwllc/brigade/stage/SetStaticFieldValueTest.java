@@ -1,6 +1,6 @@
 package com.kmwllc.brigade.stage;
 
-import com.kmwllc.brigade.config.StageConfiguration;
+import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 
 public class SetStaticFieldValueTest extends AbstractStageTest {
@@ -9,7 +9,7 @@ public class SetStaticFieldValueTest extends AbstractStageTest {
 	public AbstractStage createStage() {
 		// TODO Auto-generated method stub
 		SetStaticFieldValue stage = new SetStaticFieldValue();
-		StageConfiguration conf = new StageConfiguration();
+		StageConfig conf = new StageConfig();
 		conf.setStringParam("fieldName", "foo");
 		conf.setStringParam("value", "bar");
 		stage.startStage(conf);
