@@ -1,10 +1,12 @@
 package com.kmwllc.brigade.stage;
 
+import java.io.BufferedOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Configuration {
@@ -141,6 +143,12 @@ public class Configuration {
     // TODO: does this serialize the xstream object itself?
     // maybe we should convert the xstream to a singleton in the platform.
     // TODO: get rid of xstream!
+    //    StreamDriver sd = new HierarchicalStreamDriver();
+    //    XStream stream = new XStream(new StaxDriver());
+    //    BufferedOutputStream stdout = new BufferedOutputStream(System.out);
+    //    xstream.marshal(p, new PrettyPrintWriter(new OutputStreamWriter(stdout)));
+    //    stream.toXML(this, new PrettyPrintWriter(writer));
+    //    
     String xml = (new XStream(new StaxDriver())).toXML(this);
     return xml;
   }

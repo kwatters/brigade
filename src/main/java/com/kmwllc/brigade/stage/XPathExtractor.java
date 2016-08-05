@@ -126,7 +126,7 @@ public class XPathExtractor extends AbstractStage {
     try {
       fstream = new FileInputStream(filename);
     } catch (FileNotFoundException e) {
-      System.out.println("XPATH Extractor config file not found: " + filename);
+      log.warn("XPATH Extractor config file not found: " + filename);
       e.printStackTrace();
       return null;
     }

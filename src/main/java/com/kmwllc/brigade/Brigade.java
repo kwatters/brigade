@@ -5,11 +5,21 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.xml.XmlConfiguration;
+import org.slf4j.Logger;
 
 import com.kmwllc.brigade.config.BrigadeConfig;
 import com.kmwllc.brigade.config.Config;
@@ -17,10 +27,13 @@ import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.connector.ConnectorServer;
+import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.utils.FileUtils;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
 public class Brigade {
 
+  public final static Logger log = LoggerFactory.getLogger(Brigade.class.getCanonicalName());
 	// brigade is a singleton server instance
 	private static Brigade brigadeServer = null;
 	private BrigadeConfig config = null;
@@ -69,7 +82,9 @@ public class Brigade {
 
 		if (config == null) {
 			// create a default config.
-			config = createBrigadeConfiguration();
+		  log.warn("Error config was null!");
+		  System.exit(-1);
+			//config = createBrigadeConfiguration();
 		}
 
 		try {
@@ -87,86 +102,92 @@ public class Brigade {
 	/**
 	 * @param args
 	 * @throws InterruptedException 
+	 * @throws IOException 
+	 * @throws ParseException 
 	 */
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, IOException, ParseException {
 
+    // create Options object
+    Options options = new Options();
+
+    options.addOption("c", true, "specify the connector config file.");
+    options.addOption("w", true, "specify the workflow config file.");
+    options.addOption("p", true, "specify the properties file.");
+    CommandLineParser parser = new DefaultParser();
+    CommandLine cmd = parser.parse( options, args);
+
+    // validate command line args
+    if(cmd.hasOption("h") || !(cmd.hasOption("c") && cmd.hasOption("w") && cmd.hasOption("p") ) ) {
+        // automatically generate the help statement
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp( "java -jar brigade.jar -c connector.xml -w workflow.xml -p brigade.properties", options );
+        System.exit(1);
+    }
+
+    // set the params
+    //        TestUtils.initEnvirionment();
+    
+    int connectorBatchSize = 5000;
+    String propertiesFile = cmd.getOptionValue("p");
+    String connectorFile = cmd.getOptionValue("c");
+    String workflowFile = cmd.getOptionValue("w");
+    
+    HashMap<String,String> propMap = FileUtils.loadPropertiesAsMap(propertiesFile);
+    String connectorXML = FileUtils.toString(connectorFile);
+    String workflowXML = FileUtils.toString(workflowFile);
+
+    StrSubstitutor sub = new StrSubstitutor(propMap);
+    connectorXML = sub.replace(connectorXML);
+    workflowXML = sub.replace(workflowXML);
+
+    ConnectorConfig connectorConfig = ConnectorConfig.fromXML(connectorXML);
+    WorkflowConfig workflowConfig = WorkflowConfig.fromXML(workflowXML);
+
+    // This is a startup script to run harry
+    //AbstractConnector connector = (CSVConnector)Runtime.createAndStart("connector", "CSVConnector");
+    //DocumentPipeline pipeline = (DocumentPipeline)Runtime.createAndStart("pipeline", "DocumentPipeline");
+
+    //connector.setConfig(connectorConfig);
+    //pipeline.setConfig(workflowConfig);
+
+    //pipeline.initalize();
+    //pipeline.startService();
+
+    // attach the doc proc to the connector
+    //connector.addDocumentListener(pipeline);
+    //connector.setBatchSize(connectorBatchSize);
+
+    // start crawling...
+    //Thread.sleep(1000);
+    //connector.startCrawling();
+
+    // wait for crawl to stop and for the inbox to be empty.
+    // TODO: this might not wait for all the stages in the doc proc to finish.
+    //connector.flush();
+    //pipeline.flush();
+
+    // TODO: forcing a system.exit causes the crawl/ingestion to stop prematurely when batching is enabled.
+    // Are we done?  Exit
+    //Thread.sleep(100);
+
+    //System.out.println("We have finished indexing.  Exiting now.");
+    //System.exit(0);
+	  
+    // init the brigade config!
+	  BrigadeConfig config = new BrigadeConfig();
+	  config.addConnectorConfig(connectorConfig);
+	  config.addWorkflowConfig(workflowConfig);
+	  
 		// Start up the Brigade Server
 		Brigade brigadeServer = Brigade.getInstance();
-
-		BrigadeConfig config = createBrigadeConfiguration();
 		brigadeServer.setConfig(config);
 		brigadeServer.start();
-
-//		String homeDir = ".";
-//		String host = null;
-//		String port = null;
-//		// String host = "127.0.0.1";
-//		// String port = "8080";
-//		
-//		try {
-//			System.out.println("Starting Jetty...");
-//			brigadeServer.startJetty(homeDir, host, port);
-//			if (host == null) {
-//				host = "localhost";
-//			} 
-//			if (port == null) {
-//				port = "8080";
-//			}
-//			System.out.println("Jetty Started... http://" + host + ":" + port);
-//		} catch (Exception e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//
-//		// Lets start the brigade server up
-//		// and leave it running.
-		// brigadeServer.run();
-
-		brigadeServer.startConnector("testConnector");
+				
+		brigadeServer.startConnector(connectorConfig.getConnectorName());
 		
 		// System.exit(0);
 		System.out.println("Here we are...");
 
-	}
-
-	private static BrigadeConfig createBrigadeConfiguration() {
-		// TODO Auto-generated method stub
-		BrigadeConfig bc = new BrigadeConfig();
-
-		WorkflowConfig wC = new WorkflowConfig("testWorkflow");
-		wC.setName("ingest");
-
-		StageConfig s1Conf = new StageConfig();
-		s1Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
-		s1Conf.setStageName("set title");
-		s1Conf.setStringParam("fieldName", "title");
-		s1Conf.setStringParam("value", "Hello World.");
-
-		StageConfig s2Conf = new StageConfig();
-		s2Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
-		s2Conf.setStageName("set title");
-		s2Conf.setStringParam("fieldName", "text");
-		s2Conf.setStringParam("value", "Welcome to Brigade.");
-
-		StageConfig s3Conf = new StageConfig();
-		s3Conf.setStageName("Solr Sender");
-		s3Conf.setStageClass("com.kmwllc.brigade.stage.SendToSolr");
-		s3Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
-		s3Conf.setStringParam("idField", "id");
-
-		wC.addStage(s1Conf);
-		wC.addStage(s2Conf);
-		wC.addStage(s3Conf);
-		// Create a workflow
-
-		ConnectorConfig cC = new ConnectorConfig("testConnector", "com.kmwllc.brigade.connector.DocumentSequenceConnector");
-		cC.setStringParam("stop", "100000");
-		cC.setStringParam("workflowName", "ingest");
-
-		bc.addWorkflowConfig(wC);
-		bc.addConnectorConfig(cC);
-
-		return bc;
 	}
 
 	private void run() {

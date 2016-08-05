@@ -39,7 +39,11 @@ public abstract class AbstractConnector implements DocumentConnector {
   }
 
   public abstract void setConfig(ConnectorConfig config);
-  public abstract void start() throws InterruptedException;
+  // public abstract void start() throws InterruptedException;
+  public void start() throws InterruptedException {
+    startCrawling();
+  }
+  
   public abstract void initialize();
 
 //  public String getName() {

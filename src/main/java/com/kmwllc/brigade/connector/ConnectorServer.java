@@ -2,11 +2,15 @@ package com.kmwllc.brigade.connector;
 
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+
 import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
 public class ConnectorServer {
-
+  
+  public final static Logger log = LoggerFactory.getLogger(ConnectorServer.class.getCanonicalName());
   private static ConnectorServer instance = null;
 
   private HashMap<String,AbstractConnector> connectorMap;
@@ -28,7 +32,7 @@ public class ConnectorServer {
 
   public AbstractConnector addConnector(ConnectorConfig config) throws ClassNotFoundException {
     String connectorClass = config.getConnectorClass();
-    System.out.println("Loading Connector :"  + config.getConnectorName() + " class=" + config.getConnectorClass());
+    log.info("Loading Connector :"  + config.getConnectorName() + " class=" + config.getConnectorClass());
     Class<?> sc = AbstractConnector.class.getClassLoader().loadClass(connectorClass);
     try {
       
@@ -83,13 +87,11 @@ public class ConnectorServer {
   }
 
   public void startConnector(String connectorName) {
-
     if (!connectorMap.containsKey(connectorName)) {
       // TODO: unknown connector.  throw error?
-      System.out.println("Tried to start an unknown connector.");
+      log.warn("Tried to start an unknown connector.");
       return;
     } 
-
     if (getConnectorState(connectorName) != ConnectorState.RUNNING) {
       // we are clear to start because we're not currently running.
       // Create a new thread here a connector runner class?
@@ -97,9 +99,7 @@ public class ConnectorServer {
       runner.start();
       // we are running...
     } else {
-      System.out.println("Connector is already running.");
+      log.warn("Connector is already running.");
     }
-
-
   }
 }

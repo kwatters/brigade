@@ -6,14 +6,17 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.logging.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 public class CSVConnector extends AbstractConnector {
 
+  public final static Logger log = LoggerFactory.getLogger(CSVConnector.class.getCanonicalName());
   private String filename;
   private String[] columns;
   private String idField;
@@ -30,7 +33,6 @@ public class CSVConnector extends AbstractConnector {
 
   @Override
   public void setConfig(ConnectorConfig config) {
-
     // TODO: this should be in the base class ..and automagic
     workflowName = config.getProperty("workflowName");
     // TODO: remove side effects of a "setter"
@@ -83,7 +85,7 @@ public class CSVConnector extends AbstractConnector {
     File fileToCrawl = new File(filename);
     if (!fileToCrawl.exists()) {
       // error. file not found.
-      System.out.println("File not found..." + filename);
+      log.info("File not found..." + filename);
       return;
     }
 
@@ -206,12 +208,6 @@ public class CSVConnector extends AbstractConnector {
 
   public void setIdColumn(int idColumn) {
     this.idColumn = idColumn;
-  }
-
-  @Override
-  public void start() throws InterruptedException {
-    // TODO Auto-generated method stub
-
   }
 
 }

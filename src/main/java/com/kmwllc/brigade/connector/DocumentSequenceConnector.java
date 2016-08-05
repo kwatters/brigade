@@ -21,7 +21,7 @@ public class DocumentSequenceConnector extends AbstractConnector {
   public void initialize() {
 
     workflowName = config.getProperty("workflowName");
-    System.out.println("Initialize method for connector");
+    log.info("Initialize method for connector");
     // TODO : handle integer properties
     String start = config.getProperty("start", "1");		
     String stop = config.getProperty("stop", "100000");
