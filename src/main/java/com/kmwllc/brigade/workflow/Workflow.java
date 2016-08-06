@@ -99,9 +99,7 @@ public class Workflow {
         log.info("Waiting for workflow flush.");
         Thread.sleep(500);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        log.info("Interrupted while waiting for queue to drain. {}", e.getMessage());
-        e.printStackTrace();
+        log.info("Interrupted while waiting for queue to drain. {}", e);
       }
     }
 
@@ -115,15 +113,12 @@ public class Workflow {
         break;
       }
       try {
-        System.out.println("Workers are still running...");
+        log.info("Workers are still running...");
         Thread.sleep(1000);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Interrupted exception in workflow: {}", e);
       }
-
     }
-
     // Each worker will get flushed.
     // (each worker flushes its stage)
     for (WorkflowWorker worker : workers) {

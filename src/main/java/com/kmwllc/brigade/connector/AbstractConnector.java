@@ -1,7 +1,5 @@
 package com.kmwllc.brigade.connector;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -64,9 +62,7 @@ public abstract class AbstractConnector implements DocumentConnector {
     try {
       workflowServer.processMessage(wm);
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      log.warn("Error happened while processing message.. interrupted!");
+      log.warn("Error happened while processing message.. interrupted! {}", e);
     }
 
     // TODO: consider if we want batching at this level or not.
@@ -129,13 +125,12 @@ public abstract class AbstractConnector implements DocumentConnector {
 
   @Override
   public void setWorkflowServer(WorkflowServer workflowServer) {
-    // TODO Auto-generated method stub
    this.workflowServer = workflowServer; 
   }
 
   @Override
   public void setWorkflowName(String workflowName) {
-    // TODO Auto-generated method stub
+    // TODO: replace this with a "topic" 
     this.workflowName = workflowName;
   }
 

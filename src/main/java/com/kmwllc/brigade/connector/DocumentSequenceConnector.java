@@ -19,24 +19,16 @@ public class DocumentSequenceConnector extends AbstractConnector {
 
   @Override
   public void initialize() {
-
+	  // TODO: workflow name should be a more generic concept ...
+	  // perhaps replace with a topic id?
     workflowName = config.getProperty("workflowName");
     log.info("Initialize method for connector");
-    // TODO : handle integer properties
-    String start = config.getProperty("start", "1");		
-    String stop = config.getProperty("stop", "100000");
-
-    startId = Integer.parseInt(start);
-    stopId = Integer.parseInt(stop);
-
-    // TODO: what do i want here?
-    //setWorkflow(config.getWorkflow());
-
+    startId = config.getIntegerParam("start", 1);		
+    stopId = config.getIntegerParam("stop", 100000);
   }
 
   @Override
-  public void start() throws InterruptedException {
-    // TODO Auto-generated method stub
+  public void startCrawling() {
     setState(ConnectorState.RUNNING);
     for (int i = startId; i <= stopId; i++) {
       Document d = new Document(Integer.toString(i));
@@ -46,15 +38,8 @@ public class DocumentSequenceConnector extends AbstractConnector {
   }
 
   @Override
-  public void startCrawling() {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
   public void stopCrawling() {
-    // TODO Auto-generated method stub
-
+    // no-op
   }
 
 

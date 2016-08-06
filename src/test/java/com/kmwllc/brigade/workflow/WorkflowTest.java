@@ -1,17 +1,20 @@
 package com.kmwllc.brigade.workflow;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.logging.LoggerFactory;
 
 public class WorkflowTest {
 
+  public final static Logger log = LoggerFactory.getLogger(WorkflowTest.class.getCanonicalName());
 
-
-	@Test
+  @Test
 	public void testWorkflow() throws ClassNotFoundException, InterruptedException {
+
 
 		// Create a workflow config
 		WorkflowConfig wC = new WorkflowConfig("testWorkflow");
@@ -40,8 +43,7 @@ public class WorkflowTest {
 		try {
 			w.processDocument(d);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		  log.warn("Interrupted exception: {}", e);
 		}
 		
 

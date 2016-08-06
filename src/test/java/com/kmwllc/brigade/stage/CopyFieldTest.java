@@ -2,14 +2,18 @@ package com.kmwllc.brigade.stage;
 
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.logging.LoggerFactory;
 
 public class CopyFieldTest extends AbstractStageTest {
 
+  public final static Logger log = LoggerFactory.getLogger(CopyFieldTest.class.getCanonicalName());
+
 	@Override
 	public AbstractStage createStage() {
-		// TODO Auto-generated method stub
 		CopyField stage = new CopyField();
 		StageConfig config = new StageConfig();
 		config.setStringParam("source", "foo");
@@ -20,7 +24,6 @@ public class CopyFieldTest extends AbstractStageTest {
 
 	@Override
 	public Document createDocument() {
-		// TODO Auto-generated method stub
 		Document doc = new Document("1");
 		doc.setField("foo", "test");
 		return doc;
@@ -28,8 +31,7 @@ public class CopyFieldTest extends AbstractStageTest {
 
 	@Override
 	public void validateDoc(Document doc) {
-		// TODO Auto-generated method stub
-		System.out.println(doc.getField("bar"));
+		log.info("{}", doc.getField("bar"));
 		ArrayList<Object> vals = doc.getField("bar");
 		assertEquals("test", vals.get(0));
 	}

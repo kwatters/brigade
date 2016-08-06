@@ -21,7 +21,6 @@ public class CastValuesToInt extends AbstractStage {
 
   @Override
   public void startStage(StageConfig config) {
-    // TODO Auto-generated method stub
     if (config != null) {
       inputField = config.getProperty("inputField");
       outputField = config.getProperty("outputField");

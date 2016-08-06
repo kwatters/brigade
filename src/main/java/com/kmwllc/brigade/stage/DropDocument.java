@@ -28,7 +28,6 @@ public class DropDocument extends AbstractStage {
 
   @Override
   public List<Document> processDocument(Document doc) {
-    // TODO Auto-generated method stub
     if (doc.hasField(field)) {
       for (Object o : doc.getField(field)) {
         if (o.equals(value)) {
@@ -42,14 +41,12 @@ public class DropDocument extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
-
+    // no-op
   }
 
   @Override
   public void flush() {
-    // TODO Auto-generated method stub
-
+    // no-op for this stage
   }
 
 }

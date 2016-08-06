@@ -48,14 +48,13 @@ public class WorkflowServer {
   }
 
   public void flush(String workflow) {
-    // TODO Auto-generated method stub
+    // flush the given workflow
     Workflow w = workflowMap.get(workflow);
     w.flush();
 
   }
 
   public String[] listWorkflows() {
-    // TODO Auto-generated method stub
     String[] ws = new String[workflowMap.keySet().size()];
     workflowMap.keySet().toArray(ws);
     return ws;

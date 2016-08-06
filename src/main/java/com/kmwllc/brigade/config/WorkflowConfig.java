@@ -23,7 +23,6 @@ public class WorkflowConfig extends Config {
   }
 
   public ArrayList<StageConfig> getStages() {
-    // TODO Auto-generated method stub
     return stages;
   }
 

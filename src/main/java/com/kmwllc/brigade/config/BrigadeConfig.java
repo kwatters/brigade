@@ -9,7 +9,6 @@ public class BrigadeConfig extends Config {
 
   public BrigadeConfig() {
     super();
-    // TODO Auto-generated constructor stub
     workflowConfigs = new ArrayList<WorkflowConfig>();
     connectorConfigs = new ArrayList<ConnectorConfig>();
   }

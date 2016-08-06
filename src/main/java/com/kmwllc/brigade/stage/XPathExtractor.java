@@ -66,24 +66,20 @@ public class XPathExtractor extends AbstractStage {
     try {
       builder = factory.newDocumentBuilder();
     } catch (ParserConfigurationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warn("XPath error: {}", e);
     }
     xpathFactory = XPathFactory.newInstance();
     xpath = xpathFactory.newXPath();
-    // TODO Auto-generated method stub
     try {
       xpaths = loadConfig(configFile);
     } catch (XPathExpressionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warn("XPath error: {}", e);
     }
 
   }
 
   @Override
   public List<Document> processDocument(Document doc) {
-    // TODO Auto-generated method stub
 
     for (Object o : doc.getField(xmlField)) {
       // TODO: this is bad , lets cast
@@ -91,8 +87,7 @@ public class XPathExtractor extends AbstractStage {
       try {
         processXml(xml, doc);
       } catch (XPathExpressionException | SAXException | IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("XPath error process doc : ", e);
         continue;
       }
 
@@ -184,8 +179,7 @@ public class XPathExtractor extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
-
+    // no op for this stage
   }
 
   @Override

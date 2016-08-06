@@ -87,14 +87,11 @@ public class TextExtractor extends AbstractStage {
       try {
         parser.parse(binaryData, bch, metadata, parseCtx);
       } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Tika Exception: {}", e);
       } catch (SAXException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Tika Exception: {}", e);
       } catch (TikaException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Tika Exception: {}", e);
       }
 
       doc.addToField(textField, textData.toString());
@@ -121,14 +118,12 @@ public class TextExtractor extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
-
+    // no-op for this stage
   }
 
   @Override
   public void flush() {
-    // TODO Auto-generated method stub
-
+    // no-op for this stage
   }
 
 }

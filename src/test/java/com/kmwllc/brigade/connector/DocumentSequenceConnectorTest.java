@@ -7,7 +7,6 @@ import org.junit.Test;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
-import com.kmwllc.brigade.workflow.Workflow;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
 public class DocumentSequenceConnectorTest {

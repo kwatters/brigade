@@ -46,13 +46,13 @@ public class JSoupExtractor extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
+    // no-op for this stage
 
   }
 
   @Override
   public void flush() {
-    // TODO Auto-generated method stub
+    // no-op for this stage
 
   }
 

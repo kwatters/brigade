@@ -113,13 +113,10 @@ public class SendToSolr extends AbstractStage {
         }
       }
     } catch (SolrServerException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warn("Solr Server Exception: {}", e);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warn("IO Exception: {}", e);
     }
-
     // TODO: NO COMMITS HERE!
     // solrServer.commit();
     return null;
@@ -128,9 +125,8 @@ public class SendToSolr extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
+    // make sure to flush before we shutdown
     flush();
-
   }
 
   public synchronized void flush() {
@@ -141,16 +137,14 @@ public class SendToSolr extends AbstractStage {
         log.info("flushing last batch. Size: {}", batch.size());
         solrServer.add(batch);
       } catch (SolrServerException e) {
-        // TODO Auto-generated catch block
+        log.warn("Solr Exception flushing batch: {}", e);
         e.printStackTrace();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("IO Exception flushing batch: {}", e);
       } finally {
         batch.clear();
       }
     }
-
     // TODO: should we commit on flush?
     try {
       if (issueCommit) {
@@ -158,13 +152,11 @@ public class SendToSolr extends AbstractStage {
         solrServer.commit();
       }
     } catch (SolrServerException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warn("Solr Exception Committing: {}", e);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warn("IO Exception Committing: {}", e);
     }
+    // TODO: call the super flush?
     // super.flush();
-
   }
 }

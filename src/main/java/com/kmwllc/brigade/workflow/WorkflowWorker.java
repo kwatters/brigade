@@ -40,11 +40,9 @@ public class WorkflowWorker extends Thread {
         stageInst.startStage(stageConf);
         addStage(stageInst);
       } catch (InstantiationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Error Creating Stage : {}", e);
       } catch (IllegalAccessException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Error Creating Stage : {}", e);
       }
     }
   }
@@ -78,7 +76,7 @@ public class WorkflowWorker extends Thread {
   }
 
   public void processDocumentInternal(Document doc, int stageOffset) {
-    // TODO:
+    // TODO: what to do...
     int i = 0;
     for (AbstractStage s : stages.subList(i, stages.size())) {
       // create a pool of stages, so that when you call processDocument

@@ -228,13 +228,12 @@ public class OpenNLP extends AbstractStage {
   }
 
   private String normalizeFieldName(String verb) {
-    // TODO Auto-generated method stub
+    // TODO: move this to a common method for all stages
     String cleanVerb = verb.replaceAll(" ", "_").toLowerCase();
     return cleanVerb;
   }
 
   private List<Document> createEntityMentionDocs(Document doc) {
-    // TODO Auto-generated method stub
     ArrayList<Document> docs = new ArrayList<Document>();
     // we have the fact that certain people are actually people.
     if (!doc.hasField(peopleField)) {

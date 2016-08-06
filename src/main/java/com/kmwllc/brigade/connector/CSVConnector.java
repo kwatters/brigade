@@ -102,8 +102,8 @@ public class CSVConnector extends AbstractConnector {
       try {
         columns = csvReader.readNext();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+    	e.printStackTrace();
+        log.warn("Error in csv connector: {}", e);
       }
     }
     // pick out which column has the primary key / id field.
@@ -143,11 +143,8 @@ public class CSVConnector extends AbstractConnector {
         feed(docToSend);
       }
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       // shouldn't see this.. but who knows.
-      e.printStackTrace();
       log.error("IO Exception during crawl. {}", e.getMessage());
-      // TODO: re-throw something else?
     }
 
     flush();
@@ -159,7 +156,7 @@ public class CSVConnector extends AbstractConnector {
 
   @Override
   public void stopCrawling() {
-    // TODO Auto-generated method stub
+    // no-op for this connector
   }
 
   public String getFilename() {

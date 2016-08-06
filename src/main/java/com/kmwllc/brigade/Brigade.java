@@ -16,7 +16,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.slf4j.Logger;
@@ -24,7 +23,6 @@ import org.slf4j.Logger;
 import com.kmwllc.brigade.config.BrigadeConfig;
 import com.kmwllc.brigade.config.Config;
 import com.kmwllc.brigade.config.ConnectorConfig;
-import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.connector.ConnectorServer;
 import com.kmwllc.brigade.logging.LoggerFactory;
@@ -45,8 +43,7 @@ public class Brigade {
 	}
 
 	private void loadConfig() throws ClassNotFoundException {
-		// TODO : Load an actual config file.
-		// we should potentially have an xstream serialized version of a brigade config.
+		// we have an xstream serialized version of a brigade config.
 		// The config can be a workflow and a connector config
 
 		// Add and initialize all workflows
@@ -90,12 +87,10 @@ public class Brigade {
 		try {
 			loadConfig();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		  log.warn("Load config error : {}", e );
 		}
 
 		// initalize the connectors and workflows here?
-
 		running = true;
 	}
 
@@ -191,20 +186,17 @@ public class Brigade {
 	}
 
 	private void run() {
-		// TODO Auto-generated method stub
+	  // TODO: remove all the jetty stuff from the build.
 		// This should block for us.
 		try {
 			webServer.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Interrupted...");
+		  log.warn("Webserver exception : {}", e);
 			running = false;
-			// e.printStackTrace();
 		}
 	}
 
-	private boolean startJetty(String homeDir, String port, String host)
-			throws Exception {
+	private boolean startJetty(String homeDir, String port, String host) throws Exception {
 		// TODO start the jetty server for the admin gui
 
 		// connfigure home, host and port. jetty.xml will consume these system
@@ -285,26 +277,24 @@ public class Brigade {
 	}
 
 	public void shutdown() {
-		// TODO Auto-generated method stub
 		// when we're done , shutdown the web server
-		System.out.println("Shutting down.");
+		log.info("Shutting down.");
+		// TODO: remove jetty stuff from build.
 		stopJetty();
 		running = false;
-		System.out.println("Shut down.");
-
+		log.info("Shut down.");
 		// We are done, exit
 		System.exit(0);
 	}
 
 	private void stopJetty() {
-		// TODO Auto-generated method stub
 		try {
 			webServer.stop();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
+		  log.warn("Error stopping web server: {}", e);
+		  return;
 		}
-		System.out.println("Stopped jetty...");
+		log.info("Stopped jetty...");
 	}
 
 	public Config getConfig() {
@@ -327,9 +317,7 @@ public class Brigade {
 		config.addWorkflowConfig(workflowConfig);
 	}
 	
-	public void startConnector(String connectorName)
-			throws InterruptedException {
-		// TODO Auto-generated method stub
+	public void startConnector(String connectorName) throws InterruptedException {
 		// This needs to fire off a job.
 		// Thread me .. join later
 		ConnectorServer cS = ConnectorServer.getInstance();
@@ -341,9 +329,9 @@ public class Brigade {
 			// so we don't block the ui here. (maybe?)
 			// cS.getConnector(connectorName).start();
 			cS.startConnector(connectorName);
-			System.out.println("Connector started.");
+			log.info("Connector started.");
 		} else {
-			System.out.println("Unknown connector : " + connectorName);
+			log.info("Unknown connector : " + connectorName);
 		}
 	}
 

@@ -103,7 +103,6 @@ public class Config {
   }
 
   public String[] getStringArray(String name) {
-    // TODO Auto-generated method stub
     if (config.containsKey(name)) {
       Object val = config.get(name);
       if (val instanceof String[]) {
@@ -121,7 +120,6 @@ public class Config {
     config.put(name, values);
   }
 
-  // @SuppressWarnings("unchecked")
   public List<String> getListParam(String name) {
     Object val = config.get(name);
     if (val instanceof List) {

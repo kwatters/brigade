@@ -1,21 +1,24 @@
 package com.kmwllc.brigade.connector;
 
+import org.slf4j.Logger;
+
+import com.kmwllc.brigade.logging.LoggerFactory;
+
 public class ConnectorRunner extends Thread {
+
+  public final static Logger log = LoggerFactory.getLogger(ConnectorRunner.class.getCanonicalName());
 
   AbstractConnector connector = null;
   public ConnectorRunner(AbstractConnector abstractConnector) {
-    // TODO Auto-generated constructor stub
     connector = abstractConnector;
   }
   @Override
   public void run() {
-    // TODO Auto-generated method stub
     super.run();
     try {
       connector.start();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warn("Connecctor start error {}", e);
       // LOG what if the connector can't start, or is interrupted.
     }
   }

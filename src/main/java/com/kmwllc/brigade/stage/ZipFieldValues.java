@@ -21,7 +21,6 @@ public class ZipFieldValues extends AbstractStage {
 
   @Override
   public void startStage(StageConfig config) {
-    // TODO Auto-generated method stub
     if (config != null) {
       fieldA = config.getProperty("fieldA");
       fieldB = config.getProperty("fieldB");
@@ -49,14 +48,12 @@ public class ZipFieldValues extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
-
+    // no-op for this stage
   }
 
   @Override
   public void flush() {
-    // TODO Auto-generated method stub
-
+    // no-op for this stage
   }
 
 }

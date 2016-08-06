@@ -1,12 +1,10 @@
 package com.kmwllc.brigade.stage;
 
-import java.io.BufferedOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Configuration {
@@ -105,7 +103,6 @@ public class Configuration {
   }
 
   public String[] getStringArray(String name) {
-    // TODO Auto-generated method stub
     if (config.containsKey(name)) {
       Object val = config.get(name);
       if (val instanceof String[]) {

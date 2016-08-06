@@ -16,7 +16,6 @@ public class DeleteField extends AbstractStage {
 
   @Override
   public List<Document> processDocument(Document doc) {
-    // TODO Auto-generated method stub
     if (doc.hasField(fieldName)) {
       doc.removeField(fieldName);
     }
@@ -25,14 +24,12 @@ public class DeleteField extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
-
+    // no-op
   }
 
   @Override
   public void flush() {
-    // TODO Auto-generated method stub
-
+    // no-op
   }
 
   public String getFieldName() {

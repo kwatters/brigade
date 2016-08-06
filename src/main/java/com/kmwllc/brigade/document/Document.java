@@ -38,7 +38,6 @@ public class Document {
   }
 
   public void setField(String fieldName, Object value) {
-    // TODO Auto-generated method stub
     if (data.containsKey(fieldName)) {
       data.get(fieldName).add(value);
     } else {
@@ -86,9 +85,7 @@ public class Document {
    * @return
    */
   public Set<String> getFields() {
-    // TODO Auto-generated method stub
     return data.keySet();
-    // return null;
   }
 
   public void removeField(String fieldName) {

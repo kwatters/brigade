@@ -42,8 +42,7 @@ public class FetchURI extends AbstractStage {
         page = fetchUrlAsByteArray(o.toString());
         doc.addToField(bytesField, page);
       } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("IO Exception in Flush URI : {}", e);
         continue;
       }
     }
@@ -62,13 +61,13 @@ public class FetchURI extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
+    // no-op for this stage
 
   }
 
   @Override
   public void flush() {
-    // TODO Auto-generated method stub
+    // no-op for this stage
 
   }
 

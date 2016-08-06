@@ -18,7 +18,6 @@ public class RenameField extends AbstractStage {
 
   @Override
   public void startStage(StageConfig config) {
-    // TODO Auto-generated method stub
     if (config != null) {
       oldName = config.getProperty("oldName");
       newName = config.getProperty("newName");
@@ -47,14 +46,12 @@ public class RenameField extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
-
+    // no-op for this stage
   }
 
   @Override
   public void flush() {
-    // TODO Auto-generated method stub
-
+    // no-op for this stage
   }
 
 }

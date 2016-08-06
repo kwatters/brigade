@@ -42,7 +42,7 @@ public class SetStaticFieldValue extends AbstractStage {
 
   @Override
   public void stopStage() {
-    // TODO Auto-generated method stub
+    // no-op for this stage
   }
 
   @Override

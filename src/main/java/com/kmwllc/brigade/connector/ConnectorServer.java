@@ -35,26 +35,19 @@ public class ConnectorServer {
     log.info("Loading Connector :"  + config.getConnectorName() + " class=" + config.getConnectorClass());
     Class<?> sc = AbstractConnector.class.getClassLoader().loadClass(connectorClass);
     try {
-      
       AbstractConnector connectorInst = (AbstractConnector) sc.newInstance();
       connectorInst.setWorkflowServer(WorkflowServer.getInstance());
       connectorInst.setConfig(config);
       connectorInst.initialize();
-      
       connectorMap.put(config.getConnectorName(), connectorInst);
       return connectorInst;
-    } catch (InstantiationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IllegalAccessException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (InstantiationException | IllegalAccessException e) {
+      log.warn("Error creating connector: {}", e);
+      return null;
     }
-    return null;
   }
 
   public AbstractConnector getConnector(String connectorName) {
-    // TODO Auto-generated method stub
     if (connectorMap.containsKey(connectorName)) {
       return connectorMap.get(connectorName);
     } else {
@@ -63,7 +56,6 @@ public class ConnectorServer {
   }
 
   public boolean hasConnector(String connectorName) {
-    // TODO Auto-generated method stub
     if (connectorMap.containsKey(connectorName)) {
       return true;
     } else {
