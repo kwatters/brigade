@@ -83,7 +83,7 @@ public class ConnectorServer {
       // TODO: unknown connector.  throw error?
       log.warn("Tried to start an unknown connector.");
       return;
-    } 
+    }
     if (getConnectorState(connectorName) != ConnectorState.RUNNING) {
       // we are clear to start because we're not currently running.
       // Create a new thread here a connector runner class?

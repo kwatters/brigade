@@ -26,6 +26,7 @@ public class CSVConnector extends AbstractConnector {
   private boolean useRowAsId = true;
   private int skipRows = 1;
   private boolean firstRowAsColumns = false;
+  private int limit = -1;
 
   public CSVConnector() {
     super();
@@ -44,7 +45,7 @@ public class CSVConnector extends AbstractConnector {
     columns = config.getStringArray("columns");
     idField = config.getProperty("idField");
 
-    separator = config.getProperty("separator");
+    separator = config.getProperty("separator", separator);
     numFields = config.getIntegerParam("numFields", numFields);
     // this is computed in initialize.
     // idColumn = config.getProperty("idColumn");
@@ -117,6 +118,11 @@ public class CSVConnector extends AbstractConnector {
       while ((nextLine = csvReader.readNext()) != null) {
         // TODO: replace this with connector state, and make private isRunning
         // again.
+        
+        if (limit > -1 && rowNum == limit) {
+          log.info("Read the limit of {} rows exiting.", limit);
+          break;
+        }
         if (!state.equals(ConnectorState.RUNNING)) {
           // we've been interrupted.
           log.info("Crawl interrupted, stopping crawl.");
@@ -124,6 +130,11 @@ public class CSVConnector extends AbstractConnector {
           break;
         }
         rowNum++;
+        if (nextLine.length != numFields) {
+          log.warn("Warning on row {} number of columns is {} and we expected {}", nextLine.length, numFields);
+          log.warn("Num Fields: {}", numFields);
+        }
+        //log.info("Row  {} numColumns {} ", rowNum, nextLine.length);
         if (rowNum <= skipRows) {
           continue;
         }
@@ -134,24 +145,32 @@ public class CSVConnector extends AbstractConnector {
           id = getDocIdPrefix() + nextLine[idColumn];
         }
         Document docToSend = new Document(id);
+
         for (int i = 0; i < numFields; i++) {
+          if (i >= nextLine.length) {
+            log.warn("Malformed row num {} in csv file.  Missing columns. ", rowNum);
+            // In the event of a malformed row, we just skip the missing columns.
+            break;
+          }
           String v = nextLine[i];
           if (!StringUtils.isEmpty(v)) {
             docToSend.addToField(columns[i], v);
           }
         }
         feed(docToSend);
+        // log.info("feed {}", rowNum);
       }
     } catch (IOException e) {
       // shouldn't see this.. but who knows.
       log.error("IO Exception during crawl. {}", e.getMessage());
     }
 
+    log.info("Finsihed reading CSV File, flushing final data now... processed {} rows", rowNum);
     flush();
     // TODO: why the heck does this not block until we're done as we expect?!?!
     state = ConnectorState.STOPPED;
     // TODO: push this state management to the base class?
-
+    log.info("Connector state has stopped. {} rows crawled.", rowNum);
   }
 
   @Override

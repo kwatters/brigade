@@ -1,5 +1,6 @@
 package com.kmwllc.brigade.connector;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -29,6 +30,10 @@ public abstract class AbstractConnector implements DocumentConnector {
   protected WorkflowServer workflowServer = WorkflowServer.getInstance();
   protected String workflowName;
 
+  private long feedCount = 0;
+  private Date startTime;
+  private int reportModulus = 10000;
+  
   public AbstractConnector() {
     //this.name = name;
     // super(name);
@@ -39,6 +44,8 @@ public abstract class AbstractConnector implements DocumentConnector {
   public abstract void setConfig(ConnectorConfig config);
   // public abstract void start() throws InterruptedException;
   public void start() throws InterruptedException {
+    state = ConnectorState.RUNNING;
+    startTime = new Date();
     startCrawling();
   }
   
@@ -53,6 +60,11 @@ public abstract class AbstractConnector implements DocumentConnector {
     // TODO: add batching and change this to publishDocuments (as a list)
     // Batching for this sort of stuff is a very good thing.
 
+    feedCount++;
+    if (feedCount % reportModulus == 0) {
+      log.info("Feed {} docs.", feedCount);
+    }
+    
     WorkflowMessage wm = new WorkflowMessage();
     wm.setDoc(doc);
     wm.setType("add");

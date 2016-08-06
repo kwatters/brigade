@@ -1,7 +1,6 @@
 package com.kmwllc.brigade;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,9 +14,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.xml.XmlConfiguration;
+// import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 
 import com.kmwllc.brigade.config.BrigadeConfig;
@@ -25,6 +22,7 @@ import com.kmwllc.brigade.config.Config;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.connector.ConnectorServer;
+import com.kmwllc.brigade.connector.ConnectorState;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.utils.FileUtils;
 import com.kmwllc.brigade.workflow.WorkflowServer;
@@ -36,7 +34,7 @@ public class Brigade {
 	private static Brigade brigadeServer = null;
 	private BrigadeConfig config = null;
 	private boolean running = false;
-	private Server webServer = null;
+	//private Server webServer = null;
 
 	private Brigade() {
 		// Don't allow it to be instantiated directly.
@@ -94,177 +92,87 @@ public class Brigade {
 		running = true;
 	}
 
-	/**
-	 * @param args
-	 * @throws InterruptedException 
-	 * @throws IOException 
-	 * @throws ParseException 
-	 */
-	public static void main(String[] args) throws InterruptedException, IOException, ParseException {
 
-    // create Options object
-    Options options = new Options();
 
-    options.addOption("c", true, "specify the connector config file.");
-    options.addOption("w", true, "specify the workflow config file.");
-    options.addOption("p", true, "specify the properties file.");
-    CommandLineParser parser = new DefaultParser();
-    CommandLine cmd = parser.parse( options, args);
-
-    // validate command line args
-    if(cmd.hasOption("h") || !(cmd.hasOption("c") && cmd.hasOption("w") && cmd.hasOption("p") ) ) {
-        // automatically generate the help statement
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp( "java -jar brigade.jar -c connector.xml -w workflow.xml -p brigade.properties", options );
-        System.exit(1);
-    }
-
-    // set the params
-    //        TestUtils.initEnvirionment();
-    
-    int connectorBatchSize = 5000;
-    String propertiesFile = cmd.getOptionValue("p");
-    String connectorFile = cmd.getOptionValue("c");
-    String workflowFile = cmd.getOptionValue("w");
-    
-    HashMap<String,String> propMap = FileUtils.loadPropertiesAsMap(propertiesFile);
-    String connectorXML = FileUtils.toString(connectorFile);
-    String workflowXML = FileUtils.toString(workflowFile);
-
-    StrSubstitutor sub = new StrSubstitutor(propMap);
-    connectorXML = sub.replace(connectorXML);
-    workflowXML = sub.replace(workflowXML);
-
-    ConnectorConfig connectorConfig = ConnectorConfig.fromXML(connectorXML);
-    WorkflowConfig workflowConfig = WorkflowConfig.fromXML(workflowXML);
-
-    // This is a startup script to run harry
-    //AbstractConnector connector = (CSVConnector)Runtime.createAndStart("connector", "CSVConnector");
-    //DocumentPipeline pipeline = (DocumentPipeline)Runtime.createAndStart("pipeline", "DocumentPipeline");
-
-    //connector.setConfig(connectorConfig);
-    //pipeline.setConfig(workflowConfig);
-
-    //pipeline.initalize();
-    //pipeline.startService();
-
-    // attach the doc proc to the connector
-    //connector.addDocumentListener(pipeline);
-    //connector.setBatchSize(connectorBatchSize);
-
-    // start crawling...
-    //Thread.sleep(1000);
-    //connector.startCrawling();
-
-    // wait for crawl to stop and for the inbox to be empty.
-    // TODO: this might not wait for all the stages in the doc proc to finish.
-    //connector.flush();
-    //pipeline.flush();
-
-    // TODO: forcing a system.exit causes the crawl/ingestion to stop prematurely when batching is enabled.
-    // Are we done?  Exit
-    //Thread.sleep(100);
-
-    //System.out.println("We have finished indexing.  Exiting now.");
-    //System.exit(0);
-	  
-    // init the brigade config!
-	  BrigadeConfig config = new BrigadeConfig();
-	  config.addConnectorConfig(connectorConfig);
-	  config.addWorkflowConfig(workflowConfig);
-	  
-		// Start up the Brigade Server
-		Brigade brigadeServer = Brigade.getInstance();
-		brigadeServer.setConfig(config);
-		brigadeServer.start();
-				
-		brigadeServer.startConnector(connectorConfig.getConnectorName());
-		
-		// System.exit(0);
-		System.out.println("Here we are...");
-
-	}
-
-	private void run() {
-	  // TODO: remove all the jetty stuff from the build.
-		// This should block for us.
-		try {
-			webServer.join();
-		} catch (InterruptedException e) {
-		  log.warn("Webserver exception : {}", e);
-			running = false;
-		}
-	}
-
-	private boolean startJetty(String homeDir, String port, String host) throws Exception {
-		// TODO start the jetty server for the admin gui
-
-		// connfigure home, host and port. jetty.xml will consume these system
-		// properties.
-
-		System.setProperty("jetty.home", homeDir);
-
-		if (host != null) {
-			host = host.trim();
-			if (host.length() > 0 && !host.equals("0.0.0.0")) {
-				System.setProperty("jetty.host", host);
-				host = null;
-			}
-		}
-
-		if (port != null && port.trim().length() > 0) {
-			System.setProperty("jetty.port", port);
-		}
-
-		// if the jetty config file isn't in the config dir, create it
-		File jettyFile = new File(homeDir, "/etc/jetty.xml");
-		if (!jettyFile.exists()) {
-			ClassLoader loader = this.getClass().getClassLoader();
-			InputStream in = loader.getResourceAsStream("default_jetty.xml");
-			writeStreamToFile(in, jettyFile);
-		}
-		File defFile = new File(homeDir, "/etc/webdefault.xml");
-		if (!defFile.exists()) {
-			ClassLoader loader = this.getClass().getClassLoader();
-			InputStream in = loader
-					.getResourceAsStream("default_webdefault.xml");
-			writeStreamToFile(in, defFile);
-		}
-
-		// create and configure the jetty server
-		InputStream in = new FileInputStream(jettyFile);
-
-		// System.out.println("PORT : " + System.getProperty("jetty.port"));
-		// System.out.println("HOST : " + System.getProperty("jetty.host"));
-
-		XmlConfiguration configuration = new XmlConfiguration(in);
-		webServer = new Server();
-		configuration.configure(webServer);
-		in.close();
-
-		// Install the admin ui
-		// BrigadeAdmin admin = new BrigadeAdmin();
-
-		// webServer.setHandler(admin);
-
-		// Install the admin gui..
-		WebAppContext webapp = new WebAppContext();
-		webapp.setContextPath("/");
-		String warPath = homeDir + "/webapps/BrigadeAdmin.war";
-		webapp.setWar(warPath);
-		System.out.println("Deployed Handler " + warPath);
-		webServer.setHandler(webapp);
-		webServer.start();
-		// Do I need to call this?
-		System.out.println("Calling start on web app");
-		webapp.start();
-		System.out.println("Called start on web app");
-		// This join will cause us to block, so lets not do that.
-		// webServer.join();
-
-		return true;
-
-	}
+//	private void run() {
+//	  // TODO: remove all the jetty stuff from the build.
+//		// This should block for us.
+//		try {
+//			webServer.join();
+//		} catch (InterruptedException e) {
+//		  log.warn("Webserver exception : {}", e);
+//			running = false;
+//		}
+//	}
+//	private boolean startJetty(String homeDir, String port, String host) throws Exception {
+//		// TODO start the jetty server for the admin gui
+//
+//		// connfigure home, host and port. jetty.xml will consume these system
+//		// properties.
+//
+//		System.setProperty("jetty.home", homeDir);
+//
+//		if (host != null) {
+//			host = host.trim();
+//			if (host.length() > 0 && !host.equals("0.0.0.0")) {
+//				System.setProperty("jetty.host", host);
+//				host = null;
+//			}
+//		}
+//
+//		if (port != null && port.trim().length() > 0) {
+//			System.setProperty("jetty.port", port);
+//		}
+//
+//		// if the jetty config file isn't in the config dir, create it
+//		File jettyFile = new File(homeDir, "/etc/jetty.xml");
+//		if (!jettyFile.exists()) {
+//			ClassLoader loader = this.getClass().getClassLoader();
+//			InputStream in = loader.getResourceAsStream("default_jetty.xml");
+//			writeStreamToFile(in, jettyFile);
+//		}
+//		File defFile = new File(homeDir, "/etc/webdefault.xml");
+//		if (!defFile.exists()) {
+//			ClassLoader loader = this.getClass().getClassLoader();
+//			InputStream in = loader
+//					.getResourceAsStream("default_webdefault.xml");
+//			writeStreamToFile(in, defFile);
+//		}
+//
+//		// create and configure the jetty server
+//		InputStream in = new FileInputStream(jettyFile);
+//
+//		// System.out.println("PORT : " + System.getProperty("jetty.port"));
+//		// System.out.println("HOST : " + System.getProperty("jetty.host"));
+//
+//		XmlConfiguration configuration = new XmlConfiguration(in);
+//		webServer = new Server();
+//		configuration.configure(webServer);
+//		in.close();
+//
+//		// Install the admin ui
+//		// BrigadeAdmin admin = new BrigadeAdmin();
+//
+//		// webServer.setHandler(admin);
+//
+////		// Install the admin gui..
+////		WebAppContext webapp = new WebAppContext();
+////		webapp.setContextPath("/");
+////		String warPath = homeDir + "/webapps/BrigadeAdmin.war";
+////		webapp.setWar(warPath);
+////		System.out.println("Deployed Handler " + warPath);
+////		webServer.setHandler(webapp);
+////		webServer.start();
+////		// Do I need to call this?
+////		System.out.println("Calling start on web app");
+////		webapp.start();
+////		System.out.println("Called start on web app");
+////		// This join will cause us to block, so lets not do that.
+////		// webServer.join();
+//
+//		return true;
+//
+//	}
 
 	public static void writeStreamToFile(InputStream in, File file)
 			throws IOException {
@@ -279,23 +187,23 @@ public class Brigade {
 	public void shutdown() {
 		// when we're done , shutdown the web server
 		log.info("Shutting down.");
-		// TODO: remove jetty stuff from build.
-		stopJetty();
+		// TODO: remove jetty stuffs
+		// stopJetty();
 		running = false;
 		log.info("Shut down.");
 		// We are done, exit
 		System.exit(0);
 	}
 
-	private void stopJetty() {
-		try {
-			webServer.stop();
-		} catch (Exception e) {
-		  log.warn("Error stopping web server: {}", e);
-		  return;
-		}
-		log.info("Stopped jetty...");
-	}
+//	private void stopJetty() {
+//		try {
+//			webServer.stop();
+//		} catch (Exception e) {
+//		  log.warn("Error stopping web server: {}", e);
+//		  return;
+//		}
+//		log.info("Stopped jetty...");
+//	}
 
 	public Config getConfig() {
 		return config;
@@ -334,6 +242,21 @@ public class Brigade {
 			log.info("Unknown connector : " + connectorName);
 		}
 	}
+	
+  public void waitForConnector(String connectorName) throws InterruptedException {
+    // TODO Auto-generated method stub
+    log.info("Waiting on connector {} to complete", connectorName);
+    ConnectorServer cS = ConnectorServer.getInstance();
+    ConnectorState s = cS.getConnectorState(connectorName);
+    while (s == ConnectorState.RUNNING) {
+      // wait for the connector switch out of the running state.
+      log.info("waiting for connector {} to complete. {}", connectorName, s);
+      Thread.sleep(2000);
+      s = cS.getConnectorState(connectorName);
+    }
+    log.info("connector {} is not running.", connectorName);
+    
+  }
 
 	public String[] listConnectors() {
 		// TODO: just expose the connector server to the UI.
@@ -350,5 +273,91 @@ public class Brigade {
 		System.out.println("List workflows called");
 		return WorkflowServer.getInstance().listWorkflows();
 	}
+
+
+  /**
+   * @param args
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ParseException 
+   */
+  public static void main(String[] args) throws InterruptedException, IOException, ParseException {
+
+    // create Options object
+    Options options = new Options();
+
+    options.addOption("c", true, "specify the connector config file.");
+    options.addOption("w", true, "specify the workflow config file.");
+    options.addOption("p", true, "specify the properties file.");
+    CommandLineParser parser = new DefaultParser();
+    CommandLine cmd = parser.parse( options, args);
+
+    // validate command line args
+    if(cmd.hasOption("h") || !(cmd.hasOption("c") && cmd.hasOption("w") && cmd.hasOption("p") ) ) {
+        // automatically generate the help statement
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp( "java -jar brigade.jar -c connector.xml -w workflow.xml -p brigade.properties", options );
+        System.exit(1);
+    }
+
+    // set the params    
+    int connectorBatchSize = 5000;
+    String propertiesFile = cmd.getOptionValue("p");
+    String connectorFile = cmd.getOptionValue("c");
+    String workflowFile = cmd.getOptionValue("w");
+    
+    HashMap<String,String> propMap = FileUtils.loadPropertiesAsMap(propertiesFile);
+    String connectorXML = FileUtils.toString(connectorFile);
+    String workflowXML = FileUtils.toString(workflowFile);
+
+    StrSubstitutor sub = new StrSubstitutor(propMap);
+    connectorXML = sub.replace(connectorXML);
+    workflowXML = sub.replace(workflowXML);
+
+    ConnectorConfig connectorConfig = ConnectorConfig.fromXML(connectorXML);
+    WorkflowConfig workflowConfig = WorkflowConfig.fromXML(workflowXML);
+
+    // This is a startup script to run harry
+    //AbstractConnector connector = (CSVConnector)Runtime.createAndStart("connector", "CSVConnector");
+    //DocumentPipeline pipeline = (DocumentPipeline)Runtime.createAndStart("pipeline", "DocumentPipeline");
+    //connector.setConfig(connectorConfig);
+    //pipeline.setConfig(workflowConfig);
+    //pipeline.initalize();
+    //pipeline.startService();
+    // attach the doc proc to the connector
+    //connector.addDocumentListener(pipeline);
+    //connector.setBatchSize(connectorBatchSize);
+    // start crawling...
+    //Thread.sleep(1000);
+    //connector.startCrawling();
+    // wait for crawl to stop and for the inbox to be empty.
+    // TODO: this might not wait for all the stages in the doc proc to finish.
+    //connector.flush();
+    //pipeline.flush();
+    // TODO: forcing a system.exit causes the crawl/ingestion to stop prematurely when batching is enabled.
+    // Are we done?  Exit
+    //Thread.sleep(100);
+    //System.out.println("We have finished indexing.  Exiting now.");
+    //System.exit(0);
+    
+    // init the brigade config!
+    BrigadeConfig config = new BrigadeConfig();
+    config.addConnectorConfig(connectorConfig);
+    config.addWorkflowConfig(workflowConfig);
+    
+    // Start up the Brigade Server
+    Brigade brigadeServer = Brigade.getInstance();
+    brigadeServer.setConfig(config);
+    brigadeServer.start();
+        
+    brigadeServer.startConnector(connectorConfig.getConnectorName());
+    
+    
+    brigadeServer.waitForConnector(connectorConfig.getConnectorName());
+    brigadeServer.shutdown();
+    // System.exit(0);
+    System.out.println("Here we are...");
+
+  }
 
 }
