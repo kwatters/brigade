@@ -2,6 +2,12 @@ package com.kmwllc.brigade.config;
 
 import java.util.HashMap;
 
+/**
+ * A stage configuration.  This represents a single stage in the overall pipeline
+ * Stages subclass AbstractStage and implement processDocument.
+ * @author kwatters
+ *
+ */
 public class StageConfig extends Config {
 
   // private HashMap<String, Object> config = null;

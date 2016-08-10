@@ -5,6 +5,12 @@ import java.util.List;
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 
+/**
+ * This stage will delete a field on the document.
+ * 
+ * @author kwatters
+ *
+ */
 public class DeleteField extends AbstractStage {
 
   private String fieldName = "field_to_delete";

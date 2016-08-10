@@ -9,6 +9,8 @@ import com.kmwllc.brigade.logging.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: use MathValues instead, it's much more flexible and better about handling type casting issues.
+@Deprecated
 public class SumValues extends AbstractStage {
 
   public final static Logger log = LoggerFactory.getLogger(SumValues.class.getCanonicalName());

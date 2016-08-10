@@ -93,7 +93,8 @@
 
 
 
-<!--  -->			<plugin>
+			<!-- -->
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.4.3</version>
@@ -176,10 +177,11 @@
 			<artifactId>xstream</artifactId>
 			<version>1.4.3</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
 		<dependency>
-			<groupId>net.sf.opencsv</groupId>
+			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
-			<version>2.3</version>
+			<version>3.8</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>

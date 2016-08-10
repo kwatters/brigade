@@ -9,8 +9,17 @@ import com.kmwllc.brigade.logging.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This stage will divide the values of two fields a put the resulting quotient in the quotentField.
+ * Use the "MathValues" stage instead that's based on exp4j.  
+ * 
+ * @author kwatters
+ *
+ */
+@Deprecated
 public class DivideValues extends AbstractStage {
 
+  // TODO: remove this .. maybe we should depricate?
   public final static Logger log = LoggerFactory.getLogger(DivideValues.class.getCanonicalName());
 
   private String dividendField = null;

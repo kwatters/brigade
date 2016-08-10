@@ -5,6 +5,14 @@ import java.util.ArrayList;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
+/**
+ * A workflow configuration.  This consists of a name for the workflow
+ * and a set of stages.  In addition there are some parameters about the number
+ * of threads and blocking queue size.  
+ * 
+ * @author kwatters
+ *
+ */
 public class WorkflowConfig extends Config {
 
   ArrayList<StageConfig> stages;

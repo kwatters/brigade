@@ -9,6 +9,8 @@ import com.kmwllc.brigade.logging.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+// Use MathValues instead
+@Deprecated
 public class MultiplyValues extends AbstractStage {
 
   public final static Logger log = LoggerFactory.getLogger(MultiplyValues.class.getCanonicalName());

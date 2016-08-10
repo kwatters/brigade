@@ -8,10 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
-
 import com.kmwllc.brigade.logging.LoggerFactory;
+import com.opencsv.CSVReader;
 
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * A singleton class to load a dictionary into the jvm that can be used across
@@ -21,7 +20,7 @@ import au.com.bytecode.opencsv.CSVReader;
  *
  */
 public class DictionaryLoader {
-
+  // TODO: move this to a resource sort of package.
   public final static Logger log = LoggerFactory.getLogger(DictionaryLoader.class.getCanonicalName());
   private static DictionaryLoader instance = null;
 

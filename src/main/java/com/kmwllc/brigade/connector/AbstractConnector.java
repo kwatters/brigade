@@ -1,6 +1,5 @@
 package com.kmwllc.brigade.connector;
 
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -31,7 +30,7 @@ public abstract class AbstractConnector implements DocumentConnector {
   protected String workflowName;
 
   private long feedCount = 0;
-  private Date startTime;
+  private long startTime;
   private int reportModulus = 10000;
   
   public AbstractConnector() {
@@ -45,7 +44,7 @@ public abstract class AbstractConnector implements DocumentConnector {
   // public abstract void start() throws InterruptedException;
   public void start() throws InterruptedException {
     state = ConnectorState.RUNNING;
-    startTime = new Date();
+    startTime = System.currentTimeMillis();
     startCrawling();
   }
   
@@ -62,7 +61,8 @@ public abstract class AbstractConnector implements DocumentConnector {
 
     feedCount++;
     if (feedCount % reportModulus == 0) {
-      log.info("Feed {} docs.", feedCount);
+      double feedRate = 1000.0 * feedCount / (System.currentTimeMillis() - startTime);
+      log.info("Feed {} docs. Rate: {} DPS", feedCount, feedRate);
     }
     
     WorkflowMessage wm = new WorkflowMessage();

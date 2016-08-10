@@ -3,6 +3,13 @@ package com.kmwllc.brigade.connector;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.document.Document;
 
+/**
+ * A simple connector that just generates a sequence of documents with no field data
+ * and a doc ID that starts at the startID and increments until the stopID.
+ * 
+ * @author kwatters
+ *
+ */
 public class DocumentSequenceConnector extends AbstractConnector {
 
   public DocumentSequenceConnector() {

@@ -27,6 +27,23 @@ import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.utils.FileUtils;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
+/**
+ * Brigade:  Is is a connector and pipeline framework for processing documents.
+ * It consists of a Connector and a Workflow.  The workflow is a set of stages that
+ * operate on a document.  From the command line you can start the connector
+ * and the workflow to start processing data.
+ * 
+ * Pass on the command line 
+ * -c conf/connector.xml      (location of connector config file)
+ * -w conf/workflow.xml       (location of the workflow definition)
+ * -p conf/brigade.properties (location of the properties file)
+ * 
+ * Maintained by KMW Technology
+ * http://www.kmwllc.com/
+ * 
+ * @author kwatters
+ * 
+ */
 public class Brigade {
 
   public final static Logger log = LoggerFactory.getLogger(Brigade.class.getCanonicalName());
@@ -250,7 +267,7 @@ public class Brigade {
     ConnectorState s = cS.getConnectorState(connectorName);
     while (s == ConnectorState.RUNNING) {
       // wait for the connector switch out of the running state.
-      log.info("waiting for connector {} to complete. {}", connectorName, s);
+      log.info("Waiting for connector {} to complete. Status : {}", connectorName, s);
       Thread.sleep(2000);
       s = cS.getConnectorState(connectorName);
     }
@@ -300,8 +317,12 @@ public class Brigade {
         System.exit(1);
     }
 
+    
+    long startTime = System.currentTimeMillis();
+
+    
     // set the params    
-    int connectorBatchSize = 5000;
+    // int connectorBatchSize = 5000;
     String propertiesFile = cmd.getOptionValue("p");
     String connectorFile = cmd.getOptionValue("c");
     String workflowFile = cmd.getOptionValue("w");
@@ -349,15 +370,17 @@ public class Brigade {
     Brigade brigadeServer = Brigade.getInstance();
     brigadeServer.setConfig(config);
     brigadeServer.start();
-        
+
+    
     brigadeServer.startConnector(connectorConfig.getConnectorName());
-    
-    
     brigadeServer.waitForConnector(connectorConfig.getConnectorName());
     brigadeServer.shutdown();
     // System.exit(0);
     System.out.println("Here we are...");
 
+    long delta = (System.currentTimeMillis() - startTime)/1000;
+    System.out.println("Runtime : " + delta + " seconds.");
+    
   }
 
 }

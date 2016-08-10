@@ -10,7 +10,6 @@ import java.util.Properties;
 
 public class FileUtils {
 
-
   public static Properties loadProperties(String propertiesFile) throws IOException {
     Properties props = new Properties();
     InputStream in = new FileInputStream(propertiesFile);

@@ -2,6 +2,11 @@ package com.kmwllc.brigade.workflow;
 
 import com.kmwllc.brigade.document.Document;
 
+/**
+ * This is the basic unit of work for a document that is passing through a workflow.
+ * @author kwatters
+ *
+ */
 public class WorkflowMessage {
 
   private String type;

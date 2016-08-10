@@ -8,7 +8,7 @@ import com.kmwllc.brigade.document.Document;
 
 
 /**
- * This stage will rename the field on a document.
+ * This stage will rename the fields on a document.
  * 
  * @author kwatters
  *

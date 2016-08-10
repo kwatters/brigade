@@ -2,6 +2,13 @@ package com.kmwllc.brigade.config;
 
 import java.util.ArrayList;
 
+/**
+ * This represents the overall configuration for a brigade instance.  It includes
+ * a list of workflow configs and a list of connector configs.
+ * 
+ * @author kwatters
+ *
+ */
 public class BrigadeConfig extends Config {
 
   private ArrayList<WorkflowConfig> workflowConfigs;

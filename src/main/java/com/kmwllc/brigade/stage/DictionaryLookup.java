@@ -12,6 +12,13 @@ import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
 
+/**
+ * This stage will iterate the field values and see if they are a match in a csv based dictionary.
+ * The matches are then output into the output field.
+ *  
+ * @author kwatters
+ *
+ */
 public class DictionaryLookup extends AbstractStage {
 
   public final static Logger log = LoggerFactory.getLogger(DictionaryLookup.class.getCanonicalName());

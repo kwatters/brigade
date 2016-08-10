@@ -8,6 +8,12 @@ import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
+/**
+ * A singleton instance in the JVM that manages the currently defined and loaded Connectors.
+ * 
+ * @author kwatters
+ *
+ */
 public class ConnectorServer {
   
   public final static Logger log = LoggerFactory.getLogger(ConnectorServer.class.getCanonicalName());

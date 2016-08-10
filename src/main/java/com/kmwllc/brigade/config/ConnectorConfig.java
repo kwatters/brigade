@@ -1,10 +1,16 @@
 package com.kmwllc.brigade.config;
 
-import com.kmwllc.brigade.stage.Configuration;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
-public class ConnectorConfig extends Configuration {
+/**
+ * A connector configuration that at a minimum takes a name of the connector
+ * and the implementing class for that connector.
+ * 
+ * @author kwatters
+ *
+ */
+public class ConnectorConfig extends Config {
 
   private final String connectorName;
   private final String connectorClass;

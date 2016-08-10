@@ -13,6 +13,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * This stage will perform mathmatical operations on the field data.  
+ * It is based on the library exp4j and allow you to specify the equation and
+ * the field names that are to be used as values for those equations.
+ * 
+ * @author kwatters
+ *
+ */
 public class MathValues extends AbstractStage {
 
   public final static Logger log = LoggerFactory.getLogger(MathValues.class.getCanonicalName());

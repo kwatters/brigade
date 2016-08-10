@@ -5,10 +5,9 @@ import java.util.List;
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 
-
-
 /**
- * This stage will remove all but the first value from a field on a document.
+ * This stage will remove all but the N values from a field on a document.
+ * default to just the first 1 value.
  * 
  * @author kwatters
  *

@@ -25,6 +25,8 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
 
+// TODO: currently emits children documents, need to change how this works
+// so it's more general.
 public class OpenNLP extends AbstractStage {
 
   public final static Logger log = LoggerFactory.getLogger(OpenNLP.class.getCanonicalName());

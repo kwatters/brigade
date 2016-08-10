@@ -10,6 +10,9 @@ import java.util.Set;
  * Basic idea is that a document had a unique id and a map of key to list of
  * object pairs.
  * 
+ * Documents can also maintain a processing status on them so that if a stage fires and exception
+ * the document can be marked as having some issue.
+ * 
  * @author kwatters
  *
  */
@@ -17,6 +20,7 @@ public class Document {
 
   private String id;
   private HashMap<String, ArrayList<Object>> data;
+  // TODO: should this be moved? or maybe a more rich object?
   private ProcessingStatus status;
 
   public Document(String id) {

@@ -3,6 +3,12 @@ package com.kmwllc.brigade.logging;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
+/**
+ * our own logger factory to create a logger for classed in the framework.
+ * 
+ * @author kwatters
+ *
+ */
 public class LoggerFactory {
 
   public static Logger getLogger(Class<?> clazz) {

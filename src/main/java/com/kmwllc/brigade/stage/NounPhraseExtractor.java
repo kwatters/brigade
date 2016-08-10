@@ -25,6 +25,7 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
 
+// TOOD: requires opennlp model files to be available
 public class NounPhraseExtractor extends AbstractStage {
 
   public final static Logger log = LoggerFactory.getLogger(NounPhraseExtractor.class.getCanonicalName());

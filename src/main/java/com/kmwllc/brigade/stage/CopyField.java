@@ -5,6 +5,12 @@ import java.util.List;
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 
+/**
+ * This stage will copy field values from field A to field B.
+ * 
+ * @author kwatters
+ *
+ */
 public class CopyField extends AbstractStage {
   private String source = "fielda";
   private String dest = "fieldb";

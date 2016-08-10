@@ -4,7 +4,13 @@ import java.util.HashMap;
 
 import com.kmwllc.brigade.config.WorkflowConfig;
 
-
+/**
+ * This is the singleton instance of the workflow server.  
+ * This is a container for all of the running workflows in the current system.
+ * 
+ * @author kwatters
+ *
+ */
 public class WorkflowServer {
 
   private static WorkflowServer instance = null;
