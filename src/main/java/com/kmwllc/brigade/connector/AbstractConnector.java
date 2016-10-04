@@ -31,7 +31,7 @@ public abstract class AbstractConnector implements DocumentConnector {
 
   private long feedCount = 0;
   private long startTime;
-  private int reportModulus = 10000;
+  private int reportModulus = 1000;
   
   public AbstractConnector() {
     //this.name = name;
@@ -55,10 +55,8 @@ public abstract class AbstractConnector implements DocumentConnector {
 //  }
 
   public void feed(Document doc) {
-    // System.out.println("Feeding document " + doc.getId());
     // TODO: add batching and change this to publishDocuments (as a list)
     // Batching for this sort of stuff is a very good thing.
-
     feedCount++;
     if (feedCount % reportModulus == 0) {
       double feedRate = 1000.0 * feedCount / (System.currentTimeMillis() - startTime);
