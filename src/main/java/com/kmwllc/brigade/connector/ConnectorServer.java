@@ -37,7 +37,7 @@ public class ConnectorServer {
   }
 
   public AbstractConnector addConnector(ConnectorConfig config) throws ClassNotFoundException {
-    String connectorClass = config.getConnectorClass();
+    String connectorClass = config.getConnectorClass().trim();
     log.info("Loading Connector :"  + config.getConnectorName() + " class=" + config.getConnectorClass());
     Class<?> sc = AbstractConnector.class.getClassLoader().loadClass(connectorClass);
     try {

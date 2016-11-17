@@ -105,6 +105,10 @@ public class Document {
     this.status = status;
   }
 
+  public HashMap<String, ArrayList<Object>> getData() {
+    return data;
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -143,5 +147,5 @@ public class Document {
   public String toString() {
     return "Document [id=" + id + ", data=" + data + ", status=" + status + "]";
   }
-
+  
 }

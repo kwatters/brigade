@@ -81,7 +81,10 @@ public class WorkflowWorker extends Thread {
     for (AbstractStage s : stages.subList(i, stages.size())) {
       // create a pool of stages, so that when you call processDocument
       // or each thread should have it's own pool?
-      List<Document> childDocs = s.processDocument(doc);
+      List<Document> childDocs = null;
+      synchronized ( doc ) {
+        childDocs = s.processDocument(doc);
+      }
       i++;
       if (childDocs != null) {
         // process each of the children docs down the rest of the pipeline

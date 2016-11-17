@@ -29,12 +29,12 @@ public class SendToSolr extends AbstractStage {
   public final static Logger log = LoggerFactory.getLogger(SendToSolr.class);
   private String idField = "id";
   private String fieldsField = "fields";
-  private boolean addFieldsField = false;
+  private boolean addFieldsField = true;
   private SolrServer solrServer = null;
   private String solrUrl = "http://localhost:8983/solr/collection1";
   private boolean issueCommit = true;
 
-  private int batchSize = 1000;
+  private int batchSize = 100;
   // private LinkedBlockingQueue<SolrInputDocument> batch = new
   // LinkedBlockingQueue<SolrInputDocument>();
   // Synchronized list. needed for thread safety.

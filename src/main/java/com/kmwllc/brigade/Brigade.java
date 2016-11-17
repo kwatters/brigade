@@ -92,6 +92,7 @@ public class Brigade {
 		// start the server .. etc.. etc..
 		// Add a default connector
 
+	  log.info("Brigade Starting up.");
 		if (config == null) {
 			// create a default config.
 		  log.warn("Error config was null!");
@@ -99,6 +100,7 @@ public class Brigade {
 			//config = createBrigadeConfiguration();
 		}
 
+		log.info("Loading config");
 		try {
 			loadConfig();
 		} catch (ClassNotFoundException e) {
@@ -247,7 +249,7 @@ public class Brigade {
 		// Thread me .. join later
 		ConnectorServer cS = ConnectorServer.getInstance();
 		if (cS.hasConnector(connectorName)) {
-			System.out.println("Called start connector : " + connectorName);
+			log.info("Called start connector : {}" , connectorName);
 			// TODO: move the start call to the connector server class
 			// TODO: also this is currently synchronous .. we want this to be a
 			// message
@@ -256,7 +258,7 @@ public class Brigade {
 			cS.startConnector(connectorName);
 			log.info("Connector started.");
 		} else {
-			log.info("Unknown connector : " + connectorName);
+			log.info("Unknown connector : {}" , connectorName);
 		}
 	}
 	
@@ -279,7 +281,7 @@ public class Brigade {
 		// TODO: just expose the connector server to the UI.
 		// don't put all these UI specific methods on the brigade main app
 		// class.
-		System.out.println("List connectord called...");
+		log.info("List connectord called...");
 		return ConnectorServer.getInstance().listConnectors();
 	}
 
@@ -287,7 +289,7 @@ public class Brigade {
 		// TODO: just expose the connector server to the UI.
 		// don't put all these UI specific methods on the brigade main app
 		// class.
-		System.out.println("List workflows called");
+		log.info("List workflows called");
 		return WorkflowServer.getInstance().listWorkflows();
 	}
 
@@ -371,15 +373,16 @@ public class Brigade {
     brigadeServer.setConfig(config);
     brigadeServer.start();
 
-    
     brigadeServer.startConnector(connectorConfig.getConnectorName());
+    
+    // TODO: this should do a flush! and then shutdown..
     brigadeServer.waitForConnector(connectorConfig.getConnectorName());
     brigadeServer.shutdown();
     // System.exit(0);
-    System.out.println("Here we are...");
-
+    
     long delta = (System.currentTimeMillis() - startTime)/1000;
-    System.out.println("Runtime : " + delta + " seconds.");
+    // TODO: does logback support the {} syntax?
+    log.info("Runtime : {} seconds.", delta);
     
   }
 
