@@ -1,11 +1,11 @@
 package com.kmwllc.brigade.config;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class Config {
 
@@ -133,6 +133,10 @@ public class Config {
   public Map<String, String> getMapProperty(String name) {
     // TODO type safety?!
     return (Map<String, String>) config.get(name);
+  }
+
+  public void setMapProperty(String name, Map<String, String> map) {
+    config.put(name, map);
   }
 
   public String toXML() {
