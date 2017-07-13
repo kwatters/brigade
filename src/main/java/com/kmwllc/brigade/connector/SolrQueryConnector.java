@@ -28,7 +28,7 @@ public class SolrQueryConnector extends AbstractConnector {
 	public void setConfig(ConnectorConfig config) {
 		// TODO Auto-generated method stub
 		solrUrl = config.getStringParam("solrUrl", solrUrl);
-		this.workflowName = "ingest";
+
 		numRows = config.getIntegerParam("numRows", numRows);
 		queryString = config.getStringParam("queryString", queryString);
 		Map<String,String> params = config.getMapProperty("params");

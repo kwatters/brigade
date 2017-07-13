@@ -27,7 +27,8 @@ public abstract class AbstractConnector implements DocumentConnector {
   private String docIdPrefix = "";
   // protected final String name;
   protected WorkflowServer workflowServer = WorkflowServer.getInstance();
-  protected String workflowName;
+  // default workflow name.
+  protected String workflowName = "ingest";
 
   private long feedCount = 0;
   private long startTime;
