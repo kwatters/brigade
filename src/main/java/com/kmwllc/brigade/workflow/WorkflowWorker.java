@@ -77,11 +77,12 @@ public class WorkflowWorker extends Thread {
 
   public void processDocumentInternal(Document doc, int stageOffset) {
     // TODO: what to do...
-    int i = 0;
+    int i = stageOffset;
     for (AbstractStage s : stages.subList(i, stages.size())) {
       // create a pool of stages, so that when you call processDocument
       // or each thread should have it's own pool?
       List<Document> childDocs = null;
+      // log.info("Calling Process document on Doc {} Stage: {}" , doc.getId(),  s.getClass());
       synchronized ( doc ) {
         childDocs = s.processDocument(doc);
       }
