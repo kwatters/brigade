@@ -37,8 +37,8 @@ public class TextExtractor extends AbstractStage {
     // TODO: support processing a byte array on a document.
     // rather than just a reference for on disk
     if (config != null) {
-      textField = config.getProperty("textField", "text");
-      filePathField = config.getProperty("filePathField", "filepath");
+      textField = config.getProperty("textField", textField);
+      filePathField = config.getProperty("filePathField", filePathField);
     }
 
   }
