@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * The basic class that represents a document flowing through the myrobotlab.
+ * The basic class that represents a document flowing through brigade.
  * 
  * Basic idea is that a document had a unique id and a map of key to list of
  * object pairs.
@@ -22,10 +22,13 @@ public class Document {
   private HashMap<String, ArrayList<Object>> data;
   // TODO: should this be moved? or maybe a more rich object?
   private ProcessingStatus status;
+  
+  private ArrayList<Document> childrenDocs;
+  
 
   public Document(String id) {
     this.id = id;
-    data = new HashMap<String, ArrayList<Object>>();
+    data = new HashMap<>();
     status = ProcessingStatus.OK;
   }
 
@@ -45,7 +48,7 @@ public class Document {
     if (data.containsKey(fieldName)) {
       data.get(fieldName).add(value);
     } else {
-      ArrayList<Object> values = new ArrayList<Object>();
+      ArrayList<Object> values = new ArrayList<>();
       values.add(value);
       data.put(fieldName, values);
     }
@@ -65,7 +68,7 @@ public class Document {
     if (data.containsKey(fieldName) && (data.get(fieldName) != null)) {
       data.get(fieldName).add(value);
     } else {
-      ArrayList<Object> values = new ArrayList<Object>();
+      ArrayList<Object> values = new ArrayList<>();
       values.add(value);
       data.put(fieldName, values);
     }
@@ -145,7 +148,56 @@ public class Document {
 
   @Override
   public String toString() {
-    return "Document [id=" + id + ", data=" + data + ", status=" + status + "]";
+    // TODO: add the tostring of each of the children docs.
+    StringBuilder docToStr = new StringBuilder();
+    docToStr.append("Document [id=" + id + ", data=" + data + ", status=" + status);
+    if (childrenDocs != null) {
+      for (Document child : childrenDocs) {
+        docToStr.append(" child=" + child.toString());
+      }
+    }
+    docToStr.append("]"); 
+    return docToStr.toString();
   }
+
+  public void addChildDocument(Document child) {
+    if (childrenDocs == null) {
+      childrenDocs = new ArrayList<>();
+    }
+    childrenDocs.add(child);
+  }
+  
+  public ArrayList<Document> getChildrenDocs() {
+    return childrenDocs;
+  }
+
+  public void setChildrenDocs(ArrayList<Document> childrenDocs) {
+    this.childrenDocs = childrenDocs;
+  }
+  
+  public int getNumberOfChildrenDocs() {
+    if (childrenDocs == null) {
+      return 0;
+    } else {
+      return childrenDocs.size();
+    }
+  }
+  
+  public void removeChildrenDocs() {
+    childrenDocs = null;
+  }
+  
+  public boolean hasChildren() {
+    if (childrenDocs == null) {
+      return false;
+    } else {
+      if (childrenDocs.size() > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  
   
 }
