@@ -10,20 +10,18 @@ import java.util.HashMap;
  */
 public class StageConfig extends Config {
 
-  // private HashMap<String, Object> config = null;
-
-  private String stageName = "defaultStage";
+ private String stageName = "defaultStage";
   private String stageClass = "com.kmwllc.brigade.stage.AbstractStage";
 
   public StageConfig(String stageName, String stageClass) {
-    config = new HashMap<String, Object>();
+    config = new HashMap<>();
     this.stageName = stageName;
     this.stageClass = stageClass;
   }
 
   public StageConfig() {
-    // depricate this constructor?
-    config = new HashMap<String, Object>();
+    // deprecate this constructor?
+    config = new HashMap<>();
   }
 
   public void setStringParam(String name, String value) {

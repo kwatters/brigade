@@ -46,7 +46,7 @@ public class LuwakQueryMatcher extends AbstractStage {
     field = config.getStringParam(FIELD_CONFIG_PARAMETER);
     checkNotNull(field, "Missing required parameter %s", FIELD_CONFIG_PARAMETER);
     checkState(!field.isEmpty(), "Empty required parameter %s", FIELD_CONFIG_PARAMETER);
-    Map<String, String> queries = config.getMapProperty(QUERIES_CONFIG_PARAMETER);
+    Map<String, String> queries = config.getMapParam(QUERIES_CONFIG_PARAMETER);
     checkNotNull(queries, "Missing required parameter %s", FIELD_CONFIG_PARAMETER);
     checkState(!queries.isEmpty(), "Empty required parameter %s", FIELD_CONFIG_PARAMETER);
 

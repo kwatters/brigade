@@ -9,7 +9,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.cloud.SolrZkClient;
 import org.slf4j.Logger;
 
 import com.kmwllc.brigade.config.ConnectorConfig;
@@ -31,7 +30,7 @@ public class SolrQueryConnector extends AbstractConnector {
 
 		numRows = config.getIntegerParam("numRows", numRows);
 		queryString = config.getStringParam("queryString", queryString);
-		Map<String,String> params = config.getMapProperty("params");
+		Map<String,String> params = config.getMapParam("params");
 	}
 
 	@Override

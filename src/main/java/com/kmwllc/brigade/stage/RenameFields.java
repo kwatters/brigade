@@ -19,7 +19,7 @@ public class RenameFields extends AbstractStage {
 
   @Override
   public void startStage(StageConfig config) {
-    fieldNameMap = config.getMapProperty("fieldNameMap");
+    fieldNameMap = config.getMapParam("fieldNameMap");
   }
 
   @Override

@@ -42,7 +42,7 @@ public class CSVConnector extends AbstractConnector {
 
     setDocIdPrefix(config.getStringParam("docIdPrefix", ""));
     filename = config.getProperty("filename");
-    columns = config.getStringArray("columns");
+    columns = config.getStringArrayParam("columns");
     idField = config.getProperty("idField");
 
     separator = config.getProperty("separator", separator);
