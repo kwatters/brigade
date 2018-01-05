@@ -45,8 +45,11 @@ public abstract class AbstractConnector implements DocumentConnector {
   // public abstract void start() throws InterruptedException;
   public void start() throws InterruptedException {
     state = ConnectorState.RUNNING;
-    startTime = System.currentTimeMillis();
-    startCrawling();
+    startTime = System.currentTimeMillis();try {
+      startCrawling();
+    } catch (Exception e) {
+      log.warn("Caught exception: {}", e);
+    }
   }
   
   public abstract void initialize();

@@ -11,7 +11,7 @@ import com.kmwllc.brigade.workflow.WorkflowServer;
  */
 public interface DocumentConnector {
 
-  public void startCrawling();
+  public void startCrawling() throws Exception;
 
   public void stopCrawling();
 
