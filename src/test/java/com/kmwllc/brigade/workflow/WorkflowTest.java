@@ -36,9 +36,13 @@ public class WorkflowTest {
 
 		// Create a workflow
 		Workflow w = new Workflow(wC);
-		w.initialize();
+	  try {
+		  w.initialize();
+	  } catch (Exception e) {
+		  e.printStackTrace();
+	  }
 
-		// Create a document to be processed
+	  // Create a document to be processed
 		Document d = new Document("1");
 		try {
 			w.processDocument(d);

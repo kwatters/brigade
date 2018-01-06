@@ -49,8 +49,12 @@ public class DocumentSequenceConnectorTest {
 		WorkflowConfig wC = createWorkflowConfig();
 		
 		WorkflowServer ws = WorkflowServer.getInstance();
-		ws.addWorkflow(wC);
-		
+		try {
+			ws.addWorkflow(wC);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		ConnectorConfig config = new ConnectorConfig("testconn1", DocumentSequenceConnector.class.getName());
 		// config.setWorkflow("ingest");
 		config.setStringParam("stop", "100000");

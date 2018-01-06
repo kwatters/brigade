@@ -3,14 +3,13 @@ package com.kmwllc.brigade;
 import com.kmwllc.brigade.config.BrigadeConfig;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
-import com.kmwllc.brigade.utils.FileUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+
+import static com.kmwllc.brigade.BrigadeUtils.fileToString;
+import static com.kmwllc.brigade.BrigadeUtils.loadPropertiesAsMap;
 
 /**
  * Created by matt on 3/22/17.
@@ -30,19 +29,19 @@ public class BrigadeRunner {
     public void exec() throws Exception {
         Map<String,String> propMap = null;
         try {
-        	propMap = FileUtils.loadPropertiesAsMap(propertiesFile);
+            propMap = loadPropertiesAsMap(propertiesFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
         String connectorXML = null;
         try {
-           connectorXML = FileUtils.toString(connectorFile);
+            connectorXML = fileToString(connectorFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
         String workflowXML = null;
         try {
-            workflowXML = FileUtils.toString(workflowFile);
+            workflowXML = fileToString(workflowFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,9 +82,7 @@ public class BrigadeRunner {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // TODO: should it be?
-            // brigadeServer.shutdown(false);
-            brigadeServer.shutdown();
+            brigadeServer.shutdown(false);
             throw e;
         }
 
