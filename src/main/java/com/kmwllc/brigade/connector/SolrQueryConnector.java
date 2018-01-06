@@ -79,7 +79,11 @@ public class SolrQueryConnector extends AbstractConnector {
 			// now set some static values TODO: remove this! use stage!
 			feed(bDoc);
 		}
-		flush();
+		try {
+			flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		state = ConnectorState.STOPPED;
 	}
 

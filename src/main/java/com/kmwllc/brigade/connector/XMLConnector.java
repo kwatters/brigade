@@ -1,98 +1,139 @@
 package com.kmwllc.brigade.connector;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.XMLConstants;
-
+import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.connector.xml.ChunkingXMLHandler;
+import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.utils.FileUtils;
+import com.kmwllc.brigade.utils.RecordingInputStream;
 import org.slf4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.*;
+import java.net.URL;
+import java.util.regex.Pattern;
 
-import com.kmwllc.brigade.config.ConnectorConfig;
-import com.kmwllc.brigade.connector.xml.ChunkingXMLHandler;
-import com.kmwllc.brigade.logging.LoggerFactory;
-import com.kmwllc.brigade.utils.RecordingInputStream;
+public class XMLConnector extends AbstractConnector {
 
-public class XMLConnector  extends AbstractConnector {
-  
-  public final static Logger log = LoggerFactory.getLogger(XMLConnector.class.getCanonicalName());
-  
-  private String filename = null;
-  private String xmlRootPath = null;
-  private String xmlIDPath = null;
-  private String docIDPrefix = "doc_";
+    public final static Logger log = LoggerFactory.getLogger(XMLConnector.class.getCanonicalName());
 
-  @Override
-  public void setConfig(ConnectorConfig config) {
-    // update the connector config
-    
-    this.workflowName = config.getProperty("workflowName", "ingest");
-    filename = config.getProperty("filename", filename);
-    xmlRootPath = config.getProperty("XmlRootPath", xmlRootPath);
-    xmlIDPath = config.getProperty("XmlIDPath", xmlIDPath);
-    docIDPrefix = config.getProperty("DocIDPrefix", docIDPrefix);    
-  }
-  
-  @Override
-  public void startCrawling() {
-    state = ConnectorState.RUNNING;
-    
-    // Everything in between
-    SAXParserFactory spf = SAXParserFactory.newInstance();
-    // spf.setNamespaceAware(false); ? Expose this?
-    spf.setNamespaceAware(true);
-    SAXParser saxParser = null;
-    
-    try {
-      spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
-      saxParser = spf.newSAXParser();
-    } catch (ParserConfigurationException | SAXException e) {
-      // TODO Auto-generated catch block
-      log.warn("SAX Parser Error {}", e);
+    private String fileFolder = null;
+    private String xmlRootPath = null;
+    private String xmlIDPath = null;
+    private String docIDPrefix = "doc_";
+    private String fileRegex = null;
+    private Pattern fileRegexPattern;
+    private String urlFile = null;
+
+    @Override
+    public void setConfig(ConnectorConfig config) {
+        // update the connector config
+
+        this.workflowName = config.getProperty("workflowName", "ingest");
+        fileFolder = config.getProperty("fileFolder", fileFolder);
+        fileRegex = config.getProperty("fileRegex", fileRegex);
+        xmlRootPath = config.getProperty("XmlRootPath", xmlRootPath);
+        xmlIDPath = config.getProperty("XmlIDPath", xmlIDPath);
+        docIDPrefix = config.getProperty("DocIDPrefix", docIDPrefix);
+        urlFile = config.getProperty("urlFile", urlFile);
     }
 
-    try {
-      XMLReader xmlReader = saxParser.getXMLReader();
-      ChunkingXMLHandler xmlHandler = new ChunkingXMLHandler();
-      xmlHandler.setConnector(this);
-      xmlHandler.setDocumentRootPath(xmlRootPath);
-      xmlHandler.setDocumentIDPath(xmlIDPath);
-      xmlHandler.setDocIDPrefix(docIDPrefix);
-      xmlReader.setContentHandler(xmlHandler);
+    @Override
+    public void startCrawling() throws Exception {
+        state = ConnectorState.RUNNING;
 
-      FileInputStream fis = new FileInputStream(new File(filename));
-      RecordingInputStream ris = new RecordingInputStream(fis);
-      InputSource xmlSource = new InputSource(ris);
-      xmlHandler.setRis(ris);
+        // Everything in between
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        // spf.setNamespaceAware(false); ? Expose this?
+        spf.setNamespaceAware(true);
+        SAXParser saxParser = null;
 
-      xmlReader.parse(xmlSource);
-      // xmlReader.parse(convertToFileURL(filename));
-    } catch (IOException | SAXException e) {
-      // TODO Auto-generated catch block
-      log.warn("SAX Parser Error {}", e);
+        try {
+            spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
+            saxParser = spf.newSAXParser();
+        } catch (ParserConfigurationException | SAXException e) {
+            // TODO Auto-generated catch block
+            log.warn("SAX Parser Error {}", e);
+        }
+
+        try {
+            XMLReader xmlReader = saxParser.getXMLReader();
+            ChunkingXMLHandler xmlHandler = new ChunkingXMLHandler();
+            xmlHandler.setConnector(this);
+            xmlHandler.setDocumentRootPath(xmlRootPath);
+            xmlHandler.setDocumentIDPath(xmlIDPath);
+            xmlHandler.setDocIDPrefix(docIDPrefix);
+            xmlReader.setContentHandler(xmlHandler);
+
+            if (urlFile != null) {
+            	// We are going to process the file of urls instead of the file directory specficiation.
+
+            	String[] lines = FileUtils.toString(new File(urlFile)).split("\n");
+            	for (String line : lines) {
+            		line = line.trim();
+            		System.out.println("URL TO CRAWL: "+ line);
+            		InputStream in = new URL(line).openStream();
+            		BufferedInputStream bis = new BufferedInputStream(in);
+            		RecordingInputStream ris = new RecordingInputStream(bis);
+            		InputSource xmlSource = new InputSource(ris);
+            		xmlHandler.setRis(ris);
+            		xmlReader.parse(xmlSource);
+            		in.close();
+            	}
+            	
+            	
+            } else {
+
+            	File xmlDir = new File(fileFolder);
+            	File[] filesToParse = xmlDir.listFiles(new FilenameFilter() {
+            		@Override
+            		public boolean accept(File dir, String name) {
+            			return fileRegexPattern.matcher(name).matches();
+            		}
+            	});
+
+            	for (File file : filesToParse) {
+            		log.info("Parsing file: {}", file);
+            		FileInputStream fis = new FileInputStream(file);
+            		RecordingInputStream ris = new RecordingInputStream(fis);
+            		InputSource xmlSource = new InputSource(ris);
+            		xmlHandler.setRis(ris);
+            		xmlReader.parse(xmlSource);
+            		// xmlReader.parse(convertToFileURL(filename));
+            	}
+
+            }
+        } catch (IOException | SAXException e) {
+            // TODO Auto-generated catch block
+            log.warn("SAX Parser Error {}", e);
+        }
+
+        
+        
+        flush();
+
+        stopCrawling();
+        
     }
-    
-    state = ConnectorState.STOPPED;
-  }
 
-  @Override
-  public void stopCrawling() {
-    // TODO Auto-generated method stub
-    
-  }
-
+    @Override
+    public void stopCrawling() {
+    	// no op
+    	long deltaS = (System.currentTimeMillis() - getStartTime()) / 1000;
+    	log.info("Stop Crawling called, Sent {} docs in {} seconds.", getFeedCount() , deltaS);
+    	state = ConnectorState.STOPPED;
+    }
 
 
-  @Override
-  public void initialize() {
-    // TODO Auto-generated method stub
-    
-  }
+    @Override
+    public void initialize() {
+      if (fileRegex != null) {
+        fileRegexPattern = Pattern.compile(fileRegex);
+      }
+    }
 }

@@ -1,15 +1,16 @@
 package com.kmwllc.brigade.connector;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.interfaces.DocumentConnector;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.workflow.WorkflowMessage;
 import com.kmwllc.brigade.workflow.WorkflowServer;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * 
@@ -24,18 +25,24 @@ public abstract class AbstractConnector implements DocumentConnector {
   private int batchSize = 1;
   // TODO: batching at the connector level? (microbatching?)
   // private List<Document> batch = Collections.synchronizedList(new ArrayList<Document>());
-  private String docIdPrefix = "";
+  protected String docIdPrefix = "";
   // protected final String name;
   protected WorkflowServer workflowServer = WorkflowServer.getInstance();
-  // default workflow name.
-  protected String workflowName = "ingest";
+  protected String workflowName;
 
   private long feedCount = 0;
+
   private long startTime;
+  
   private int reportModulus = 1000;
   
+  // the current job/batch id that can be used for query delete 
+  private String jobId = null;
+  private boolean useJobId = true;
+  private String versionIdField = "version_id";
+  
   public AbstractConnector() {
-    //this.name = name;
+    // this.name = name;
     // super(name);
     // no overruns!
     // this.getOutbox().setBlocking(true);
@@ -44,11 +51,18 @@ public abstract class AbstractConnector implements DocumentConnector {
   public abstract void setConfig(ConnectorConfig config);
   // public abstract void start() throws InterruptedException;
   public void start() throws InterruptedException {
+	  
+    // this is a connector job_id that is unique to this run.
+    jobId = UUID.randomUUID().toString();
+    log.info("Connector starting with job id {}", jobId);
+	  
     state = ConnectorState.RUNNING;
-    startTime = System.currentTimeMillis();try {
+    startTime = System.currentTimeMillis();
+    try {
       startCrawling();
     } catch (Exception e) {
       log.warn("Caught exception: {}", e);
+      state = ConnectorState.ERROR;
     }
   }
   
@@ -62,11 +76,23 @@ public abstract class AbstractConnector implements DocumentConnector {
     // TODO: add batching and change this to publishDocuments (as a list)
     // Batching for this sort of stuff is a very good thing.
     feedCount++;
+    // log.debug("Feeding doc : {}", doc.getId());
     if (feedCount % reportModulus == 0) {
       double feedRate = 1000.0 * feedCount / (System.currentTimeMillis() - startTime);
       log.info("Feed {} docs. Rate: {} DPS", feedCount, feedRate);
     }
     
+    
+    // should we add our job id to the doc?
+    if (useJobId) {
+      doc.setField(versionIdField, jobId);
+    }
+    
+    if (!StringUtils.isEmpty(docIdPrefix)) {
+      doc.setId(docIdPrefix + doc.getId());
+    }
+    
+    // log.info("Feed: {} " , doc.getId());
     WorkflowMessage wm = new WorkflowMessage();
     wm.setDoc(doc);
     wm.setType("add");
@@ -97,7 +123,8 @@ public abstract class AbstractConnector implements DocumentConnector {
     // Here for the framework to invoke it on the down stream services.
   };
 
-  public void flush() {
+  public void flush() throws Exception {
+	  log.info("Flush called, feed count: {}", feedCount);
     workflowServer.flush(workflowName);
   }
 
@@ -147,6 +174,18 @@ public abstract class AbstractConnector implements DocumentConnector {
     // TODO: replace this with a "topic" 
     this.workflowName = workflowName;
   }
+  
+  public long getFeedCount() {
+	return feedCount;
+  }
+
+public long getStartTime() {
+	return startTime;
+}
+
+public String getJobId() {
+  return jobId;
+}
 
   
 }
