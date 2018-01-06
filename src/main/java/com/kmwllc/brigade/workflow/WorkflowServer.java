@@ -1,8 +1,8 @@
 package com.kmwllc.brigade.workflow;
 
-import java.util.HashMap;
-
 import com.kmwllc.brigade.config.WorkflowConfig;
+
+import java.util.HashMap;
 
 /**
  * This is the singleton instance of the workflow server.  
@@ -36,7 +36,7 @@ public class WorkflowServer {
   // workflowMap.put(name, workflow);
   // }
 
-  public void addWorkflow(WorkflowConfig config) throws ClassNotFoundException {
+  public void addWorkflow(WorkflowConfig config) throws Exception {
     Workflow w = new Workflow(config);
     w.initialize();
     workflowMap.put(w.getName(), w);
@@ -53,7 +53,7 @@ public class WorkflowServer {
     w.processDocument(msg.getDoc());
   }
 
-  public void flush(String workflow) {
+  public void flush(String workflow) throws Exception {
     // flush the given workflow
     Workflow w = workflowMap.get(workflow);
     w.flush();

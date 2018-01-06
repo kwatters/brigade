@@ -22,7 +22,7 @@ public class WorkflowConfig extends Config {
 
   public WorkflowConfig(String name) {
     this.name = name;
-    stages = new ArrayList<StageConfig>();
+    stages = new ArrayList<>();
     // default workflow static config
   }
 

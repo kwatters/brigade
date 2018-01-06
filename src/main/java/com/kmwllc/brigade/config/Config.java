@@ -17,11 +17,10 @@ public class Config {
   // workflow /pipeline config
   // connector config
 
-  protected HashMap<String, Object> config = null;
-  // private XStream xstream = null;
+  protected HashMap<String, Object> config;
 
   public Config() {
-    config = new HashMap<String, Object>();
+    config = new HashMap<>();
     // figure that we need to be able to serialize / deserialize
     // TODO: consider a faster driver / serializer
     // xstream = new XStream(new StaxDriver());
@@ -98,11 +97,11 @@ public class Config {
     }
   }
 
-  public void setStringArray(String name, String[] values) {
+  public void setStringArrayParam(String name, String[] values) {
     config.put(name, values);
   }
 
-  public String[] getStringArray(String name) {
+  public String[] getStringArrayParam(String name) {
     if (config.containsKey(name)) {
       Object val = config.get(name);
       if (val instanceof String[]) {
@@ -130,13 +129,21 @@ public class Config {
     return null;
   }
 
-  public Map<String, String> getMapProperty(String name) {
+  public Map<String, String> getMapParam(String name) {
     // TODO type safety?!
     return (Map<String, String>) config.get(name);
   }
 
-  public void setMapProperty(String name, Map<String, String> map) {
+  public void setMapParam(String name, Map<String, String> map) {
     config.put(name, map);
+  }
+
+  public void setObjectParam(String name, Object value) {
+    config.put(name, value);
+  }
+
+  public Object getObjectParam(String name) {
+    return config.get(name);
   }
 
   public String toXML() {

@@ -1,17 +1,16 @@
 package com.kmwllc.brigade.workflow;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.document.ProcessingStatus;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.stage.AbstractStage;
-
 import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * WorkflowWorker : this is a list of stages that will poll the workflow queue
@@ -19,8 +18,10 @@ import org.slf4j.Logger;
  * 
  */
 public class WorkflowWorker extends Thread {
-  public final static Logger log = LoggerFactory.getLogger(WorkflowWorker.class);
+  public final static Logger log = LoggerFactory.getLogger(WorkflowWorker.class.getCanonicalName());
   boolean processing = false;
+  boolean running = false;
+  boolean error = false;
   private ArrayList<AbstractStage> stages;
 
   private final LinkedBlockingQueue<Document> queue;
@@ -48,8 +49,8 @@ public class WorkflowWorker extends Thread {
   }
 
   public void run() {
-    Document doc;
-    boolean running = true;
+    Document doc = null;
+    running = true;
     while (running) {
       try {
         doc = queue.take();
@@ -63,10 +64,16 @@ public class WorkflowWorker extends Thread {
           processDocumentInternal(doc, 0);
           processing = false;
         }
-      } catch (InterruptedException e) {
+      } catch (Exception e) {
         // TODO: handle these properly
         log.warn("Workflow Worker Died! {}", e.getMessage());
+        // log.warn("Died on doc: {}", doc);
         e.printStackTrace();
+        running = false;
+        processing = false;
+        error = true;
+        queue.clear();
+        throw new RuntimeException("Error in stage");
       }
     }
   }
@@ -75,14 +82,17 @@ public class WorkflowWorker extends Thread {
     return processing;
   }
 
-  public void processDocumentInternal(Document doc, int stageOffset) {
+  public boolean isRunning() { return running;}
+
+  public boolean isError() { return error;}
+
+  public void processDocumentInternal(Document doc, int stageOffset) throws Exception {
     // TODO: what to do...
-    int i = stageOffset;
+    int i = 0;
     for (AbstractStage s : stages.subList(i, stages.size())) {
       // create a pool of stages, so that when you call processDocument
       // or each thread should have it's own pool?
       List<Document> childDocs = null;
-      // log.info("Calling Process document on Doc {} Stage: {}" , doc.getId(),  s.getClass());
       synchronized ( doc ) {
         childDocs = s.processDocument(doc);
       }

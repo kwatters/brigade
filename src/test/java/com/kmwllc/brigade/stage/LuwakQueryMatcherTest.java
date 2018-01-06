@@ -23,7 +23,7 @@ public class LuwakQueryMatcherTest {
   @Before
   public void setUp() {
     config.setStringParam(FIELD_CONFIG_PARAMETER, "myField");
-    config.setMapProperty(QUERIES_CONFIG_PARAMETER, ImmutableMap.of("query1", "word1",
+    config.setMapParam(QUERIES_CONFIG_PARAMETER, ImmutableMap.of("query1", "word1",
         "query2", "word2"));
     matcher.startStage(config);
   }

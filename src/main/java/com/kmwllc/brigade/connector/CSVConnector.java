@@ -1,18 +1,16 @@
 package com.kmwllc.brigade.connector;
 
+import au.com.bytecode.opencsv.CSVReader;
+import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.logging.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-
-import com.kmwllc.brigade.config.ConnectorConfig;
-import com.kmwllc.brigade.document.Document;
-import com.kmwllc.brigade.logging.LoggerFactory;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 public class CSVConnector extends AbstractConnector {
 
@@ -24,7 +22,7 @@ public class CSVConnector extends AbstractConnector {
   private int numFields;
   private int idColumn = -1;
   private boolean useRowAsId = true;
-  private int skipRows = 1;
+  private int skipRows = 0;
   private boolean firstRowAsColumns = false;
   private int limit = -1;
 
@@ -42,7 +40,7 @@ public class CSVConnector extends AbstractConnector {
 
     setDocIdPrefix(config.getStringParam("docIdPrefix", ""));
     filename = config.getProperty("filename");
-    columns = config.getStringArray("columns");
+    columns = config.getStringArrayParam("columns");
     idField = config.getProperty("idField");
 
     separator = config.getProperty("separator", separator);
@@ -77,7 +75,7 @@ public class CSVConnector extends AbstractConnector {
   }
 
   @Override
-  public void startCrawling() {
+  public void startCrawling() throws Exception {
 
     state = ConnectorState.RUNNING;
     // compile the map to for header to column number.
@@ -86,8 +84,8 @@ public class CSVConnector extends AbstractConnector {
     File fileToCrawl = new File(filename);
     if (!fileToCrawl.exists()) {
       // error. file not found.
-      log.info("File not found..." + filename);
-      return;
+      log.warn("File not found..." + filename);
+      throw new Exception("File not found");
     }
 
     FileReader reader = null;

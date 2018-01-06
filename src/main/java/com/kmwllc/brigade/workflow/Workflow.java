@@ -1,12 +1,11 @@
 package com.kmwllc.brigade.workflow;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
-
 import org.slf4j.Logger;
+
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
@@ -26,7 +25,7 @@ public class Workflow {
   // more thread poolesque?)
   private WorkflowWorker[] workers;
   private WorkflowConfig workflowConfig;
-  public final static Logger log = LoggerFactory.getLogger(Workflow.class);
+  public final static Logger log = LoggerFactory.getLogger(Workflow.class.getCanonicalName());
 
   // constructor
   public Workflow(WorkflowConfig workflowConfig) throws ClassNotFoundException {
@@ -42,7 +41,7 @@ public class Workflow {
   }
 
   // initialize the workflow
-  public void initialize() {
+  public void initialize() throws Exception {
     workers = new WorkflowWorker[numWorkerThreads];
     for (int i = 0; i < numWorkerThreads; i++) {
       initializeWorkerThread(i);
@@ -50,15 +49,14 @@ public class Workflow {
   }
 
   // init the worker threads
-  private void initializeWorkerThread(int threadNum) {
+  private void initializeWorkerThread(int threadNum) throws Exception {
     WorkflowWorker worker = null;
     try {
       worker = new WorkflowWorker(workflowConfig, queue);
     } catch (ClassNotFoundException e) {
       // TODO: better handling?
       log.warn("Error starting the worker thread. {}", e.getLocalizedMessage());
-      e.printStackTrace();
-      return;
+     throw new Exception(e);
     }
     worker.start();
     workers[threadNum] = worker;
@@ -90,8 +88,15 @@ public class Workflow {
   }
 
   // flush all the stages on each worker thread.
-  public void flush() {
+  public void flush() throws Exception {
     // TODO: Or make it block here.
+    Thread.sleep(400);
+    for (int i = 0; i < numWorkerThreads; i++) {
+      if (workers[i].isError()) {
+        log.warn("Workflow worker in error");
+        throw new Exception("Workflow worker threw exception");
+      }
+    }
     while (!queue.isEmpty()) {
       try {
         // TODO: give a logger object to this class.

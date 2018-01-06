@@ -1,20 +1,21 @@
 package com.kmwllc.brigade.connector.xml;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Stack;
-
+import com.kmwllc.brigade.connector.AbstractConnector;
+import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.utils.RecordingInputStream;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-import com.kmwllc.brigade.connector.AbstractConnector;
-import com.kmwllc.brigade.document.Document;
-import com.kmwllc.brigade.logging.LoggerFactory;
-import com.kmwllc.brigade.utils.RecordingInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Stack;
+import java.util.UUID;
 
 public class ChunkingXMLHandler implements ContentHandler {
 
@@ -121,7 +122,15 @@ public class ChunkingXMLHandler implements ContentHandler {
       // System.out.println("------------------------------------");
 
       // this is the end of our page send the buffer as a document
-      Document doc = new Document(docIDPrefix + docIDBuilder.toString());
+
+      // XPath not supported where id is in attribute (e.g. <field name="id">
+      // Quick workaround is to use a UUID instead and assign ID elsewhere in workflow
+      String id = docIDBuilder.toString();
+      if (Strings.isNullOrEmpty(id)) {
+        id = UUID.randomUUID().toString();
+      }
+
+      Document doc = new Document(docIDPrefix + id);
       // doc.setField("xml", pageBuffer.toString());
       doc.setField("xml", xml);
       internalPublishDocument(doc);

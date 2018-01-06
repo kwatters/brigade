@@ -13,7 +13,11 @@ public class WorkflowServerTest {
 		
 		WorkflowConfig wC = createWorkflow();
 		WorkflowServer ws = WorkflowServer.getInstance();
-		ws.addWorkflow(wC);
+		try {
+			ws.addWorkflow(wC);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		Document d = createDocument();
 
@@ -25,8 +29,12 @@ public class WorkflowServerTest {
 		ws.processMessage(wm);
 
 		// TODO: something better..
-		ws.flush(wm.getWorkflow());
-		
+		try {
+			ws.flush(wm.getWorkflow());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private Document createDocument() {
