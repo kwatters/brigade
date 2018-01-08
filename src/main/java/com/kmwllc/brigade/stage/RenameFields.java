@@ -1,10 +1,10 @@
 package com.kmwllc.brigade.stage;
 
-import java.util.List;
-import java.util.Map;
-
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -26,7 +26,8 @@ public class RenameFields extends AbstractStage {
   public List<Document> processDocument(Document doc) {
     for (String oldName : fieldNameMap.keySet()) {
       if (!doc.hasField(oldName)) {
-        return null;
+        //return null;
+        continue;
       }
       String newName = fieldNameMap.get(oldName);
       if (!newName.equals(oldName)) {

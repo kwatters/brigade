@@ -1,12 +1,15 @@
 package com.kmwllc.brigade.stage;
 
+import com.google.common.base.Strings;
+import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.document.Document;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.kmwllc.brigade.config.StageConfig;
-import com.kmwllc.brigade.document.Document;
 
 
 /**
@@ -25,6 +28,8 @@ public class RegexExtractor extends AbstractStage {
   private String outputField = null;
   private List<Integer> keepGroups = null;
   private String regex = null;
+  private boolean multiFieldCapture = false;
+  private boolean uniqueResults = false;
 
   private Pattern pattern;
 
@@ -36,6 +41,8 @@ public class RegexExtractor extends AbstractStage {
       List<String> keepGroupsStr = config.getListParam("keepGroups");
       regex = config.getProperty("regex");
       processOnlyNull = config.getBoolParam("processOnlyNull", processOnlyNull);
+      multiFieldCapture = config.getBoolParam("multiFieldCapture", multiFieldCapture);
+      uniqueResults = config.getBoolParam("uniqueResults", uniqueResults);
 
       keepGroups = new ArrayList<Integer>();
       if (keepGroupsStr == null) {
@@ -59,16 +66,25 @@ public class RegexExtractor extends AbstractStage {
       return null;
     }
 
-    List<String> matches = new ArrayList<String>();
+    Collection<String> matches = uniqueResults ? new HashSet<String>() : new ArrayList<String>();
     for (Object o : doc.getField(inputField)) {
       String text = o.toString();
       Matcher matcher = pattern.matcher(text);
       if (matcher.matches() && matcher.groupCount() > 0) {
         String match = "";
         for (Integer num : keepGroups) {
-          match += matcher.group(num);
+          if (multiFieldCapture) {
+            String m = matcher.group(num);
+            if (!Strings.isNullOrEmpty(m)) {
+              matches.add(matcher.group(num));
+            }
+          } else {
+            match += matcher.group(num);
+          }
         }
-        matches.add(match);
+        if (!multiFieldCapture) {
+          matches.add(match);
+        }
       }
     }
 

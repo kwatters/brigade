@@ -1,32 +1,19 @@
 package com.kmwllc.brigade.stage;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.document.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import com.kmwllc.brigade.config.StageConfig;
-import com.kmwllc.brigade.document.Document;
+import javax.xml.xpath.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * This stage will load a config file that contains a field name to xpath
@@ -81,6 +68,11 @@ public class XPathExtractor extends AbstractStage {
   @Override
   public List<Document> processDocument(Document doc) {
 
+    if (!doc.hasField(xmlField)) {
+      // no xml on this document to process for this stage .. skipping
+      return null;
+    }
+    
     for (Object o : doc.getField(xmlField)) {
       // TODO: this is bad , lets cast
       String xml = (String) o;
@@ -103,13 +95,21 @@ public class XPathExtractor extends AbstractStage {
     org.w3c.dom.Document xmldoc = builder.parse(stream);
     // TODO: iterate the xpaths..
     for (XPathExpression xpath : xpaths.keySet()) {
-      NodeList nodes = (NodeList) xpath.evaluate(xmldoc, XPathConstants.NODESET);
-      for (int i = 0; i < nodes.getLength(); i++) {
-        for (String fieldName : xpaths.get(xpath)) {
-          // add the evaluated xpath to the fields that this xpath maps to.
-
-          doc.addToField(fieldName, nodes.item(i).getTextContent());
+      try {
+        NodeList nodes = (NodeList) xpath.evaluate(xmldoc, XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); i++) {
+          for (String fieldName : xpaths.get(xpath)) {
+            // add the evaluated xpath to the fields that this xpath maps to.
+            doc.addToField(fieldName, nodes.item(i).getTextContent().trim());
+          }
         }
+      } catch (XPathExpressionException e) {
+        // Try to resolve as string
+        String stringValue = xpath.evaluate(xmldoc).trim();
+        for (String fieldName : xpaths.get(xpath)) {
+          doc.addToField(fieldName, stringValue);
+        }
+
       }
     }
   }
@@ -121,7 +121,8 @@ public class XPathExtractor extends AbstractStage {
     try {
       fstream = new FileInputStream(filename);
     } catch (FileNotFoundException e) {
-      log.warn("XPATH Extractor config file not found: " + filename);
+      File f = new File(filename);
+      log.warn("XPATH Extractor config file not found: {} {}" , filename, f.getAbsoluteFile());
       e.printStackTrace();
       return null;
     }
