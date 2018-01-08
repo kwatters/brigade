@@ -1,12 +1,13 @@
 package com.kmwllc.brigade.connector;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.slf4j.Logger;
@@ -39,13 +40,13 @@ public class SolrQueryConnector extends AbstractConnector {
 	}
 	
 	@Override
-	public void startCrawling() {
+	public void startCrawling() throws IOException {
 		// 
 		HashSet<String> blackListFields = new HashSet<String>();
 		blackListFields.add("_version_");
 		// TODO: push this down into the base class!  state shouldn't be managed here.
 		state = ConnectorState.RUNNING;
-		HttpSolrServer client = new HttpSolrServer(solrUrl);
+		HttpSolrClient client = new HttpSolrClient(solrUrl);
 		SolrQuery query = new SolrQuery(queryString);
 		query.set("rows", numRows);
 		if (params != null) {

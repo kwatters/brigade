@@ -55,12 +55,7 @@ public class DictionaryEE extends AbstractStage {
     }
 
     @Override
-    public List<Document> processDocument(Document doc) {
-    	
-    	if (!doc.hasField(inputField)) {
-    		// NoOp
-    		return null;
-    	}
+    public List<Document> processDocument(Document doc) throws Exception {
         String input = (String) doc.getField(inputField).get(0);
         String[] tokens = tokenizer.tokenize(input);
         Set<EntityInfo> infos = new HashSet<>();

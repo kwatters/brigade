@@ -1,12 +1,11 @@
 package com.kmwllc.brigade.stage;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
+import org.slf4j.Logger;
+
+import java.util.List;
 
 /**
  * This is the base class for all stages in a pipeline.  The stages have a lifecycle 
@@ -29,7 +28,7 @@ public abstract class AbstractStage {
 
   public abstract void startStage(StageConfig config);
 
-  public abstract List<Document> processDocument(Document doc);
+  public abstract List<Document> processDocument(Document doc) throws Exception;
 
   public abstract void stopStage();
 

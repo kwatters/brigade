@@ -26,7 +26,11 @@ public abstract class AbstractStageTest extends TestCase {
 		setup();
 		stage = createStage();
 		doc = createDocument();
-		stage.processDocument(doc);
+		try {
+			stage.processDocument(doc);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		validateDoc(doc);
 		
 	}

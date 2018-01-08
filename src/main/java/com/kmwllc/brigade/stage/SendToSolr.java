@@ -1,20 +1,19 @@
 package com.kmwllc.brigade.stage;
 
+import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.connector.ConnectorServer;
+import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.logging.LoggerFactory;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrInputDocument;
+import org.slf4j.Logger;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.common.SolrInputDocument;
-
-import org.slf4j.Logger;
-
-import com.kmwllc.brigade.config.StageConfig;
-import com.kmwllc.brigade.document.Document;
-import com.kmwllc.brigade.logging.LoggerFactory;
 
 /**
  * This stage will convert an MRL document to a solr document. It then batches
@@ -26,13 +25,16 @@ import com.kmwllc.brigade.logging.LoggerFactory;
  */
 public class SendToSolr extends AbstractStage {
 
-  public final static Logger log = LoggerFactory.getLogger(SendToSolr.class);
+  public final static Logger log = LoggerFactory.getLogger(SendToSolr.class.getCanonicalName());
   private String idField = "id";
   private String fieldsField = "fields";
   private boolean addFieldsField = true;
-  private SolrServer solrServer = null;
+  private SolrClient solrServer = null;
   private String solrUrl = "http://localhost:8983/solr/collection1";
   private boolean issueCommit = true;
+  private boolean versionLatest = false;
+
+  private String versionSource;
 
   private int batchSize = 100;
   // private LinkedBlockingQueue<SolrInputDocument> batch = new
@@ -50,6 +52,8 @@ public class SendToSolr extends AbstractStage {
     solrUrl = config.getProperty("solrUrl", solrUrl);
     issueCommit = config.getBoolParam("issueCommit", new Boolean(issueCommit));
     batchSize = Integer.valueOf(config.getIntegerParam("batchSize", batchSize));
+    versionLatest = config.getBoolParam("versionLatest", new Boolean(versionLatest));
+    versionSource = config.getProperty("versionSource");
 
     // basicAuthUser = config.getStringParam("basicAuthUser", basicAuthUser);
     // basicAuthPass = config.getStringParam("basicAuthPass", basicAuthPass);
@@ -67,7 +71,7 @@ public class SendToSolr extends AbstractStage {
       // create solr server with client.
       // solrServer = new HttpSolrServer( solrUrl , httpClient);
       // } else {
-      solrServer = new HttpSolrServer(solrUrl);
+      solrServer = new HttpSolrClient(solrUrl);
       // }
     } else {
       log.info("Solr instance already created.");
@@ -81,8 +85,17 @@ public class SendToSolr extends AbstractStage {
     // set the id field on the solr doc
     String docId = doc.getId();
     for (String fieldName : doc.getFields()) {
+      if (fieldName == null) {
+        // TODO: this shouldn't happen!
+        log.warn("Null field name, this shouldn't happen! doc: {}",doc.getId());
+        continue;
+      }
       for (Object value : doc.getField(fieldName)) {
-        solrDoc.addField(fieldName, value);
+        if (value != null) {
+          solrDoc.addField(fieldName, value);
+        } else {
+          // TODO: add something as a place holder if so configured.
+        }
       }
       if (addFieldsField) {
         solrDoc.addField(fieldsField, fieldName);
@@ -96,14 +109,18 @@ public class SendToSolr extends AbstractStage {
     // I guess we have the full document, we should send it
     // ArrayList<SolrInputDocument> solrDocs = new
     // ArrayList<SolrInputDocument>();
-    // solrDocs.add(solrDoc);
+
     try {
       synchronized (batch) {
         batch.add(solrDoc);
         if (batch.size() >= batchSize) {
           // System.out.println("Solr Server Flush Batch...");
           // you are blocking?
-          solrServer.add(batch);
+          try {
+            solrServer.add(batch);
+          } catch (HttpSolrClient.RemoteSolrException re) {
+            log.warn("Swallow runtime exception: {}", re);
+          }
           log.info("Sending Batch to Solr. Size: {}", batch.size());
           // System.out.println("Solr batch sent..");
           // batch.clear();
@@ -158,5 +175,25 @@ public class SendToSolr extends AbstractStage {
     }
     // TODO: call the super flush?
     // super.flush();
+
+    if (versionLatest) {
+      String versionSourceClause = "";
+      if (versionSource != null) {
+        versionSourceClause = String.format("source:%s AND ", versionSource);
+      }
+      // Grab the connector that sent this document and see what it's current job id is.
+      String versionId = ConnectorServer.getInstance().getConnector(versionSource).getJobId();
+      String notVersionid = String.format("%s!version_id:%s", versionSourceClause, versionId);
+      try {
+        log.info("Issuing a delete by query for {}", notVersionid);
+        solrServer.deleteByQuery(notVersionid);
+        solrServer.commit();
+      } catch (SolrServerException e) {
+        log.warn("Solr Server Exception while running version latest DBQ: {}", e);
+      } catch (IOException e) {
+        log.warn("IO Exception while runnign version latest DBQ: {}", e);
+      }
+      //flush();
+    }
   }
 }

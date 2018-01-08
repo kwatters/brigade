@@ -1,9 +1,9 @@
 package com.kmwllc.brigade.stage;
 
-import java.util.List;
-
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
+
+import java.util.List;
 
 /**
  * This will set a field on a document with a value
@@ -34,7 +34,8 @@ public class SetStaticFieldValue extends AbstractStage {
         doc.addToField(fieldName, value);
       }
     } else {
-      doc.addToField(fieldName, value);
+      //doc.addToField(fieldName, value);
+      doc.setField(fieldName, value);
     }
 
     return null;
