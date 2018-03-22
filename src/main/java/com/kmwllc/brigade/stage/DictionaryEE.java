@@ -6,11 +6,11 @@ import com.kmwllc.brigade.stage.dict.DictionaryManager;
 import com.kmwllc.brigade.stage.dict.EntityInfo;
 import com.kmwllc.brigade.stage.dict.FSTDictionaryManager;
 import com.kmwllc.brigade.stage.dict.PatriciaTrieDictionaryManager;
+import com.kmwllc.brigade.utils.FileUtils;
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.Tokenizer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,8 +48,9 @@ public class DictionaryEE extends AbstractStage {
         }
 
         try {
-            dictMgr.loadDictionary(new FileInputStream(dictionaryFile));
-        } catch (FileNotFoundException e) {
+            InputStream in = FileUtils.getInputStream(dictionaryFile);
+            dictMgr.loadDictionary(in);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

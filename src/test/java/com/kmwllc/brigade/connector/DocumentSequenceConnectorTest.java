@@ -42,7 +42,7 @@ public class DocumentSequenceConnectorTest {
 		return wC;
 	}
 
-	@Test
+	//@Test
 	public void testConnector() throws ClassNotFoundException, InterruptedException {
 		// We should initialize the workflow server..
 		
