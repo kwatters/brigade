@@ -1,5 +1,6 @@
 package com.kmwllc.brigade.stage.dict;
 
+import com.kmwllc.brigade.utils.Range;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by matt on 4/19/17.
@@ -50,5 +52,15 @@ public class PatriciaTrieDictionaryManager implements DictionaryManager {
     public EntityInfo getEntity(List<String> t) {
         String key = String.join(" ", t);
         return trie.get(key);
+    }
+
+    @Override
+    public List<String> findEntityStrings(String input, boolean doNested, boolean doOverlap) {
+        return null;
+    }
+
+    @Override
+    public Map<Range, EntityInfo> findEntities(String input, boolean doNested, boolean doOverlap) {
+        return null;
     }
 }

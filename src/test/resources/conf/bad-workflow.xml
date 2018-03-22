@@ -1,0 +1,21 @@
+<com.kmwllc.brigade.config.WorkflowConfig>
+    <name>ingest</name>
+    <stages>
+        <com.kmwllc.brigade.config.StageConfig>
+            <stageName>index</stageName>
+            <stageClass>com.kmwllc.brigade.stage.NonExistent</stageClass>
+            <config>
+                <entry>
+                    <string>solrUrl</string>
+                    <string>${solr.url}</string>
+                </entry>
+                <entry>
+                    <string>idField</string>
+                    <string>id</string>
+                </entry>
+            </config>
+        </com.kmwllc.brigade.config.StageConfig>
+    </stages>
+    <numWorkerThreads>1</numWorkerThreads>
+    <queueLength>50</queueLength>
+</com.kmwllc.brigade.config.WorkflowConfig>

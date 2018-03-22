@@ -12,7 +12,7 @@ public class WorkflowTest {
 
   public final static Logger log = LoggerFactory.getLogger(WorkflowTest.class.getCanonicalName());
 
-  @Test
+  //@Test
 	public void testWorkflow() throws ClassNotFoundException, InterruptedException {
 
 

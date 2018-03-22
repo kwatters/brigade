@@ -1,0 +1,32 @@
+<com.kmwllc.brigade.config.WorkflowConfig>
+    <name>ingest</name>
+    <endpointConfig>
+        <endpointName>mock</endpointName>
+        <endpointClass>com.kmwllc.brigade.util.MockEndpoint</endpointClass>
+        <config/>
+    </endpointConfig>
+    <stages>
+        <com.kmwllc.brigade.config.StageConfig>
+            <stageName>badStage</stageName>
+            <stageClass>com.evil.BadStage</stageClass>
+            <config>
+            </config>
+        </com.kmwllc.brigade.config.StageConfig>
+        <com.kmwllc.brigade.config.StageConfig>
+            <stageName>index</stageName>
+            <stageClass>com.kmwllc.brigade.stage.SendToSolr</stageClass>
+            <config>
+                <entry>
+                    <string>solrUrl</string>
+                    <string>${solr.url}</string>
+                </entry>
+                <entry>
+                    <string>idField</string>
+                    <string>id</string>
+                </entry>
+            </config>
+        </com.kmwllc.brigade.config.StageConfig>
+    </stages>
+    <numWorkerThreads>1</numWorkerThreads>
+    <queueLength>50</queueLength>
+</com.kmwllc.brigade.config.WorkflowConfig>

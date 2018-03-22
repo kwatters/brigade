@@ -1,15 +1,15 @@
 package com.kmwllc.brigade.stage;
 
-import java.io.File;
-import java.io.FileReader;
+import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.utils.FileUtils;
+import com.opencsv.CSVReader;
+import org.slf4j.Logger;
+
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.slf4j.Logger;
-import com.kmwllc.brigade.logging.LoggerFactory;
-import com.opencsv.CSVReader;
 
 
 /**
@@ -46,13 +46,14 @@ public class DictionaryLoader {
     }
     // It's not loaded, load the file and put it in the dict map and return.
     // Assume the file is a csv file with key/value pairs on each line.
-    HashMap<String, List<String>> dictionary = new HashMap<String, List<String>>();
-    File dictFile = new File(fileName);
-    if (!dictFile.exists()) {
-      log.warn("Dictionary file not found {}", dictFile.getAbsolutePath());
-      return null;
+    HashMap<String, List<String>> dictionary = new HashMap<>();
+    Reader r = null;
+    try {
+      r = FileUtils.getReader(fileName);
+    } catch (Exception e) {
+      throw new IOException(e);
     }
-    CSVReader reader = new CSVReader(new FileReader(fileName));
+    CSVReader reader = new CSVReader(r);
     String[] line;
     while ((line = reader.readNext()) != null) {
       // line[] is an array of values from the line

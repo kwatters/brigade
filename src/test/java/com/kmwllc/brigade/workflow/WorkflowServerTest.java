@@ -8,7 +8,7 @@ import com.kmwllc.brigade.document.Document;
 
 public class WorkflowServerTest {
 
-	@Test
+	//@Test
 	public void testWorkflowServer() throws ClassNotFoundException, InterruptedException {
 		
 		WorkflowConfig wC = createWorkflow();
