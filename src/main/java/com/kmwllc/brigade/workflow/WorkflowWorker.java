@@ -26,11 +26,12 @@ public class WorkflowWorker extends Thread {
 
   private final LinkedBlockingQueue<Document> queue;
 
+
   WorkflowWorker(WorkflowConfig workflowConfig, LinkedBlockingQueue<Document> queue) throws ClassNotFoundException {
     // set the thread name
     this.setName("WorkflowWorker-" + workflowConfig.getName());
     this.queue = queue;
-    stages = new ArrayList<AbstractStage>();
+    stages = new ArrayList<>();
     for (StageConfig stageConf : workflowConfig.getStages()) {
       String stageClass = stageConf.getStageClass().trim();
       String stageName = stageConf.getStageName();
@@ -67,7 +68,6 @@ public class WorkflowWorker extends Thread {
       } catch (Exception e) {
         // TODO: handle these properly
         log.warn("Workflow Worker Died! {}", e.getMessage());
-        // log.warn("Died on doc: {}", doc);
         e.printStackTrace();
         running = false;
         processing = false;
@@ -103,8 +103,7 @@ public class WorkflowWorker extends Thread {
           processDocumentInternal(childDoc, i);
         }
       }
-      // TODO:should I create a completely new concept for
-      // callbacks?
+      // TODO:should I create a completely new concept for callbacks?
       if (doc.getStatus().equals(ProcessingStatus.DROP)) {
         // if it's a drop, break here.
         break;

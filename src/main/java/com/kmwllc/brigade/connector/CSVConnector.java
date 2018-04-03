@@ -4,13 +4,11 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.utils.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class CSVConnector extends AbstractConnector {
 
@@ -32,11 +30,7 @@ public class CSVConnector extends AbstractConnector {
 
   @Override
   public void setConfig(ConnectorConfig config) {
-    // TODO: this should be in the base class ..and automagic
     workflowName = config.getProperty("workflowName");
-    // TODO: remove side effects of a "setter"
-    // the parsing of the config should be handled elsewhere? maybe initialize?
-    // TODO: validate the config options are valid.
 
     setDocIdPrefix(config.getStringParam("docIdPrefix", ""));
     filename = config.getProperty("filename");
@@ -45,26 +39,12 @@ public class CSVConnector extends AbstractConnector {
 
     separator = config.getProperty("separator", separator);
     numFields = config.getIntegerParam("numFields", numFields);
-    // this is computed in initialize.
-    // idColumn = config.getProperty("idColumn");
     useRowAsId = config.getBoolParam("useRowAsId", useRowAsId);
     skipRows = config.getIntegerParam("skipRows", skipRows);
     firstRowAsColumns = config.getBoolParam("firstRowAsColumns", firstRowAsColumns);
   }
 
   public void initialize() {
-    // filename = config.getProperty("filename", "data/myfile.csv");
-    // columns = config.getProperty("columnnames",
-    // "id,column1,column2").split(",");
-    // idField = config.getProperty("idcolumn", "id");
-    // idPrefix = config.getProperty("idprefix", "doc_");
-    // separator = config.getProperty("separator", ",");
-    // if (separator.length() > 1) {
-    // // This is an error condition we can only have a character as a
-    // separator.
-    //
-    // }
-
     numFields = columns.length;
     for (int i = 0; i < numFields; i++) {
       if (columns[i].equals(idField)) {
@@ -76,25 +56,16 @@ public class CSVConnector extends AbstractConnector {
 
   @Override
   public void startCrawling() throws Exception {
-
-    state = ConnectorState.RUNNING;
     // compile the map to for header to column number.
     // TODO: add a directory traversal ..
-    // log.info("Starting CSV Connector");
-    File fileToCrawl = new File(filename);
-    if (!fileToCrawl.exists()) {
-      // error. file not found.
-      log.warn("File not found..." + filename);
-      throw new Exception("File not found");
+
+    Reader reader = null;
+    try {
+      reader = FileUtils.getReader(filename);
+    } catch (Exception e) {
+      throw new IOException(e);
     }
 
-    FileReader reader = null;
-    try {
-      reader = new FileReader(fileToCrawl);
-    } catch (FileNotFoundException e) {
-      // This should not happen
-      e.printStackTrace();
-    }
     CSVReader csvReader = new CSVReader(reader, separator.charAt(0));
     if (firstRowAsColumns) {
       // we should read the first row as the column header
@@ -114,8 +85,7 @@ public class CSVConnector extends AbstractConnector {
     try {
 
       while ((nextLine = csvReader.readNext()) != null) {
-        // TODO: replace this with connector state, and make private isRunning
-        // again.
+        // TODO: replace this with connector state, and make private isRunning again.
         
         if (limit > -1 && rowNum == limit) {
           log.info("Read the limit of {} rows exiting.", limit);
@@ -132,7 +102,6 @@ public class CSVConnector extends AbstractConnector {
           log.warn("Warning on row {} number of columns is {} and we expected {}", nextLine.length, numFields);
           log.warn("Num Fields: {}", numFields);
         }
-        //log.info("Row  {} numColumns {} ", rowNum, nextLine.length);
         if (rowNum <= skipRows) {
           continue;
         }
@@ -156,7 +125,6 @@ public class CSVConnector extends AbstractConnector {
           }
         }
         feed(docToSend);
-        // log.info("feed {}", rowNum);
       }
     } catch (IOException e) {
       // shouldn't see this.. but who knows.
@@ -165,9 +133,6 @@ public class CSVConnector extends AbstractConnector {
 
     log.info("Finsihed reading CSV File, flushing final data now... processed {} rows", rowNum);
     flush();
-    // TODO: why the heck does this not block until we're done as we expect?!?!
-    state = ConnectorState.STOPPED;
-    // TODO: push this state management to the base class?
     log.info("Connector state has stopped. {} rows crawled.", rowNum);
   }
 

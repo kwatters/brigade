@@ -11,18 +11,18 @@ import com.kmwllc.brigade.workflow.WorkflowServer;
  */
 public interface DocumentConnector {
 
-  public void startCrawling() throws Exception;
+  void startCrawling() throws Exception;
 
-  public void stopCrawling();
+  void stopCrawling();
 
-  public ConnectorState getConnectorState();
+  ConnectorState getConnectorState();
 
   // TODO: this should be "feed()"
-  public Document publishDocument(Document doc);
+  Document publishDocument(Document doc);
 
   // TODO: should add "flush()"
   // TODO: review if we need both of these
-  public void setWorkflowName(String workflowName);
+  void setWorkflowName(String workflowName);
 
   void setWorkflowServer(WorkflowServer workflowServer);
   

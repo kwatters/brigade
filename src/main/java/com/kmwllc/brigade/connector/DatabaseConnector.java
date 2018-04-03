@@ -38,20 +38,6 @@ public class DatabaseConnector extends AbstractConnector {
 
     }
 
-    // @Override
-    // public void initialize(ConnectorConfiguration config) {
-    // driver = config.getProperty("jdbcDriver");
-    // connectionString = config.getProperty("connectionString");
-    // jdbcUser = config.getProperty("jdbcUser");
-    // jdbcPassword = config.getProperty("jdbcPassword");
-    // idField = config.getProperty("idField");
-    // preSql = config.getProperty("preSql");
-    // sql = config.getProperty("sql");
-    // postSql = config.getProperty("postSql");
-    // // Create the connection
-    // createConnection();
-    // }
-
     private void createConnection() {
         try {
             Class.forName(driver);
@@ -69,9 +55,6 @@ public class DatabaseConnector extends AbstractConnector {
 
     @Override
     public void startCrawling() throws Exception {
-        // Here is where we start up our connector
-        setState(ConnectorState.RUNNING);
-
         // connect to the database.
         createConnection();
 
@@ -136,7 +119,6 @@ public class DatabaseConnector extends AbstractConnector {
         runPostSql();
 
         flush();
-        setState(ConnectorState.STOPPED);
     }
 
     /**
