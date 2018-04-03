@@ -33,7 +33,6 @@ public class FileConnector extends AbstractConnector implements FileVisitor<Path
 
   @Override
   public void startCrawling() {
-    state = ConnectorState.RUNNING;
     Path startPath = Paths.get(directory);
     try {
       Files.walkFileTree(startPath, this);
@@ -43,7 +42,6 @@ public class FileConnector extends AbstractConnector implements FileVisitor<Path
     }
     log.info("File Connector finished walking the tree.");
     // TODO: should we flush here immediately?
-    state = ConnectorState.STOPPED;
   }
 
   @Override

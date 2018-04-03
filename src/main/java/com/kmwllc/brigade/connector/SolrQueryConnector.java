@@ -26,7 +26,6 @@ public class SolrQueryConnector extends AbstractConnector {
 	
 	@Override
 	public void setConfig(ConnectorConfig config) {
-		// TODO Auto-generated method stub
 		solrUrl = config.getStringParam("solrUrl", solrUrl);
 
 		numRows = config.getIntegerParam("numRows", numRows);
@@ -36,16 +35,12 @@ public class SolrQueryConnector extends AbstractConnector {
 
 	@Override
 	public void initialize() {
-		// TODO Auto-generated method stub
 	}
 	
 	@Override
 	public void startCrawling() throws IOException {
-		// 
 		HashSet<String> blackListFields = new HashSet<String>();
 		blackListFields.add("_version_");
-		// TODO: push this down into the base class!  state shouldn't be managed here.
-		state = ConnectorState.RUNNING;
 		HttpSolrClient client = new HttpSolrClient(solrUrl);
 		SolrQuery query = new SolrQuery(queryString);
 		query.set("rows", numRows);
@@ -58,11 +53,8 @@ public class SolrQueryConnector extends AbstractConnector {
 		try {
 			qRes = client.query(query);
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			// state = ConnectorState.INTERRUPTED;
 			e.printStackTrace();
 		}
-		// long numFound = qRes.getResults().getNumFound();
 		// TODO: iterate the end of the results.
 		for (SolrDocument sDoc : qRes.getResults()) {
 			// now i want to feed this as a brigade document.
@@ -85,7 +77,6 @@ public class SolrQueryConnector extends AbstractConnector {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		state = ConnectorState.STOPPED;
 	}
 
 	@Override

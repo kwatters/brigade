@@ -66,7 +66,6 @@ public class JsonConnector extends AbstractConnector {
         }
 
         flush();
-        state = ConnectorState.STOPPED;
     }
 
     private Reader getJson(int page) throws IOException {

@@ -45,11 +45,9 @@ public class XMLConnector extends AbstractConnector {
 
     @Override
     public void startCrawling() throws Exception {
-        state = ConnectorState.RUNNING;
 
         // Everything in between
         SAXParserFactory spf = SAXParserFactory.newInstance();
-        // spf.setNamespaceAware(false); ? Expose this?
         spf.setNamespaceAware(true);
         SAXParser saxParser = null;
 
@@ -57,7 +55,6 @@ public class XMLConnector extends AbstractConnector {
             spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
             saxParser = spf.newSAXParser();
         } catch (ParserConfigurationException | SAXException e) {
-            // TODO Auto-generated catch block
             log.warn("SAX Parser Error {}", e);
         }
 
@@ -109,8 +106,7 @@ public class XMLConnector extends AbstractConnector {
 
             }
         } catch (IOException | SAXException e) {
-            // TODO Auto-generated catch block
-            log.warn("SAX Parser Error {}", e);
+           log.warn("SAX Parser Error {}", e);
         }
 
         
@@ -126,7 +122,6 @@ public class XMLConnector extends AbstractConnector {
     	// no op
     	long deltaS = (System.currentTimeMillis() - getStartTime()) / 1000;
     	log.info("Stop Crawling called, Sent {} docs in {} seconds.", getFeedCount() , deltaS);
-    	state = ConnectorState.STOPPED;
     }
 
 
