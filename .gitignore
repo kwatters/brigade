@@ -2,3 +2,5 @@
 .settings
 .idea
 *.iml
+exportToHTML
+logs

@@ -20,7 +20,6 @@ public class StageConfig extends Config {
   }
 
   public StageConfig() {
-    // deprecate this constructor?
     config = new HashMap<>();
   }
 

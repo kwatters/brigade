@@ -1,0 +1,35 @@
+<com.kmwllc.brigade.config.ConnectorConfig>
+    <connectorName>testDB</connectorName>
+    <connectorClass>com.kmwllc.brigade.connector.DatabaseConnector</connectorClass>
+    <config>
+        <entry>
+            <string>driver</string>
+            <string>org.h2.Driver</string>
+        </entry>
+        <entry>
+            <string>connectionString</string>
+            <string>jdbc:h2:mem:test</string>
+        </entry>
+        <entry>
+            <string>jdbcUser</string>
+            <string></string>
+        </entry>
+        <entry>
+            <string>jdbcPassword</string>
+            <string></string>
+        </entry>
+        <entry>
+            <string>idField</string>
+            <string>id</string>
+        </entry>
+        <entry>
+            <string>sql</string>
+            <string>select id, name, type from animal</string>
+        </entry>
+        <entry>
+            <string>workflowName</string>
+            <string>ingest</string>
+        </entry>
+
+    </config>
+</com.kmwllc.brigade.config.ConnectorConfig>

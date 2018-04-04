@@ -36,12 +36,10 @@ public class DocumentSequenceConnector extends AbstractConnector {
 
   @Override
   public void startCrawling() {
-    setState(ConnectorState.RUNNING);
     for (int i = startId; i <= stopId; i++) {
       Document d = new Document(Integer.toString(i));
       feed(d);
     }
-    setState(ConnectorState.STOPPED);
   }
 
   @Override

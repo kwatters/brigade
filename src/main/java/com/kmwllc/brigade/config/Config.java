@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class Config {
 
-  // TODO: add a map type.
   // TODO: push the name/class onto this ?
   // The config consists of many parts.
   // server level config
@@ -21,9 +20,7 @@ public class Config {
 
   public Config() {
     config = new HashMap<>();
-    // figure that we need to be able to serialize / deserialize
     // TODO: consider a faster driver / serializer
-    // xstream = new XStream(new StaxDriver());
   }
 
   public void setStringParam(String name, String value) {

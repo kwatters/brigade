@@ -1,0 +1,18 @@
+<com.kmwllc.brigade.config.WorkflowConfig>
+    <name>ingest</name>
+
+    <stages>
+        <com.kmwllc.brigade.config.StageConfig>
+            <stageName>dumpDoc</stageName>
+            <stageClass>com.kmwllc.brigade.concurrency.DumpDoc</stageClass>
+            <config>
+                <entry>
+                    <string>output</string>
+                    <string>csv-test-output.txt</string>
+                </entry>
+            </config>
+        </com.kmwllc.brigade.config.StageConfig>
+    </stages>
+    <numWorkerThreads>1</numWorkerThreads>
+    <queueLength>50</queueLength>
+</com.kmwllc.brigade.config.WorkflowConfig>

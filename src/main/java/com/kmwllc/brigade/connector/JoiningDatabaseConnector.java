@@ -48,20 +48,6 @@ public class JoiningDatabaseConnector extends AbstractConnector {
 
   }
 
-  // @Override
-  // public void initialize(ConnectorConfiguration config) {
-  // driver = config.getProperty("jdbcDriver");
-  // connectionString = config.getProperty("connectionString");
-  // jdbcUser = config.getProperty("jdbcUser");
-  // jdbcPassword = config.getProperty("jdbcPassword");
-  // idField = config.getProperty("idField");
-  // preSql = config.getProperty("preSql");
-  // sql = config.getProperty("sql");
-  // postSql = config.getProperty("postSql");
-  // // Create the connection
-  // createConnection();
-  // }
-
   private void createConnection() throws ClassNotFoundException, SQLException {
     try {
       Class.forName(driver);
@@ -83,12 +69,10 @@ public class JoiningDatabaseConnector extends AbstractConnector {
 
   @Override
   public void startCrawling() throws Exception {
-    // Here is where we start up our connector
-    setState(ConnectorState.RUNNING);
     // connect to the database.
     createConnection();
     // run the pre-sql (if specified)
-    runPreSql();
+    runSql(preSql);
 
     ResultSet rs = null;
     try {
@@ -97,7 +81,6 @@ public class JoiningDatabaseConnector extends AbstractConnector {
       rs = state.executeQuery(sql);
     } catch (SQLException e) {
       e.printStackTrace();
-      // TODO: blow up throw an error
       setState(ConnectorState.ERROR);
       throw(e);
     }
@@ -110,7 +93,6 @@ public class JoiningDatabaseConnector extends AbstractConnector {
       Statement state2 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
       rs2 = state2.executeQuery(joinSql);
     } catch (SQLException e) {
-      // TODO : some better error handling across the system.
       e.printStackTrace();
       setState(ConnectorState.ERROR);
       throw(e);
@@ -126,7 +108,6 @@ public class JoiningDatabaseConnector extends AbstractConnector {
       // get the column name map for the second result set.
       columns2 = getColumnNames(rs2);
     } catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       setState(ConnectorState.ERROR);
       return;
@@ -156,7 +137,7 @@ public class JoiningDatabaseConnector extends AbstractConnector {
         while (rs2.next()) {
           // TODO: support non INT primary key
           Integer otherJoinId = rs2.getInt(joinField);
-          // log.info("Key A : {}  Key B : {}", joinId, otherJoinId);
+
           if (otherJoinId < joinId) {
             // advance until we get to the id on the right side that we want.
             continue;
@@ -188,7 +169,7 @@ public class JoiningDatabaseConnector extends AbstractConnector {
       e.printStackTrace();
     }
     // the post sql.
-    runPostSql();
+    runSql(postSql);
     flush();
     connection.close();
     setState(ConnectorState.STOPPED);
@@ -207,24 +188,11 @@ public class JoiningDatabaseConnector extends AbstractConnector {
     return names;
   }
 
-  private void runPreSql() {
-    if (!Strings.isNullOrEmpty(preSql)) {
+  private void runSql(String sql) {
+    if (!Strings.isNullOrEmpty(sql)) {
       try {
         Statement state = connection.createStatement();
-        state.executeUpdate(preSql);
-        state.close();
-      } catch (SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-  }
-
-  private void runPostSql() {
-    if (!Strings.isNullOrEmpty(postSql)) {
-      try {
-        Statement state = connection.createStatement();
-        state.executeUpdate(postSql);
+        state.executeUpdate(sql);
         state.close();
       } catch (SQLException e) {
         // TODO Auto-generated catch block

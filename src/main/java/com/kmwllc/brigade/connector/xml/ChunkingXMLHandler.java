@@ -62,8 +62,6 @@ public class ChunkingXMLHandler implements ContentHandler {
 
   @Override
   public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-    //
-
     // push on the stack.
     currentPath.push(qName);
     // log.info("Start element: {}",qName);
@@ -71,7 +69,6 @@ public class ChunkingXMLHandler implements ContentHandler {
     // log.info("{} PATH: {}", documentRootPath, path); 
     if (documentRootPath.equals(path)) {
       // this is the start of our page.
-      // inDoc = true;
       docIDBuilder = new StringBuilder();
       // ok we should clear our input buffer up to the current offset for this
       // start element.
@@ -87,20 +84,6 @@ public class ChunkingXMLHandler implements ContentHandler {
       // this is the start of the document id field.
       inDocID = true;
     }
-    // append to the current current page the tag and it's attributes.
-
-    // TODO: properly encode/escape these!! could
-    // cause xml parsing errors!?! eek.
-    // for (int i = 0; i<atts.getLength(); i++) {
-    // StringBuilder attrBuilder = new StringBuilder();
-    // attrBuilder.append(" ");
-    // attrBuilder.append(atts.getQName(i));
-    // attrBuilder.append("=\"");
-    // attrBuilder.append(atts.getValue(i));
-    // attrBuilder.append("\"");
-    // pageBuffer.append(attrBuilder.toString());
-    // }
-
   }
 
   @Override
@@ -117,10 +100,6 @@ public class ChunkingXMLHandler implements ContentHandler {
         e.printStackTrace();
       }
 
-      // System.out.println("------------------------------------");
-      // System.out.println(xml);
-      // System.out.println("------------------------------------");
-
       // this is the end of our page send the buffer as a document
 
       // XPath not supported where id is in attribute (e.g. <field name="id">
@@ -131,7 +110,6 @@ public class ChunkingXMLHandler implements ContentHandler {
       }
 
       Document doc = new Document(docIDPrefix + id);
-      // doc.setField("xml", pageBuffer.toString());
       doc.setField("xml", xml);
       internalPublishDocument(doc);
     }
@@ -141,7 +119,6 @@ public class ChunkingXMLHandler implements ContentHandler {
     }
     // pop up..
     currentPath.pop();
-    // System.out.println(path);
   }
 
   private void internalPublishDocument(Document doc) {

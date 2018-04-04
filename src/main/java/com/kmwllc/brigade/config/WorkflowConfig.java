@@ -60,8 +60,7 @@ public class WorkflowConfig extends Config {
 
   public static WorkflowConfig fromXML(String xml) {
     // TODO: move this to a utility to serialize/deserialize the config objects.
-    // TODO: should override on the impl classes so they return a properly
-    // cast config.
+    // TODO: should override on the impl classes so they return a properly cast config.
     Object o = (new XStream(new StaxDriver())).fromXML(xml);
     return (WorkflowConfig) o;
   }

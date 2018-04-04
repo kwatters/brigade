@@ -13,179 +13,150 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 
  * AbstractConnector - base class for implementing a new document connector
  * service.
- * 
  */
 public abstract class AbstractConnector implements DocumentConnector {
 
-  public final static Logger log = LoggerFactory.getLogger(AbstractConnector.class.getCanonicalName());
-  protected ConnectorState state = ConnectorState.STOPPED;
-  private int batchSize = 1;
-  // TODO: batching at the connector level? (microbatching?)
-  // private List<Document> batch = Collections.synchronizedList(new ArrayList<Document>());
-  protected String docIdPrefix = "";
-  // protected final String name;
-  protected WorkflowServer workflowServer = WorkflowServer.getInstance();
-  protected String workflowName;
+    public final static Logger log = LoggerFactory.getLogger(AbstractConnector.class.getCanonicalName());
+    protected ConnectorState state = ConnectorState.OFF;
+    private int batchSize = 1;
+    // TODO: batching at the connector level? (microbatching?)
+    protected String docIdPrefix = "";
+    protected WorkflowServer workflowServer = WorkflowServer.getInstance();
+    protected String workflowName;
 
-  private long feedCount = 0;
+    private long feedCount = 0;
 
-  private long startTime;
-  
-  private int reportModulus = 1000;
-  
-  // the current job/batch id that can be used for query delete 
-  private String jobId = null;
-  private boolean useJobId = true;
-  private String versionIdField = "version_id";
-  
-  public AbstractConnector() {
-    // this.name = name;
-    // super(name);
-    // no overruns!
-    // this.getOutbox().setBlocking(true);
-  }
+    private long startTime;
 
-  public abstract void setConfig(ConnectorConfig config);
-  // public abstract void start() throws InterruptedException;
-  public void start() throws InterruptedException {
-	  
-    // this is a connector job_id that is unique to this run.
-    jobId = UUID.randomUUID().toString();
-    log.info("Connector starting with job id {}", jobId);
-	  
-    state = ConnectorState.RUNNING;
-    startTime = System.currentTimeMillis();
-    try {
-      startCrawling();
-    } catch (Exception e) {
-      log.warn("Caught exception: {}", e);
-      state = ConnectorState.ERROR;
-    }
-  }
-  
-  public abstract void initialize();
+    private int reportModulus = 1000;
 
-//  public String getName() {
-//    return name;
-//  }
+    // the current job/batch id that can be used for query delete
+    private String jobId = null;
+    private boolean useJobId = true;
+    private String versionIdField = "version_id";
 
-  public void feed(Document doc) {
-    // TODO: add batching and change this to publishDocuments (as a list)
-    // Batching for this sort of stuff is a very good thing.
-    feedCount++;
-    // log.debug("Feeding doc : {}", doc.getId());
-    if (feedCount % reportModulus == 0) {
-      double feedRate = 1000.0 * feedCount / (System.currentTimeMillis() - startTime);
-      log.info("Feed {} docs. Rate: {} DPS", feedCount, feedRate);
-    }
-    
-    
-    // should we add our job id to the doc?
-    if (useJobId) {
-      doc.setField(versionIdField, jobId);
-    }
-    
-    if (!StringUtils.isEmpty(docIdPrefix)) {
-      doc.setId(docIdPrefix + doc.getId());
-    }
-    
-    // log.info("Feed: {} " , doc.getId());
-    WorkflowMessage wm = new WorkflowMessage();
-    wm.setDoc(doc);
-    wm.setType("add");
-    wm.setWorkflow(workflowName);
-    // TODO: make this call async or a thread pool 
-    // where we just put the message on a blocking queue.
-    try {
-      workflowServer.processMessage(wm);
-    } catch (InterruptedException e) {
-      log.warn("Error happened while processing message.. interrupted! {}", e);
+    public AbstractConnector() {
     }
 
-    // TODO: consider if we want batching at this level or not.
-    //    if (batchSize <= 1) {
-    //      invoke("publishDocument", doc);
-    //    } else {
-    //      // handle the batch
-    //      // TODO: make this synchronized and thread safe!
-    //      batch.add(doc);
-    //      if (batch.size() >= batchSize) {
-    //        flush();
-    //      }
-    //    }
-  }
+    public abstract void setConfig(ConnectorConfig config);
 
-  public void publishFlush() {
-    // NoOp
-    // Here for the framework to invoke it on the down stream services.
-  };
+    public void start() throws InterruptedException {
 
-  public void flush() throws Exception {
-	  log.info("Flush called, feed count: {}", feedCount);
-    workflowServer.flush(workflowName);
-  }
+        // this is a connector job_id that is unique to this run.
+        jobId = UUID.randomUUID().toString();
+        log.info("Connector starting with job id {}", jobId);
 
-  public ConnectorState getState() {
-    return state;
-  }
+        state = ConnectorState.RUNNING;
+        startTime = System.currentTimeMillis();
+        try {
+            startCrawling();
+        } catch (Exception e) {
+            log.warn("Caught exception: {}", e);
+            state = ConnectorState.ERROR;
+        } finally {
+            state = ConnectorState.STOPPED;
+        }
+    }
 
-  public void setState(ConnectorState state) {
-    this.state = state;
-  }
+    public abstract void initialize();
 
-  public Document publishDocument(Document doc) {
-    return doc;
-  }
+    public void feed(Document doc) {
+        // TODO: add batching and change this to publishDocuments (as a list)
+        // Batching for this sort of stuff is a very good thing.
+        feedCount++;
+        if (feedCount % reportModulus == 0) {
+            double feedRate = 1000.0 * feedCount / (System.currentTimeMillis() - startTime);
+            log.info("Feed {} docs. Rate: {} DPS", feedCount, feedRate);
+        }
 
-  public List<Document> publishDocuments(List<Document> batch) {
-    return batch;
-  }
+        // should we add our job id to the doc?
+        if (useJobId) {
+            doc.setField(versionIdField, jobId);
+        }
 
-  public ConnectorState getConnectorState() {
-    return state;
-  }
+        if (!StringUtils.isEmpty(docIdPrefix)) {
+            doc.setId(docIdPrefix + doc.getId());
+        }
 
-  public int getBatchSize() {
-    return batchSize;
-  }
+        WorkflowMessage wm = new WorkflowMessage();
+        wm.setDoc(doc);
+        wm.setType("add");
+        wm.setWorkflow(workflowName);
+        // TODO: make this call async or a thread pool  where we just put the message on a blocking queue.
+        try {
+            workflowServer.processMessage(wm);
+        } catch (InterruptedException e) {
+            log.warn("Error happened while processing message.. interrupted! {}", e);
+        }
 
-  public void setBatchSize(int batchSize) {
-    this.batchSize = batchSize;
-  }
+        // TODO: consider if we want batching at this level or not.
+    }
 
-  public String getDocIdPrefix() {
-    return docIdPrefix;
-  }
+    public void flush() throws Exception {
+        log.info("Flush called, feed count: {}", feedCount);
+        workflowServer.flush(workflowName);
+    }
 
-  public void setDocIdPrefix(String docIdPrefix) {
-    this.docIdPrefix = docIdPrefix;
-  }
+    public ConnectorState getState() {
+        return state;
+    }
 
-  @Override
-  public void setWorkflowServer(WorkflowServer workflowServer) {
-   this.workflowServer = workflowServer; 
-  }
+    public void setState(ConnectorState state) {
+        this.state = state;
+    }
 
-  @Override
-  public void setWorkflowName(String workflowName) {
-    // TODO: replace this with a "topic" 
-    this.workflowName = workflowName;
-  }
-  
-  public long getFeedCount() {
-	return feedCount;
-  }
+    public Document publishDocument(Document doc) {
+        return doc;
+    }
 
-public long getStartTime() {
-	return startTime;
-}
+    public List<Document> publishDocuments(List<Document> batch) {
+        return batch;
+    }
 
-public String getJobId() {
-  return jobId;
-}
+    public ConnectorState getConnectorState() {
+        return state;
+    }
 
-  
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public String getDocIdPrefix() {
+        return docIdPrefix;
+    }
+
+    public void setDocIdPrefix(String docIdPrefix) {
+        this.docIdPrefix = docIdPrefix;
+    }
+
+    @Override
+    public void setWorkflowServer(WorkflowServer workflowServer) {
+        this.workflowServer = workflowServer;
+    }
+
+    @Override
+    public void setWorkflowName(String workflowName) {
+        // TODO: replace this with a "topic"
+        this.workflowName = workflowName;
+    }
+
+    public long getFeedCount() {
+        return feedCount;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+
 }

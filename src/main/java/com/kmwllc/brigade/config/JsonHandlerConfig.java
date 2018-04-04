@@ -8,9 +8,6 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
  */
 public class JsonHandlerConfig extends Config {
     public static JsonHandlerConfig fromXML(String xml) {
-        // TODO: move this to a utility to serialize/deserialize the config objects.
-        // TODO: should override on the impl classes so they return a properly
-        // cast config.
         Object o = (new XStream(new StaxDriver())).fromXML(xml);
         return (JsonHandlerConfig) o;
     }

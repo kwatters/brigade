@@ -8,5 +8,5 @@ package com.kmwllc.brigade.connector;
  *
  */
 public enum ConnectorState {
-  STOPPED, RUNNING, INTERRUPTED, ERROR
+  STOPPED, RUNNING, INTERRUPTED, ERROR, OFF
 }
