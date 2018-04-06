@@ -1,0 +1,12 @@
+{
+  name: "ingest",
+  numWorkerThreads: 1,
+  queueLength: 50,
+  stages: [
+    {
+      id: "dumpDoc",
+      type: "com.kmwllc.brigade.concurrency.DumpDoc2",
+      output: "csv-test-output.txt"
+    }
+  ]
+}

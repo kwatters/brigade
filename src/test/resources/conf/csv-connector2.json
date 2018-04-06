@@ -1,0 +1,9 @@
+{
+    id: "testCSV",
+    type: "com.kmwllc.brigade.connector.CSVConnector2",
+    filename: "test.csv",
+    separator: ",",
+    firstRowAsColumns: true,
+    useRowAsId: true,
+    workflowName: "ingest"
+}
