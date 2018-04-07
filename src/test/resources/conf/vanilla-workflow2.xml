@@ -1,0 +1,18 @@
+<com.kmwllc.brigade.config2.legacyXML.LegacyXMLWorkflowConfig>
+    <name>ingest</name>
+
+    <stages>
+        <com.kmwllc.brigade.config2.legacyXML.LegacyXMLStageConfig>
+            <stageName>dumpDoc</stageName>
+            <stageClass>com.kmwllc.brigade.concurrency.DumpDoc2</stageClass>
+            <config>
+                <entry>
+                    <string>output</string>
+                    <string>csv-test-output.txt</string>
+                </entry>
+            </config>
+        </com.kmwllc.brigade.config2.legacyXML.LegacyXMLStageConfig>
+    </stages>
+    <numWorkerThreads>1</numWorkerThreads>
+    <queueLength>50</queueLength>
+</com.kmwllc.brigade.config2.legacyXML.LegacyXMLWorkflowConfig>
