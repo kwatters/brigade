@@ -21,7 +21,7 @@ public class CSVConnectorTest2 {
 
     @Rule
     public final BrigadeHelper2 brigadeHelper = new BrigadeHelper2("conf/brigade.properties",
-            "conf/csv-connector2.json", "conf/vanilla-workflow2.json", JSON);
+            "conf/csv-connector2.json", "conf/vanilla-workflow2.json");
 
     @Test
     public void testCSV() {

@@ -1,4 +1,4 @@
-<com.kmwllc.brigade.config2.legacyXML.LegacyXMLConnectorConfig>
+<com.kmwllc.brigade.config.ConnectorConfig>
     <connectorName>testCSV</connectorName>
     <connectorClass>com.kmwllc.brigade.connector.CSVConnector2</connectorClass>
     <config>
@@ -24,4 +24,4 @@
         </entry>
 
     </config>
-</com.kmwllc.brigade.config2.legacyXML.LegacyXMLConnectorConfig>
+</com.kmwllc.brigade.config.ConnectorConfig>

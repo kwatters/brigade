@@ -20,7 +20,7 @@ public class LegacyCSVConnectorTest2 {
 
     @Rule
     public final BrigadeHelper2 brigadeHelper = new BrigadeHelper2("conf/brigade.properties",
-            "conf/csv-connector2.xml", "conf/vanilla-workflow2.xml", LEGACY_XML);
+            "conf/csv-connector2.xml", "conf/vanilla-workflow2.xml");
 
     @Test
     public void testCSV() {
