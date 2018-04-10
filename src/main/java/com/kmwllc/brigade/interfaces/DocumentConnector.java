@@ -3,6 +3,7 @@ package com.kmwllc.brigade.interfaces;
 import com.kmwllc.brigade.connector.ConnectorState;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.workflow.WorkflowServer;
+
 /**
  * A document connector needs to implement these methods 
  * 

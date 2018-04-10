@@ -1,13 +1,13 @@
-package com.kmwllc.brigade.config2.json;
+package com.kmwllc.brigade.config.json;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kmwllc.brigade.config2.ConfigException;
-import com.kmwllc.brigade.config2.ConfigFactory;
-import com.kmwllc.brigade.config2.StageConfig2;
+import com.kmwllc.brigade.config.ConfigException;
+import com.kmwllc.brigade.config.ConfigFactory;
+import com.kmwllc.brigade.config.StageConfig;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -15,9 +15,9 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.kmwllc.brigade.config2.ConfigFactory.JSON;
+import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
-public class JsonStageConfig2 implements StageConfig2 {
+public class JsonStageConfig implements StageConfig {
 
     @JsonProperty("id")
     private String stageName;
@@ -30,7 +30,7 @@ public class JsonStageConfig2 implements StageConfig2 {
     @JsonIgnore
     private ObjectMapper om;
 
-    public JsonStageConfig2() {
+    public JsonStageConfig() {
         config = new HashMap<>();
         try {
             om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
@@ -39,7 +39,7 @@ public class JsonStageConfig2 implements StageConfig2 {
         }
     }
 
-    public JsonStageConfig2(String stageName, String stageClass) {
+    public JsonStageConfig(String stageName, String stageClass) {
         this();
         this.stageClass = stageClass;
         this.stageName = stageName;
@@ -76,9 +76,9 @@ public class JsonStageConfig2 implements StageConfig2 {
     }
 
     @Override
-    public StageConfig2 deserialize(Reader r) throws ConfigException {
+    public StageConfig deserialize(Reader r) throws ConfigException {
         try {
-            return om.readValue(r, JsonStageConfig2.class);
+            return om.readValue(r, JsonStageConfig.class);
         } catch (IOException e) {
             throw new ConfigException("Error deserializing config", e);
         }

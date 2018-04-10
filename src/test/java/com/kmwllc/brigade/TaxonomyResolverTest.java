@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.TaxonomyResolver;
 import org.junit.Test;
@@ -95,7 +96,7 @@ public class TaxonomyResolverTest {
     }
 
     private StageConfig getStageConfig() {
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         stageConfig.setStringParam("inputField", "input");
         stageConfig.setStringParam("outputField", "output");
         stageConfig.setStringParam("delimiter", "\\|");

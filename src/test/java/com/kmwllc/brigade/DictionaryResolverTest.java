@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.DictionaryLookup;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class DictionaryResolverTest {
         inputs3.add("c");
         DictionaryLookup dl = new DictionaryLookup();
 
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         String dictFile = "conf/test-dict.csv";
         Map<String, String> ioMap = new HashMap<>();
         ioMap.put("input1", "output1");
@@ -91,7 +92,7 @@ public class DictionaryResolverTest {
     }
 
     private StageConfig getStageConfig() {
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         String dictFile = "conf/test-dict.csv";
         Map<String, String> ioMap = new HashMap<>();
         ioMap.put("input", "output");

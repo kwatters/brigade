@@ -1,4 +1,4 @@
-package com.kmwllc.brigade.concurrency;
+package com.kmwllc.brigade.stage;
 
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;

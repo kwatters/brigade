@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.RegexExtractor;
 import org.junit.Test;
@@ -19,7 +20,7 @@ public class TPRegexTest {
     public void testTPCapture1() {
         String input = "|t=abc|p=xyz|";
 
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         stageConfig.setStringParam("inputField", "text");
         stageConfig.setStringParam("outputField", "text");
         stageConfig.setStringParam("regex", "\\|t=(.*?)\\|+(?:p=(.*?)\\|)?");
@@ -46,7 +47,7 @@ public class TPRegexTest {
     public void testTPCapture2() {
         String input = "|t=abc||";
 
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         stageConfig.setStringParam("inputField", "text");
         stageConfig.setStringParam("outputField", "text");
         stageConfig.setStringParam("regex", "\\|t=(.*?)\\|+(?:p=(.*?)\\|)?");

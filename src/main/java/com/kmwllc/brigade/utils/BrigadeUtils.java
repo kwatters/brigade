@@ -1,4 +1,4 @@
-package com.kmwllc.brigade.util;
+package com.kmwllc.brigade.utils;
 
 import com.kmwllc.brigade.utils.FileUtils;
 

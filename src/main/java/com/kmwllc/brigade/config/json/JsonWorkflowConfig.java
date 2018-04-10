@@ -1,15 +1,12 @@
-package com.kmwllc.brigade.config2.json;
+package com.kmwllc.brigade.config.json;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kmwllc.brigade.config.StageConfig;
-import com.kmwllc.brigade.config2.ConfigException;
-import com.kmwllc.brigade.config2.ConfigFactory;
-import com.kmwllc.brigade.config2.StageConfig2;
-import com.kmwllc.brigade.config2.WorkflowConfig2;
+import com.kmwllc.brigade.config.ConfigException;
+import com.kmwllc.brigade.config.ConfigFactory;
+import com.kmwllc.brigade.config.WorkflowConfig;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -19,10 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.kmwllc.brigade.config2.ConfigFactory.JSON;
+import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
-public class JsonWorkflowConfig2 implements WorkflowConfig2<JsonStageConfig2> {
-    private List<JsonStageConfig2> stages;
+public class JsonWorkflowConfig implements WorkflowConfig<JsonStageConfig> {
+    private List<JsonStageConfig> stages;
     private String name;
     private int numWorkerThreads;
     private int queueLength;
@@ -31,7 +28,7 @@ public class JsonWorkflowConfig2 implements WorkflowConfig2<JsonStageConfig2> {
     @JsonIgnore
     private ObjectMapper om;
 
-    public JsonWorkflowConfig2() {
+    public JsonWorkflowConfig() {
         config = new HashMap<>();
         stages = new ArrayList<>();
         try {
@@ -41,7 +38,7 @@ public class JsonWorkflowConfig2 implements WorkflowConfig2<JsonStageConfig2> {
         }
     }
 
-    public JsonWorkflowConfig2(String name, int numWorkerThreads, int queueLength) {
+    public JsonWorkflowConfig(String name, int numWorkerThreads, int queueLength) {
         this();
         this.name = name;
         this.numWorkerThreads = numWorkerThreads;
@@ -49,7 +46,7 @@ public class JsonWorkflowConfig2 implements WorkflowConfig2<JsonStageConfig2> {
     }
 
     @Override
-    public List<JsonStageConfig2> getStages() {
+    public List<JsonStageConfig> getStages() {
         return stages;
     }
 
@@ -69,7 +66,7 @@ public class JsonWorkflowConfig2 implements WorkflowConfig2<JsonStageConfig2> {
     }
 
     @Override
-    public void addStage(JsonStageConfig2 stage) {
+    public void addStage(JsonStageConfig stage) {
         stages.add(stage);
     }
 
@@ -94,9 +91,9 @@ public class JsonWorkflowConfig2 implements WorkflowConfig2<JsonStageConfig2> {
     }
 
     @Override
-    public WorkflowConfig2 deserialize(Reader r) throws ConfigException {
+    public WorkflowConfig deserialize(Reader r) throws ConfigException {
         try {
-            return om.readValue(r, JsonWorkflowConfig2.class);
+            return om.readValue(r, JsonWorkflowConfig.class);
         } catch (IOException e) {
             throw new ConfigException("Error deserializing config", e);
         }

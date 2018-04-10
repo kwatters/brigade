@@ -1,4 +1,4 @@
-package com.kmwllc.brigade.config2;
+package com.kmwllc.brigade.config;
 
 public class ConfigException extends Exception {
     public ConfigException(String message) {

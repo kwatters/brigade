@@ -1,6 +1,7 @@
 package com.kmwllc.brigade.config;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This represents the overall configuration for a brigade instance.  It includes
@@ -8,10 +9,10 @@ import java.util.ArrayList;
  *
  * @author kwatters
  */
-public class BrigadeConfig extends Config {
+public class BrigadeConfig {
 
-    private ArrayList<WorkflowConfig> workflowConfigs;
-    private ArrayList<ConnectorConfig> connectorConfigs;
+    private List<WorkflowConfig<?>> workflowConfigs;
+    private List<ConnectorConfig> connectorConfigs;
 
     public BrigadeConfig() {
         workflowConfigs = new ArrayList<>();
@@ -26,11 +27,11 @@ public class BrigadeConfig extends Config {
         connectorConfigs.add(cc);
     }
 
-    public ArrayList<WorkflowConfig> getWorkflowConfigs() {
+    public List<WorkflowConfig<?>> getWorkflowConfigs() {
         return workflowConfigs;
     }
 
-    public ArrayList<ConnectorConfig> getConnectorConfigs() {
+    public List<ConnectorConfig> getConnectorConfigs() {
         return connectorConfigs;
     }
 

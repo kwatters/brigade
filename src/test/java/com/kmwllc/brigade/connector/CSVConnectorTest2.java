@@ -3,14 +3,12 @@ package com.kmwllc.brigade.connector;
 import com.kmwllc.brigade.concurrency.DumpDocReader;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.util.BrigadeHelper;
-import com.kmwllc.brigade.util.BrigadeHelper2;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 
-import static com.kmwllc.brigade.config2.ConfigFactory.JSON;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -20,8 +18,8 @@ import static org.junit.Assert.fail;
 public class CSVConnectorTest2 {
 
     @Rule
-    public final BrigadeHelper2 brigadeHelper = new BrigadeHelper2("conf/brigade.properties",
-            "conf/csv-connector2.json", "conf/vanilla-workflow2.json");
+    public final BrigadeHelper brigadeHelper = new BrigadeHelper("conf/brigade.properties",
+            "conf/csv-connector.json", "conf/vanilla-workflow.json");
 
     @Test
     public void testCSV() {

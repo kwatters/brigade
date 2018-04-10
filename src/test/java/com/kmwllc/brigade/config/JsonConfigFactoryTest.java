@@ -1,11 +1,8 @@
-package com.kmwllc.brigade.config2;
+package com.kmwllc.brigade.config;
 
-import com.kmwllc.brigade.config.Config;
-import com.kmwllc.brigade.config.StageConfig;
-import com.kmwllc.brigade.config2.json.JsonConfigFactory;
-import com.kmwllc.brigade.config2.json.JsonConnectorConfig2;
-import com.kmwllc.brigade.config2.json.JsonStageConfig2;
-import com.kmwllc.brigade.config2.json.JsonWorkflowConfig2;
+import com.kmwllc.brigade.config.json.JsonConnectorConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
+import com.kmwllc.brigade.config.json.JsonWorkflowConfig;
 import org.junit.Test;
 
 import java.io.StringReader;
@@ -26,7 +23,7 @@ public class JsonConfigFactoryTest {
             fail();
         }
 
-        JsonConnectorConfig2 conn = new JsonConnectorConfig2("testconnector", "com.xyz.TestConnector");
+        JsonConnectorConfig conn = new JsonConnectorConfig("testconnector", "com.xyz.TestConnector");
         conn.getConfig().put("prop1", "val1");
 
         StringWriter sw = new StringWriter();
@@ -50,7 +47,7 @@ public class JsonConfigFactoryTest {
                 "  prop1 : \"val1\"\n" +
                 "}";
         try {
-            ConnectorConfig2 cc = cf.deserializeConnector(new StringReader(input));
+            ConnectorConfig cc = cf.deserializeConnector(new StringReader(input));
             assertEquals("testconnector", cc.getConnectorName());
             assertEquals("com.xyz.TestConnector", cc.getConnectorClass());
             assertEquals("val2", cc.getStringParam("prop2"));
@@ -70,10 +67,10 @@ public class JsonConfigFactoryTest {
             e.printStackTrace();
             fail();
         }
-        JsonWorkflowConfig2 wf = new JsonWorkflowConfig2("testWF", 10, 100);
-        JsonStageConfig2 stage1 = new JsonStageConfig2("Stage1", "com.xyz.Stage1");
+        JsonWorkflowConfig wf = new JsonWorkflowConfig("testWF", 10, 100);
+        JsonStageConfig stage1 = new JsonStageConfig("Stage1", "com.xyz.Stage1");
         stage1.getConfig().put("s1p1", "val1");
-        JsonStageConfig2 stage2 = new JsonStageConfig2("Stage2", "com.xyz.Stage2");
+        JsonStageConfig stage2 = new JsonStageConfig("Stage2", "com.xyz.Stage2");
         stage2.getConfig().put("s2p1", "val3");
         wf.addStage(stage1);
         wf.addStage(stage2);
@@ -117,15 +114,15 @@ public class JsonConfigFactoryTest {
                 "}";
 
         try {
-            WorkflowConfig2 wc = cf.deserializeWorkflow(new StringReader(input));
+            WorkflowConfig wc = cf.deserializeWorkflow(new StringReader(input));
             assertEquals("testWF", wc.getName());
             assertEquals(2, wc.getStages().size());
-            StageConfig2 s1 = (StageConfig2) wc.getStages().get(0);
+            StageConfig s1 = (StageConfig) wc.getStages().get(0);
             assertEquals("val2", s1.getStringParam("s1p2"));
             assertEquals("val1", s1.getStringParam("s1p1"));
             assertEquals("Stage1", s1.getStageName());
             assertEquals("com.xyz.Stage1", s1.getStageClass());
-            StageConfig2 s2 = (StageConfig2) wc.getStages().get(1);
+            StageConfig s2 = (StageConfig) wc.getStages().get(1);
             assertEquals("val3", s2.getStringParam("s2p1"));
             assertEquals("Stage2", s2.getStageName());
             assertEquals("com.xyz.Stage2", s2.getStageClass());

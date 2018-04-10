@@ -1,9 +1,9 @@
-package com.kmwllc.brigade.config2.legacyXML;
+package com.kmwllc.brigade.config.legacyXML;
 
-import com.kmwllc.brigade.config2.ConfigException;
-import com.kmwllc.brigade.config2.ConfigFactory;
-import com.kmwllc.brigade.config2.ConnectorConfig2;
-import com.kmwllc.brigade.config2.WorkflowConfig2;
+import com.kmwllc.brigade.config.ConfigException;
+import com.kmwllc.brigade.config.ConfigFactory;
+import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.config.WorkflowConfig;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -15,25 +15,25 @@ public class LegacyXMLConfigFactory implements ConfigFactory {
 
   static {
     legacyReplacements.put("com.kmwllc.brigade.config.ConnectorConfig",
-            "com.kmwllc.brigade.config2.legacyXML.LegacyXMLConnectorConfig");
+            "com.kmwllc.brigade.config.legacyXML.LegacyXMLConnectorConfig");
     legacyReplacements.put("com.kmwllc.brigade.config.WorkflowConfig",
-            "com.kmwllc.brigade.config2.legacyXML.LegacyXMLWorkflowConfig");
+            "com.kmwllc.brigade.config.legacyXML.LegacyXMLWorkflowConfig");
     legacyReplacements.put("com.kmwllc.brigade.config.StageConfig",
-            "com.kmwllc.brigade.config2.legacyXML.LegacyXMLStageConfig");
+            "com.kmwllc.brigade.config.legacyXML.LegacyXMLStageConfig");
   }
 
   @Override
-  public WorkflowConfig2 deserializeWorkflow(Reader r) throws ConfigException {
+  public WorkflowConfig deserializeWorkflow(Reader r) throws ConfigException {
     return new LegacyXMLWorkflowConfig().deserialize(r);
   }
 
   @Override
-  public ConnectorConfig2 deserializeConnector(Reader r) throws ConfigException {
+  public ConnectorConfig deserializeConnector(Reader r) throws ConfigException {
     return new LegacyXMLConnectorConfig().deserialize(r);
   }
 
   @Override
-  public WorkflowConfig2 deserializeWorkflow(String s) throws ConfigException {
+  public WorkflowConfig deserializeWorkflow(String s) throws ConfigException {
     for (Map.Entry<String, String> e : legacyReplacements.entrySet()) {
       s = s.replaceAll(e.getKey(), e.getValue());
     }
@@ -41,7 +41,7 @@ public class LegacyXMLConfigFactory implements ConfigFactory {
   }
 
   @Override
-  public ConnectorConfig2 deserializeConnector(String s) throws ConfigException {
+  public ConnectorConfig deserializeConnector(String s) throws ConfigException {
     for (Map.Entry<String, String> e : legacyReplacements.entrySet()) {
       s = s.replaceAll(e.getKey(), e.getValue());
     }

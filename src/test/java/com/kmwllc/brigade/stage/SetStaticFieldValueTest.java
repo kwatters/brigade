@@ -1,6 +1,7 @@
 package com.kmwllc.brigade.stage;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 
 public class SetStaticFieldValueTest extends AbstractStageTest {
@@ -8,7 +9,7 @@ public class SetStaticFieldValueTest extends AbstractStageTest {
 	@Override
 	public AbstractStage createStage() {
 		SetStaticFieldValue stage = new SetStaticFieldValue();
-		StageConfig conf = new StageConfig();
+		StageConfig conf = new JsonStageConfig();
 		conf.setStringParam("fieldName", "foo");
 		conf.setStringParam("value", "bar");
 		stage.startStage(conf);

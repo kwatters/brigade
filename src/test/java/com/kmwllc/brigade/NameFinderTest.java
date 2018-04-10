@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.NameFinder;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class NameFinderTest {
     }
 
     private Document getDocument(String input, boolean unique) {
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         Map<String, String> ioMap = new HashMap<>();
         ioMap.put("input", "output");
         stageConfig.setMapParam("ioMap", ioMap);
@@ -73,7 +74,7 @@ public class NameFinderTest {
         String input = "Joe Smith, Joe Smith & Mark Jackson are all common names";
         String input2 = "So are Matt Jones and Dave Miller";
 
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         Map<String, String> ioMap = new HashMap<>();
         ioMap.put("input", "output");
         ioMap.put("input2", "output");

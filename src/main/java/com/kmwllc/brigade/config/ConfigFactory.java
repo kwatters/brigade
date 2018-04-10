@@ -1,7 +1,7 @@
-package com.kmwllc.brigade.config2;
+package com.kmwllc.brigade.config;
 
-import com.kmwllc.brigade.config2.json.JsonConfigFactory;
-import com.kmwllc.brigade.config2.legacyXML.LegacyXMLConfigFactory;
+import com.kmwllc.brigade.config.json.JsonConfigFactory;
+import com.kmwllc.brigade.config.legacyXML.LegacyXMLConfigFactory;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -21,14 +21,14 @@ public interface ConfigFactory {
         }
     }
 
-    WorkflowConfig2 deserializeWorkflow(Reader r) throws ConfigException;
-    ConnectorConfig2 deserializeConnector(Reader r) throws ConfigException;
+    WorkflowConfig deserializeWorkflow(Reader r) throws ConfigException;
+    ConnectorConfig deserializeConnector(Reader r) throws ConfigException;
 
-    default WorkflowConfig2 deserializeWorkflow(String s) throws ConfigException {
+    default WorkflowConfig deserializeWorkflow(String s) throws ConfigException {
         return deserializeWorkflow(new StringReader(s));
     }
 
-    default ConnectorConfig2 deserializeConnector(String s) throws ConfigException {
+    default ConnectorConfig deserializeConnector(String s) throws ConfigException {
         return deserializeConnector(new StringReader(s));
     }
 }

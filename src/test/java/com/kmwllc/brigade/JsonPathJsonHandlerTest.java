@@ -1,14 +1,15 @@
 package com.kmwllc.brigade;
 
+import com.kmwllc.brigade.config.ConfigException;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.config.JsonHandlerConfig;
+import com.kmwllc.brigade.config.json.JsonConnectorConfig;
+import com.kmwllc.brigade.config.json.JsonJsonHandlerConfig;
 import com.kmwllc.brigade.connector.json.JsonPathJsonHandler;
 import com.kmwllc.brigade.document.Document;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,9 +25,9 @@ public class JsonPathJsonHandlerTest {
 
     //@Test
     public void testTemp() {
-        ConnectorConfig jcc = new ConnectorConfig("test",
+        ConnectorConfig jcc = new JsonConnectorConfig("test",
                 "com.kwmllc.brigade.connector.JsonConnector");
-        JsonHandlerConfig jhc = new JsonHandlerConfig();
+        JsonHandlerConfig jhc = new JsonJsonHandlerConfig();
         jhc.setStringParam("docPath", "$.faqs");
         Map<String, String> fieldPaths = new HashMap<>();
         fieldPaths.put("field1", "$.field1");
@@ -36,9 +37,22 @@ public class JsonPathJsonHandlerTest {
         List<String> idFields = new ArrayList<>();
         idFields.add("faqid");
         jcc.setListParam("idFields", idFields);
-        String xmlString = jcc.toXML();
-        System.out.println(xmlString);
-        ConnectorConfig connectorConfig = jcc.fromXML(xmlString);
+        StringWriter sw = new StringWriter();
+        try {
+            jcc.serialize(sw);
+        } catch (ConfigException e) {
+            e.printStackTrace();
+            fail();
+        }
+        System.out.println(sw.toString());
+        sw = new StringWriter();
+        ConnectorConfig connectorConfig = null;
+        try {
+            connectorConfig = jcc.deserialize(new StringReader(sw.toString()));
+        } catch (ConfigException e) {
+            e.printStackTrace();
+            fail();
+        }
         System.out.println(connectorConfig.getClass());
     }
 

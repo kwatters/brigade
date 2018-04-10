@@ -1,5 +1,7 @@
 package com.kmwllc.brigade.workflow;
 
+import com.kmwllc.brigade.config.json.JsonStageConfig;
+import com.kmwllc.brigade.config.json.JsonWorkflowConfig;
 import org.junit.Test;
 import org.slf4j.Logger;
 
@@ -17,17 +19,13 @@ public class WorkflowTest {
 
 
 		// Create a workflow config
-		WorkflowConfig wC = new WorkflowConfig("testWorkflow");
+		WorkflowConfig wC = new JsonWorkflowConfig("testWorkflow", 10, 100);
 
-		StageConfig s1Conf = new StageConfig();
-		s1Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
-		s1Conf.setStageName("set title");
+		StageConfig s1Conf = new JsonStageConfig("set title", "com.kmwllc.brigade.stage.SetStaticFieldValue");
 		s1Conf.setStringParam("fieldName", "title");
 		s1Conf.setStringParam("value", "Hello World.");
 
-		StageConfig s2Conf = new StageConfig();
-		s2Conf.setStageName("Solr Sender");
-		s2Conf.setStageClass("com.kmwllc.brigade.stage.SendToSolr");
+		StageConfig s2Conf = new JsonStageConfig("Solr Sender", "com.kmwllc.brigade.stage.SendToSolr");
 		s2Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s2Conf.setStringParam("idField", "id");
 

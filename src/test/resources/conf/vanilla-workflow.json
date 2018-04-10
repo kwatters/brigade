@@ -5,7 +5,7 @@
   stages: [
     {
       id: "dumpDoc",
-      type: "com.kmwllc.brigade.concurrency.DumpDoc2",
+      type: "com.kmwllc.brigade.stage.DumpDoc",
       output: "csv-test-output.txt"
     }
   ]

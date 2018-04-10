@@ -2,6 +2,7 @@ package com.kmwllc.brigade.stage;
 
 import com.google.common.collect.ImmutableMap;
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LuwakQueryMatcherTest {
 
-  private StageConfig config = new StageConfig();
+  private StageConfig config = new JsonStageConfig();
   private Document document = new Document("doc1");
   private LuwakQueryMatcher matcher = new LuwakQueryMatcher();
 

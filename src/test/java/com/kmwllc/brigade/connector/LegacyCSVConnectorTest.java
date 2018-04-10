@@ -2,25 +2,24 @@ package com.kmwllc.brigade.connector;
 
 import com.kmwllc.brigade.concurrency.DumpDocReader;
 import com.kmwllc.brigade.document.Document;
-import com.kmwllc.brigade.util.BrigadeHelper2;
+import com.kmwllc.brigade.util.BrigadeHelper;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
 
-import static com.kmwllc.brigade.config2.ConfigFactory.LEGACY_XML;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
  * Created by matt on 3/22/17.
  */
-public class LegacyCSVConnectorTest2 {
+public class LegacyCSVConnectorTest {
 
     @Rule
-    public final BrigadeHelper2 brigadeHelper = new BrigadeHelper2("conf/brigade.properties",
-            "conf/csv-connector2.xml", "conf/vanilla-workflow2.xml");
+    public final BrigadeHelper brigadeHelper = new BrigadeHelper("conf/brigade.properties",
+            "conf/csv-connector.xml", "conf/vanilla-workflow.xml");
 
     @Test
     public void testCSV() {

@@ -2,6 +2,9 @@ package com.kmwllc.brigade.connector;
 
 import java.util.Arrays;
 
+import com.kmwllc.brigade.config.json.JsonConnectorConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
+import com.kmwllc.brigade.config.json.JsonWorkflowConfig;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,12 +20,10 @@ public class KafkaConnectorTest {
 
   @Test
   public void testKafkaConnector() throws Exception {
-    WorkflowConfig wC = new WorkflowConfig("testWorkflow");
-    wC.setName("ingest");
+    WorkflowConfig wC = new JsonWorkflowConfig("testWorkflow", 10, 100);
+    //wC.setName("ingest");
     
-    StageConfig s1Conf = new StageConfig();
-    s1Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
-    s1Conf.setStageName("set title");
+    StageConfig s1Conf = new JsonStageConfig("set title", "com.kmwllc.brigade.stage.SetStaticFieldValue");
     s1Conf.setStringParam("fieldName", "title");
     s1Conf.setStringParam("value", "Hello World.");
     WorkflowServer ws = WorkflowServer.getInstance();
@@ -30,7 +31,7 @@ public class KafkaConnectorTest {
    
 
     // config the connector
-    ConnectorConfig cfg = new ConnectorConfig("kafka", "com.kmwllc.brigade.connector.KafkaConsumerConnector");
+    ConnectorConfig cfg = new JsonConnectorConfig("kafka", "com.kmwllc.brigade.connector.KafkaConsumerConnector");
     cfg.setStringParam("bootstrapServers", "phobos:9092");
     cfg.setListParam("topics", Arrays.asList("test_topic"));
     ConnectorServer.getInstance().addConnector(cfg);

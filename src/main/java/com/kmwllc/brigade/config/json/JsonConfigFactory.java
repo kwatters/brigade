@@ -1,25 +1,25 @@
-package com.kmwllc.brigade.config2.json;
+package com.kmwllc.brigade.config.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kmwllc.brigade.config2.ConfigException;
-import com.kmwllc.brigade.config2.ConfigFactory;
-import com.kmwllc.brigade.config2.ConnectorConfig2;
-import com.kmwllc.brigade.config2.WorkflowConfig2;
+import com.kmwllc.brigade.config.ConfigException;
+import com.kmwllc.brigade.config.ConfigFactory;
+import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.config.WorkflowConfig;
 
 import java.io.Reader;
 
 public class JsonConfigFactory implements ConfigFactory {
     @Override
-    public WorkflowConfig2 deserializeWorkflow(Reader r) throws ConfigException {
-        return new JsonWorkflowConfig2().deserialize(r);
+    public WorkflowConfig deserializeWorkflow(Reader r) throws ConfigException {
+        return new JsonWorkflowConfig().deserialize(r);
     }
 
     @Override
-    public ConnectorConfig2 deserializeConnector(Reader r) throws ConfigException {
-        return new JsonConnectorConfig2().deserialize(r);
+    public ConnectorConfig deserializeConnector(Reader r) throws ConfigException {
+        return new JsonConnectorConfig().deserialize(r);
     }
 
     public ObjectMapper getObjectMapper() {

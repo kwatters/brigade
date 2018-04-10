@@ -1,6 +1,6 @@
 {
     id: "testCSV",
-    type: "com.kmwllc.brigade.connector.CSVConnector2",
+    type: "com.kmwllc.brigade.connector.CSVConnector",
     filename: "test.csv",
     separator: ",",
     firstRowAsColumns: true,

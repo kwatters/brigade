@@ -1,14 +1,13 @@
-package com.kmwllc.brigade.config2.json;
+package com.kmwllc.brigade.config.json;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.kmwllc.brigade.config2.ConfigException;
-import com.kmwllc.brigade.config2.ConfigFactory;
-import com.kmwllc.brigade.config2.ConnectorConfig2;
+import com.kmwllc.brigade.config.ConfigException;
+import com.kmwllc.brigade.config.ConfigFactory;
+import com.kmwllc.brigade.config.ConnectorConfig;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -16,9 +15,9 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.kmwllc.brigade.config2.ConfigFactory.JSON;
+import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
-public class JsonConnectorConfig2 implements ConnectorConfig2 {
+public class JsonConnectorConfig implements ConnectorConfig {
 
     @JsonProperty("id")
     private String connectorName;
@@ -31,7 +30,7 @@ public class JsonConnectorConfig2 implements ConnectorConfig2 {
     @JsonIgnore
     private ObjectMapper om = new ObjectMapper();
 
-    public JsonConnectorConfig2() {
+    public JsonConnectorConfig() {
         config = new HashMap<>();
         try {
             om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
@@ -40,7 +39,7 @@ public class JsonConnectorConfig2 implements ConnectorConfig2 {
         }
     }
 
-    public JsonConnectorConfig2(String connectorName, String connectorClass) {
+    public JsonConnectorConfig(String connectorName, String connectorClass) {
         this();
         this.connectorName = connectorName;
         this.connectorClass = connectorClass;
@@ -77,9 +76,9 @@ public class JsonConnectorConfig2 implements ConnectorConfig2 {
     }
 
     @Override
-    public ConnectorConfig2 deserialize(Reader r) throws ConfigException {
+    public ConnectorConfig deserialize(Reader r) throws ConfigException {
         try {
-            return om.readValue(r, JsonConnectorConfig2.class);
+            return om.readValue(r, JsonConnectorConfig.class);
         } catch (IOException e) {
             throw new ConfigException("Error deserializing config", e);
         }

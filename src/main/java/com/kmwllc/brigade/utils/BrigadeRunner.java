@@ -1,34 +1,29 @@
-package com.kmwllc.brigade.util;
+package com.kmwllc.brigade.utils;
 
 import com.kmwllc.brigade.Brigade;
-import com.kmwllc.brigade.Brigade2;
 import com.kmwllc.brigade.config.BrigadeConfig;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
-import com.kmwllc.brigade.config2.BrigadeConfig2;
-import com.kmwllc.brigade.config2.ConfigFactory;
-import com.kmwllc.brigade.config2.ConnectorConfig2;
-import com.kmwllc.brigade.config2.WorkflowConfig2;
+import com.kmwllc.brigade.config.ConfigFactory;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.Map;
 
-import static com.kmwllc.brigade.config2.ConfigFactory.JSON;
-import static com.kmwllc.brigade.config2.ConfigFactory.LEGACY_XML;
+import static com.kmwllc.brigade.config.ConfigFactory.JSON;
+import static com.kmwllc.brigade.config.ConfigFactory.LEGACY_XML;
 
 /**
  * Created by matt on 3/22/17.
  */
-public class BrigadeRunner2 {
+public class BrigadeRunner {
 
   private final InputStream workflowFile;
   private final InputStream connectorFile;
   private final InputStream propertiesFile;
 
-  public BrigadeRunner2(InputStream propertiesFile, InputStream connectorFile, InputStream workflowFile) {
+  public BrigadeRunner(InputStream propertiesFile, InputStream connectorFile, InputStream workflowFile) {
     this.propertiesFile = propertiesFile;
     this.connectorFile = connectorFile;
     this.workflowFile = workflowFile;
@@ -88,18 +83,18 @@ public class BrigadeRunner2 {
     String workflowConfigFormat = sniffConfigFormat(workflowString);
 
     ConfigFactory connectorConfigFactory = ConfigFactory.instance(connectorConfigFormat);
-    ConnectorConfig2 connectorConfig = connectorConfigFactory.deserializeConnector(connectorString);
+    ConnectorConfig connectorConfig = connectorConfigFactory.deserializeConnector(connectorString);
 
     ConfigFactory workflowConfigFactory = ConfigFactory.instance(workflowConfigFormat);
-    WorkflowConfig2 workflowConfig = workflowConfigFactory.deserializeWorkflow(workflowString);
+    WorkflowConfig workflowConfig = workflowConfigFactory.deserializeWorkflow(workflowString);
 
     // init the brigade config!
-    BrigadeConfig2 config = new BrigadeConfig2();
+    BrigadeConfig config = new BrigadeConfig();
     config.addConnectorConfig(connectorConfig);
     config.addWorkflowConfig(workflowConfig);
 
     // Start up the Brigade Server
-    Brigade2 brigadeServer = Brigade2.getInstance();
+    Brigade brigadeServer = Brigade.getInstance();
     brigadeServer.setConfig(config);
     try {
       brigadeServer.start();

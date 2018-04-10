@@ -1,8 +1,7 @@
 package com.kmwllc.brigade.connector;
 
-import org.slf4j.Logger;
-
 import com.kmwllc.brigade.logging.LoggerFactory;
+import org.slf4j.Logger;
 
 public class ConnectorRunner extends Thread {
 

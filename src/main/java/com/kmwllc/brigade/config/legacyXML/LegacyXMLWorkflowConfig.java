@@ -1,8 +1,7 @@
-package com.kmwllc.brigade.config2.legacyXML;
+package com.kmwllc.brigade.config.legacyXML;
 
-import com.kmwllc.brigade.config2.ConfigException;
-import com.kmwllc.brigade.config2.StageConfig2;
-import com.kmwllc.brigade.config2.WorkflowConfig2;
+import com.kmwllc.brigade.config.ConfigException;
+import com.kmwllc.brigade.config.WorkflowConfig;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
@@ -18,7 +17,7 @@ import java.util.Map;
  *
  * @author kwatters
  */
-public class LegacyXMLWorkflowConfig implements WorkflowConfig2<LegacyXMLStageConfig> {
+public class LegacyXMLWorkflowConfig implements WorkflowConfig<LegacyXMLStageConfig> {
 
     private String name;
     private int numWorkerThreads;
@@ -48,9 +47,9 @@ public class LegacyXMLWorkflowConfig implements WorkflowConfig2<LegacyXMLStageCo
     }
 
     @Override
-    public WorkflowConfig2 deserialize(Reader r) throws ConfigException {
+    public WorkflowConfig deserialize(Reader r) throws ConfigException {
         Object o = (new XStream(new StaxDriver())).fromXML(r);
-        return (WorkflowConfig2) o;
+        return (WorkflowConfig) o;
     }
 
     @Override

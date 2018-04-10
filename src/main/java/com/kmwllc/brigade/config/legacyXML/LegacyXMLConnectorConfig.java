@@ -1,8 +1,7 @@
-package com.kmwllc.brigade.config2.legacyXML;
+package com.kmwllc.brigade.config.legacyXML;
 
-import com.kmwllc.brigade.config2.ConfigException;
-import com.kmwllc.brigade.config2.ConnectorConfig2;
-import com.kmwllc.brigade.config2.StageConfig2;
+import com.kmwllc.brigade.config.ConfigException;
+import com.kmwllc.brigade.config.ConnectorConfig;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
@@ -17,30 +16,28 @@ import java.util.Map;
  *
  * @author kwatters
  */
-public class LegacyXMLStageConfig implements StageConfig2 {
+public class LegacyXMLConnectorConfig implements ConnectorConfig {
 
-    private String stageName;
-    private String stageClass;
+    private String connectorName;
+    private String connectorClass;
     private Map<String, Object> config;
 
-    public LegacyXMLStageConfig() {
+    public LegacyXMLConnectorConfig() {
         config = new HashMap<>();
     }
 
-    public LegacyXMLStageConfig(String stageName, String stageClass) {
+    public LegacyXMLConnectorConfig(String connectorName, String connectorClass) {
         this();
-        this.stageClass = stageClass;
-        this.stageName = stageName;
+        this.connectorName = connectorName;
+        this.connectorClass = connectorClass;
     }
 
-    @Override
-    public String getStageName() {
-        return stageName;
+    public String getConnectorName() {
+        return connectorName;
     }
 
-    @Override
-    public String getStageClass() {
-        return stageClass;
+    public String getConnectorClass() {
+        return connectorClass;
     }
 
     @Override
@@ -54,8 +51,8 @@ public class LegacyXMLStageConfig implements StageConfig2 {
     }
 
     @Override
-    public StageConfig2 deserialize(Reader r) throws ConfigException {
+    public ConnectorConfig deserialize(Reader r) throws ConfigException {
         Object o = (new XStream(new StaxDriver())).fromXML(r);
-        return (StageConfig2) o;
+        return (ConnectorConfig) o;
     }
 }

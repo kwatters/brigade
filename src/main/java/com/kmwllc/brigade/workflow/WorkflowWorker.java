@@ -27,7 +27,7 @@ public class WorkflowWorker extends Thread {
   private final LinkedBlockingQueue<Document> queue;
 
 
-  WorkflowWorker(WorkflowConfig workflowConfig, LinkedBlockingQueue<Document> queue) throws ClassNotFoundException {
+  WorkflowWorker(WorkflowConfig<StageConfig> workflowConfig, LinkedBlockingQueue<Document> queue) throws ClassNotFoundException {
     // set the thread name
     this.setName("WorkflowWorker-" + workflowConfig.getName());
     this.queue = queue;
