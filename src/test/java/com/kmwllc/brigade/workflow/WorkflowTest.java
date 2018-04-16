@@ -10,6 +10,8 @@ import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
 
+import java.util.HashMap;
+
 public class WorkflowTest {
 
   public final static Logger log = LoggerFactory.getLogger(WorkflowTest.class.getCanonicalName());
@@ -33,7 +35,7 @@ public class WorkflowTest {
 		wC.addStage(s2Conf);
 
 		// Create a workflow
-		Workflow w = new Workflow(wC);
+		Workflow w = new Workflow(wC, new HashMap<>());
 	  try {
 		  w.initialize();
 	  } catch (Exception e) {

@@ -8,6 +8,8 @@ import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
 
+import java.util.HashMap;
+
 public class WorkflowServerTest {
 
 	//@Test
@@ -16,7 +18,7 @@ public class WorkflowServerTest {
 		WorkflowConfig wC = createWorkflow();
 		WorkflowServer ws = WorkflowServer.getInstance();
 		try {
-			ws.addWorkflow(wC);
+			ws.addWorkflow(wC, new HashMap<>());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

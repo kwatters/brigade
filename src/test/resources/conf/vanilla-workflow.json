@@ -4,7 +4,7 @@
   queueLength: 50,
   stages: [
     {
-      id: "dumpDoc",
+      name: "dumpDoc",
       type: "com.kmwllc.brigade.stage.DumpDoc",
       output: "csv-test-output.txt"
     }

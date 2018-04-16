@@ -19,7 +19,13 @@ public class BrigadeUtils {
         in.close();
         Map<String, String> output = new HashMap<>();
         for (Object key : props.keySet()) {
-            output.put(key.toString(), props.getProperty(key.toString()));
+            String k = key.toString();
+            String propValue = props.getProperty(key.toString());
+            if (System.getProperty(k) != null) {
+                propValue = System.getProperty(k);
+            }
+
+            output.put(k, propValue);
         }
         return output;
     }

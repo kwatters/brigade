@@ -1,6 +1,7 @@
 package com.kmwllc.brigade.connector;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import com.kmwllc.brigade.config.json.JsonConnectorConfig;
 import com.kmwllc.brigade.config.json.JsonStageConfig;
@@ -47,7 +48,7 @@ public class DocumentSequenceConnectorTest {
 		
 		WorkflowServer ws = WorkflowServer.getInstance();
 		try {
-			ws.addWorkflow(wC);
+			ws.addWorkflow(wC, new HashMap<>());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

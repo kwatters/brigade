@@ -11,6 +11,8 @@ import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 
+import java.util.HashMap;
+
 
 // this requires an external kafka server to be up and running.
 @Ignore
@@ -32,7 +34,7 @@ public class WebcamConnectorTest {
     wC.addStage(s2Conf);
     
     WorkflowServer ws = WorkflowServer.getInstance();
-    ws.addWorkflow(wC);
+    ws.addWorkflow(wC, new HashMap<>());
    
 
     // config the connector

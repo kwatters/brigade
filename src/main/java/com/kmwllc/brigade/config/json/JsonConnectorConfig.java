@@ -19,7 +19,7 @@ import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
 public class JsonConnectorConfig implements ConnectorConfig {
 
-    @JsonProperty("id")
+    @JsonProperty("name")
     private String connectorName;
 
     @JsonProperty("type")

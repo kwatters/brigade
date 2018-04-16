@@ -1,6 +1,7 @@
 package com.kmwllc.brigade.connector;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import com.kmwllc.brigade.config.json.JsonConnectorConfig;
 import com.kmwllc.brigade.config.json.JsonStageConfig;
@@ -27,7 +28,7 @@ public class KafkaConnectorTest {
     s1Conf.setStringParam("fieldName", "title");
     s1Conf.setStringParam("value", "Hello World.");
     WorkflowServer ws = WorkflowServer.getInstance();
-    ws.addWorkflow(wC);
+    ws.addWorkflow(wC, new HashMap<>());
    
 
     // config the connector

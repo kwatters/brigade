@@ -19,7 +19,7 @@ import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
 public class JsonStageConfig implements StageConfig {
 
-    @JsonProperty("id")
+    @JsonProperty("name")
     private String stageName;
 
     @JsonProperty("type")

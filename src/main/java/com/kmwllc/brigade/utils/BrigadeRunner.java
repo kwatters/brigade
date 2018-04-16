@@ -92,6 +92,7 @@ public class BrigadeRunner {
     BrigadeConfig config = new BrigadeConfig();
     config.addConnectorConfig(connectorConfig);
     config.addWorkflowConfig(workflowConfig);
+    config.setProps(propMap);
 
     // Start up the Brigade Server
     Brigade brigadeServer = Brigade.getInstance();

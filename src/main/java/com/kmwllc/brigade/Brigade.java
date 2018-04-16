@@ -51,7 +51,7 @@ public class Brigade {
     // Add and initialize all workflows
     WorkflowServer ws = WorkflowServer.getInstance();
     for (WorkflowConfig<?> wC : config.getWorkflowConfigs()) {
-      ws.addWorkflow(wC);
+      ws.addWorkflow(wC, config.getProps());
     }
 
     // Add all connector configs

@@ -34,14 +34,14 @@ public class JsonConfigFactoryTest {
             fail();
         }
         String expected ="{\n" +
-                "  \"id\" : \"testconnector\",\n" +
+                "  \"name\" : \"testconnector\",\n" +
                 "  \"type\" : \"com.xyz.TestConnector\",\n" +
                 "  \"prop1\" : \"val1\"\n" +
                 "}";
         assertEquals(expected, sw.toString());
 
         String input = "{\n" +
-                "  id : \"testconnector\",\n" +
+                "  name : \"testconnector\",\n" +
                 "  type : \"com.xyz.TestConnector\",\n" +
                 "  prop2 : \"val2\",\n" +
                 "  prop1 : \"val1\"\n" +
@@ -84,11 +84,11 @@ public class JsonConfigFactoryTest {
         }
         String expected = "{\n" +
                 "  \"stages\" : [ {\n" +
-                "    \"id\" : \"Stage1\",\n" +
+                "    \"name\" : \"Stage1\",\n" +
                 "    \"type\" : \"com.xyz.Stage1\",\n" +
                 "    \"s1p1\" : \"val1\"\n" +
                 "  }, {\n" +
-                "    \"id\" : \"Stage2\",\n" +
+                "    \"name\" : \"Stage2\",\n" +
                 "    \"type\" : \"com.xyz.Stage2\",\n" +
                 "    \"s2p1\" : \"val3\"\n" +
                 "  } ],\n" +
@@ -99,12 +99,12 @@ public class JsonConfigFactoryTest {
 
         String input = "{\n" +
                 "  stages : [ {\n" +
-                "    id : \"Stage1\",\n" +
+                "    name : \"Stage1\",\n" +
                 "    type : \"com.xyz.Stage1\",\n" +
                 "    s1p2 : \"val2\",\n" +
                 "    s1p1 : \"val1\"\n" +
                 "  }, {\n" +
-                "    id : \"Stage2\",\n" +
+                "    name : \"Stage2\",\n" +
                 "    type : \"com.xyz.Stage2\",\n" +
                 "    s2p1 : \"val3\"\n" +
                 "  } ],\n" +

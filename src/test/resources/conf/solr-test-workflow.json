@@ -1,0 +1,15 @@
+{
+  name: "ingest",
+  numWorkerThreads: 1,
+  queueLength: 50,
+  stages: [
+    {
+      name: "sendToSolr",
+      type: "com.kmwllc.brigade.stage.SendToSolr",
+      useEmbedded: true,
+      embeddedConfigDir: "src/test/resources/test-solr",
+      embeddedCollection: "testing",
+      idField: "id"
+    }
+  ]
+}

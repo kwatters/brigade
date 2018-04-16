@@ -6,8 +6,10 @@ import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.core.CoreContainer;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -33,19 +35,15 @@ public class SendToSolr extends AbstractStage {
   private String solrUrl = "http://localhost:8983/solr/collection1";
   private boolean issueCommit = true;
   private boolean versionLatest = false;
+  private boolean useEmbedded = false;
+  private String embeddedConfDir;
+  private String embeddedCollection;
 
   private String versionSource;
 
   private int batchSize = 100;
-  // private LinkedBlockingQueue<SolrInputDocument> batch = new
-  // LinkedBlockingQueue<SolrInputDocument>();
   // Synchronized list. needed for thread safety.
   private List<SolrInputDocument> batch = Collections.synchronizedList(new ArrayList<SolrInputDocument>());
-
-  // private String basicAuthUser = null;
-  // private String basicAuthPass = null;
-
-  // Batch size +/-
 
   @Override
   public void startStage(StageConfig config) {
@@ -54,28 +52,28 @@ public class SendToSolr extends AbstractStage {
     batchSize = Integer.valueOf(config.getIntegerParam("batchSize", batchSize));
     versionLatest = config.getBoolParam("versionLatest", new Boolean(versionLatest));
     versionSource = config.getProperty("versionSource");
-
-    // basicAuthUser = config.getStringParam("basicAuthUser", basicAuthUser);
-    // basicAuthPass = config.getStringParam("basicAuthPass", basicAuthPass);
+    useEmbedded = config.getBoolParam("useEmbedded", useEmbedded);
+    embeddedConfDir = config.getStringParam("embeddedConfigDir");
+    embeddedCollection = config.getStringParam("embeddedCollection");
 
     // Initialize a connection to the solr server on startup.
     if (solrServer == null) {
       // TODO: support an embeded solr instance
       log.info("Connecting to Solr at {}", solrUrl);
-      // set credentials.
-
-      // if (basicAuthUser != null) {
-      // DefaultHttpClient httpClient = new DefaultHttpClient();
-      // httpClient.getCredentialsProvider().setCredentials(AuthScope.ANY, new
-      // UsernamePasswordCredentials(basicAuthUser, basicAuthPass));
-      // create solr server with client.
-      // solrServer = new HttpSolrServer( solrUrl , httpClient);
-      // } else {
-      solrServer = new HttpSolrClient(solrUrl);
-      // }
+      if (useEmbedded) {
+        solrServer = createEmbedded(embeddedConfDir, embeddedCollection);
+      } else {
+        solrServer = new HttpSolrClient(solrUrl);
+      }
     } else {
       log.info("Solr instance already created.");
     }
+  }
+
+  private EmbeddedSolrServer createEmbedded(String confDir, String coll){
+    CoreContainer container = new CoreContainer(confDir);
+    container.load();
+    return new EmbeddedSolrServer(container, coll);
   }
 
   @Override
@@ -106,27 +104,18 @@ public class SendToSolr extends AbstractStage {
     solrDoc.removeField(idField);
     // make sure we add it back
     solrDoc.setField(idField, docId);
-    // I guess we have the full document, we should send it
-    // ArrayList<SolrInputDocument> solrDocs = new
-    // ArrayList<SolrInputDocument>();
 
     try {
       synchronized (batch) {
         batch.add(solrDoc);
         if (batch.size() >= batchSize) {
-          // System.out.println("Solr Server Flush Batch...");
-          // you are blocking?
           try {
             solrServer.add(batch);
           } catch (HttpSolrClient.RemoteSolrException re) {
             log.warn("Swallow runtime exception: {}", re);
           }
           log.info("Sending Batch to Solr. Size: {}", batch.size());
-          // System.out.println("Solr batch sent..");
-          // batch.clear();
           batch = Collections.synchronizedList(new ArrayList<SolrInputDocument>());
-        } else {
-          // System.out.println("Batch Size " + batch.size());
         }
       }
     } catch (SolrServerException e) {
@@ -134,8 +123,6 @@ public class SendToSolr extends AbstractStage {
     } catch (IOException e) {
       log.warn("IO Exception: {}", e);
     }
-    // TODO: NO COMMITS HERE!
-    // solrServer.commit();
     return null;
 
   }
@@ -148,7 +135,6 @@ public class SendToSolr extends AbstractStage {
 
   public synchronized void flush() {
 
-    // Is this where I should flush the last batch?
     if (solrServer != null && batch.size() > 0) {
       try {
         log.info("flushing last batch. Size: {}", batch.size());
@@ -162,7 +148,6 @@ public class SendToSolr extends AbstractStage {
         batch.clear();
       }
     }
-    // TODO: should we commit on flush?
     try {
       if (issueCommit) {
         log.info("Committing solr");
@@ -173,8 +158,6 @@ public class SendToSolr extends AbstractStage {
     } catch (IOException e) {
       log.warn("IO Exception Committing: {}", e);
     }
-    // TODO: call the super flush?
-    // super.flush();
 
     if (versionLatest) {
       String versionSourceClause = "";
@@ -193,7 +176,14 @@ public class SendToSolr extends AbstractStage {
       } catch (IOException e) {
         log.warn("IO Exception while runnign version latest DBQ: {}", e);
       }
-      //flush();
+    }
+
+    if (useEmbedded){
+      try {
+        solrServer.close();
+      } catch (IOException e) {
+        log.warn("IO Exception while closing embedded solr server");
+      }
     }
   }
 }

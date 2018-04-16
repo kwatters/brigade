@@ -1,5 +1,5 @@
 {
-    id: "testCSV",
+    name: "testCSV",
     type: "com.kmwllc.brigade.connector.CSVConnector",
     filename: "test.csv",
     separator: ",",
