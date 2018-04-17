@@ -1,5 +1,6 @@
 package com.kmwllc.brigade.util;
 
+import com.kmwllc.brigade.utils.BrigadeRunner;
 import org.junit.rules.ExternalResource;
 
 import java.io.InputStream;
@@ -24,7 +25,8 @@ public class BrigadeHelper extends ExternalResource {
     @Override
     protected void before() throws Throwable {
         super.before();
-        brigadeRunner = new BrigadeRunner(getStream(propertiesFile), getStream(connectorFile), getStream(workflowFile));
+        brigadeRunner = new BrigadeRunner(getStream(propertiesFile), getStream(connectorFile),
+                getStream(workflowFile));
     }
 
     private InputStream getStream(String fileName) {

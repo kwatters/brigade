@@ -3,6 +3,7 @@ package com.kmwllc.brigade.workflow;
 import com.kmwllc.brigade.config.WorkflowConfig;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the singleton instance of the workflow server.  
@@ -32,8 +33,8 @@ public class WorkflowServer {
     }
   }
 
-  public void addWorkflow(WorkflowConfig config) throws Exception {
-    Workflow w = new Workflow(config);
+  public void addWorkflow(WorkflowConfig config, Map<String, String> props) throws Exception {
+    Workflow w = new Workflow(config, props);
     w.initialize();
     workflowMap.put(w.getName(), w);
   }

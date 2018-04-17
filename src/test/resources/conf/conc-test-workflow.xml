@@ -73,7 +73,7 @@
         </com.kmwllc.brigade.config.StageConfig>
         <com.kmwllc.brigade.config.StageConfig>
             <stageName>dumpDoc</stageName>
-            <stageClass>com.kmwllc.brigade.concurrency.DumpDoc</stageClass>
+            <stageClass>com.kmwllc.brigade.stage.DumpDoc</stageClass>
             <config>
                 <entry>
                     <string>output</string>

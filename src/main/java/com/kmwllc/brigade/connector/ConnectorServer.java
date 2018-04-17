@@ -1,12 +1,11 @@
 package com.kmwllc.brigade.connector;
 
-import java.util.HashMap;
-
-import org.slf4j.Logger;
-
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.workflow.WorkflowServer;
+import org.slf4j.Logger;
+
+import java.util.HashMap;
 
 /**
  * A singleton instance in the JVM that manages the currently defined and loaded Connectors.
@@ -15,7 +14,7 @@ import com.kmwllc.brigade.workflow.WorkflowServer;
  *
  */
 public class ConnectorServer {
-  
+
   public final static Logger log = LoggerFactory.getLogger(ConnectorServer.class.getCanonicalName());
   private static ConnectorServer instance = null;
 
@@ -23,7 +22,7 @@ public class ConnectorServer {
 
   // singleton, the constructor is private.
   private ConnectorServer() {
-    connectorMap = new HashMap<String,AbstractConnector>();
+    connectorMap = new HashMap<>();
   }
 
   // This is a singleton also

@@ -8,7 +8,8 @@ import com.kmwllc.brigade.utils.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
 
 public class CSVConnector extends AbstractConnector {
 

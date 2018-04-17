@@ -1,23 +1,19 @@
 package com.kmwllc.brigade;
 
-import com.kmwllc.brigade.config.BrigadeConfig;
-import com.kmwllc.brigade.config.Config;
-import com.kmwllc.brigade.config.ConnectorConfig;
-import com.kmwllc.brigade.config.WorkflowConfig;
+import com.kmwllc.brigade.config.*;
 import com.kmwllc.brigade.connector.ConnectorServer;
 import com.kmwllc.brigade.connector.ConnectorState;
 import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.utils.BrigadeRunner;
 import com.kmwllc.brigade.utils.FileUtils;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 import org.apache.commons.cli.*;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 
 /**
@@ -38,181 +34,156 @@ import java.util.HashMap;
  */
 public class Brigade {
 
-    public final static Logger log = LoggerFactory.getLogger(Brigade.class.getCanonicalName());
-    // brigade is a singleton server instance
-    private static Brigade brigadeServer = null;
-    private BrigadeConfig config = null;
-    private boolean running = false;
+  public final static Logger log = LoggerFactory.getLogger(Brigade.class.getCanonicalName());
+  // brigade is a singleton server instance
+  private static Brigade brigadeServer = null;
+  private BrigadeConfig config = null;
+  private boolean running = false;
 
-    private Brigade() {
-        // Don't allow it to be instantiated directly.
+  private Brigade() {
+    // Don't allow it to be instantiated directly.
+  }
+
+  private void loadConfig() throws Exception {
+    // we have a serialized version of a brigade config.
+    // The config can be a workflow and a connector config
+
+    // Add and initialize all workflows
+    WorkflowServer ws = WorkflowServer.getInstance();
+    for (WorkflowConfig<?> wC : config.getWorkflowConfigs()) {
+      ws.addWorkflow(wC, config.getProps());
     }
 
-    private void loadConfig() throws Exception {
-        // we have an xstream serialized version of a brigade config.
-        // The config can be a workflow and a connector config
+    // Add all connector configs
+    // Add and initialize all workflows
+    ConnectorServer cS = ConnectorServer.getInstance();
+    for (ConnectorConfig cc : config.getConnectorConfigs()) {
+      cS.addConnector(cc);
+    }
+  }
 
-        // Add and initialize all workflows
-        WorkflowServer ws = WorkflowServer.getInstance();
-        for (WorkflowConfig wC : config.getWorkflowConfigs()) {
-            ws.addWorkflow(wC);
-        }
+  public static Brigade getInstance() {
+    if (brigadeServer == null) {
+      brigadeServer = new Brigade();
+    }
+    return brigadeServer;
+  }
 
-        // Add all connector configs
-        // Add and initialize all workflows
-        ConnectorServer cS = ConnectorServer.getInstance();
-        for (ConnectorConfig cc : config.getConnectorConfigs()) {
-            cS.addConnector(cc);
-        }
+  public void start() throws Exception {
+    // start the server .. etc.. etc..
+    // Add a default connector
+
+    log.info("Brigade Starting up.");
+    if (config == null) {
+      // TODO create a default config?
+      log.warn("Error config was null!");
+      System.exit(-1);
     }
 
-    public static Brigade getInstance() {
-        if (brigadeServer == null) {
-            brigadeServer = new Brigade();
-        }
-        return brigadeServer;
+    log.info("Loading config");
+    try {
+      loadConfig();
+      running = true;
+    } catch (ClassNotFoundException e) {
+      log.warn("Load config error : {}", e);
+      running = false;
+      throw e;
+    }
+  }
+
+  public void shutdown(boolean systemExit) {
+    log.info("Shutting down.");
+    running = false;
+    log.info("Shut down.");
+    // We are done, exit
+    if (systemExit) {
+      System.exit(0);
+    }
+  }
+
+  public BrigadeConfig getConfig() {
+    return config;
+  }
+
+  public void setConfig(BrigadeConfig config) {
+    this.config = config;
+  }
+
+  public boolean isRunning() {
+    return running;
+  }
+
+  public void startConnector(String connectorName) throws InterruptedException {
+    // This needs to fire off a job.
+    // Thread me .. join later
+    ConnectorServer cS = ConnectorServer.getInstance();
+    if (cS.hasConnector(connectorName)) {
+      log.info("Called start connector : {}", connectorName);
+      // TODO: move the start call to the connector server class
+      // TODO: also this is currently synchronous .. we want this to be a message
+      // so we don't block the ui here. (maybe?)
+      cS.startConnector(connectorName);
+      log.info("Connector started.");
+    } else {
+      log.info("Unknown connector : {}", connectorName);
+    }
+  }
+
+  public void waitForConnector(String connectorName) throws Exception {
+    log.info("Waiting on connector {} to complete", connectorName);
+    ConnectorServer cS = ConnectorServer.getInstance();
+    ConnectorState s = cS.getConnectorState(connectorName);
+    log.info("Connector state is {}", s);
+
+    // TODO: do this more async , rather than polling.
+    while (s == ConnectorState.OFF || s == ConnectorState.RUNNING) {
+      s = cS.getConnectorState(connectorName);
+    }
+    if (s == ConnectorState.ERROR) {
+      throw new Exception("Connector returned in error state");
+    }
+    log.info("connector {} is not running.", connectorName);
+  }
+
+  /**
+   * @param args
+   * @throws InterruptedException
+   * @throws IOException
+   * @throws ParseException
+   */
+  public static void main(String[] args) throws InterruptedException, IOException, ParseException, ConfigException {
+
+    // create Options object
+    Options options = new Options();
+
+    options.addOption("c", true, "specify the connector config file.");
+    options.addOption("w", true, "specify the workflow config file.");
+    options.addOption("p", true, "specify the properties file.");
+    CommandLineParser parser = new DefaultParser();
+    CommandLine cmd = parser.parse(options, args);
+
+    // validate command line args
+    if (cmd.hasOption("h") || !(cmd.hasOption("c") && cmd.hasOption("w") && cmd.hasOption("p"))) {
+      // automatically generate the help statement
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("java -jar brigade.jar -c connector.xml -w workflow.xml -p brigade.properties", options);
+      System.exit(1);
     }
 
-    public void start() throws Exception {
-        // start the server .. etc.. etc..
-        // Add a default connector
+    long startTime = System.currentTimeMillis();
 
-        log.info("Brigade Starting up.");
-        if (config == null) {
-            // TODO create a default config?
-            log.warn("Error config was null!");
-            System.exit(-1);
-        }
+    // set the params
+    String propertiesFile = cmd.getOptionValue("p");
+    String connectorFile = cmd.getOptionValue("c");
+    String workflowFile = cmd.getOptionValue("w");
 
-        log.info("Loading config");
-        try {
-            loadConfig();
-            running = true;
-        } catch (ClassNotFoundException e) {
-            log.warn("Load config error : {}", e);
-            running = false;
-            throw e;
-        }
+    BrigadeRunner br = new BrigadeRunner(new FileInputStream(propertiesFile), new FileInputStream(connectorFile),
+            new FileInputStream(workflowFile));
+    try {
+      br.exec();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-
-    public void shutdown(boolean systemExit) {
-        log.info("Shutting down.");
-        running = false;
-        log.info("Shut down.");
-        // We are done, exit
-        if (systemExit) {
-            System.exit(0);
-        }
-    }
-
-    public Config getConfig() {
-        return config;
-    }
-
-    public void setConfig(BrigadeConfig config) {
-        this.config = config;
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void startConnector(String connectorName) throws InterruptedException {
-        // This needs to fire off a job.
-        // Thread me .. join later
-        ConnectorServer cS = ConnectorServer.getInstance();
-        if (cS.hasConnector(connectorName)) {
-            log.info("Called start connector : {}", connectorName);
-            // TODO: move the start call to the connector server class
-            // TODO: also this is currently synchronous .. we want this to be a message
-            // so we don't block the ui here. (maybe?)
-            cS.startConnector(connectorName);
-            log.info("Connector started.");
-        } else {
-            log.info("Unknown connector : {}", connectorName);
-        }
-    }
-
-    public void waitForConnector(String connectorName) throws Exception {
-        log.info("Waiting on connector {} to complete", connectorName);
-        ConnectorServer cS = ConnectorServer.getInstance();
-        ConnectorState s = cS.getConnectorState(connectorName);
-        log.info("Connector state is {}", s);
-
-        // TODO: do this more async , rather than polling.
-        while (s == ConnectorState.OFF || s == ConnectorState.RUNNING) {
-            s = cS.getConnectorState(connectorName);
-        }
-        if (s == ConnectorState.ERROR) {
-            throw new Exception("Connector returned in error state");
-        }
-        log.info("connector {} is not running.", connectorName);
-    }
-
-    /**
-     * @param args
-     * @throws InterruptedException
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static void main(String[] args) throws InterruptedException, IOException, ParseException {
-
-        // create Options object
-        Options options = new Options();
-
-        options.addOption("c", true, "specify the connector config file.");
-        options.addOption("w", true, "specify the workflow config file.");
-        options.addOption("p", true, "specify the properties file.");
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
-
-        // validate command line args
-        if (cmd.hasOption("h") || !(cmd.hasOption("c") && cmd.hasOption("w") && cmd.hasOption("p"))) {
-            // automatically generate the help statement
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar brigade.jar -c connector.xml -w workflow.xml -p brigade.properties", options);
-            System.exit(1);
-        }
-
-        long startTime = System.currentTimeMillis();
-
-        // set the params
-        String propertiesFile = cmd.getOptionValue("p");
-        String connectorFile = cmd.getOptionValue("c");
-        String workflowFile = cmd.getOptionValue("w");
-
-        HashMap<String, String> propMap = FileUtils.loadPropertiesAsMap(propertiesFile);
-        String connectorXML = FileUtils.toString(connectorFile);
-        String workflowXML = FileUtils.toString(workflowFile);
-
-        StrSubstitutor sub = new StrSubstitutor(propMap);
-        connectorXML = sub.replace(connectorXML);
-        workflowXML = sub.replace(workflowXML);
-
-        ConnectorConfig connectorConfig = ConnectorConfig.fromXML(connectorXML);
-        WorkflowConfig workflowConfig = WorkflowConfig.fromXML(workflowXML);
-
-        // init the brigade config!
-        BrigadeConfig config = new BrigadeConfig();
-        config.addConnectorConfig(connectorConfig);
-        config.addWorkflowConfig(workflowConfig);
-
-        // Start up the Brigade Server
-        Brigade brigadeServer = Brigade.getInstance();
-        brigadeServer.setConfig(config);
-        try {
-            brigadeServer.start();
-
-            brigadeServer.startConnector(connectorConfig.getConnectorName());
-
-            // TODO: this should do a flush! and then shutdown..
-            brigadeServer.waitForConnector(connectorConfig.getConnectorName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        brigadeServer.shutdown(true);
-
-        long delta = (System.currentTimeMillis() - startTime) / 1000;
-        log.info("Runtime : {} seconds.", delta);
-    }
+    System.exit(0);
+  }
 }

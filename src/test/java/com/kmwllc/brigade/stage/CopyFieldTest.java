@@ -2,6 +2,7 @@ package com.kmwllc.brigade.stage;
 
 import java.util.ArrayList;
 
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import org.slf4j.Logger;
 
 import com.kmwllc.brigade.config.StageConfig;
@@ -15,7 +16,7 @@ public class CopyFieldTest extends AbstractStageTest {
 	@Override
 	public AbstractStage createStage() {
 		CopyField stage = new CopyField();
-		StageConfig config = new StageConfig();
+		StageConfig config = new JsonStageConfig();
 		config.setStringParam("source", "foo");
 		config.setStringParam("dest", "bar");
 		stage.startStage(config);

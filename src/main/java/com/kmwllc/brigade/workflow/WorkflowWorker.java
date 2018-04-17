@@ -1,5 +1,6 @@
 package com.kmwllc.brigade.workflow;
 
+import com.google.common.base.Strings;
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
@@ -10,12 +11,12 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * WorkflowWorker : this is a list of stages that will poll the workflow queue
  * and process documents through that list of stages.
- * 
  */
 public class WorkflowWorker extends Thread {
   public final static Logger log = LoggerFactory.getLogger(WorkflowWorker.class.getCanonicalName());
@@ -23,14 +24,17 @@ public class WorkflowWorker extends Thread {
   boolean running = false;
   boolean error = false;
   private ArrayList<AbstractStage> stages;
+  private Map<String, String> props;
 
   private final LinkedBlockingQueue<Document> queue;
 
 
-  WorkflowWorker(WorkflowConfig workflowConfig, LinkedBlockingQueue<Document> queue) throws ClassNotFoundException {
+  WorkflowWorker(WorkflowConfig<StageConfig> workflowConfig, LinkedBlockingQueue<Document> queue,
+                 Map<String, String> props) throws ClassNotFoundException {
     // set the thread name
     this.setName("WorkflowWorker-" + workflowConfig.getName());
     this.queue = queue;
+    this.props = props;
     stages = new ArrayList<>();
     for (StageConfig stageConf : workflowConfig.getStages()) {
       String stageClass = stageConf.getStageClass().trim();
@@ -39,7 +43,8 @@ public class WorkflowWorker extends Thread {
       Class<?> sc = Workflow.class.getClassLoader().loadClass(stageClass);
       try {
         AbstractStage stageInst = (AbstractStage) sc.newInstance();
-        stageInst.startStage(stageConf);
+        stageInst.setProps(props);
+        stageInst.init(stageConf);
         addStage(stageInst);
       } catch (InstantiationException e) {
         log.warn("Error Creating Stage : {}", e);
@@ -82,18 +87,25 @@ public class WorkflowWorker extends Thread {
     return processing;
   }
 
-  public boolean isRunning() { return running;}
+  public boolean isRunning() {
+    return running;
+  }
 
-  public boolean isError() { return error;}
+  public boolean isError() {
+    return error;
+  }
 
   public void processDocumentInternal(Document doc, int stageOffset) throws Exception {
     // TODO: what to do...
     int i = 0;
     for (AbstractStage s : stages.subList(i, stages.size())) {
+      if (!prereq(s, props, doc)) {
+        continue;
+      }
       // create a pool of stages, so that when you call processDocument
       // or each thread should have it's own pool?
       List<Document> childDocs = null;
-      synchronized ( doc ) {
+      synchronized (doc) {
         childDocs = s.processDocument(doc);
       }
       i++;
@@ -121,4 +133,16 @@ public class WorkflowWorker extends Thread {
     }
   }
 
+  private boolean prereq(AbstractStage s, Map<String, String> props, Document d) {
+    String enabledProp = s.getEnabled();
+    boolean propDisabled = !Strings.isNullOrEmpty(enabledProp) && props.get(enabledProp) != null
+            && props.get(enabledProp).equalsIgnoreCase("false");
+    if (propDisabled) {
+      return false;
+    }
+    String skipIfField = s.getSkipIfField();
+    boolean fieldDisabled = !Strings.isNullOrEmpty(skipIfField) && d.hasField(skipIfField)
+            && d.getField(skipIfField).get(0).toString().equalsIgnoreCase("true");
+    return !fieldDisabled;
+  }
 }

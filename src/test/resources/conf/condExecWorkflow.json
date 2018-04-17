@@ -1,0 +1,17 @@
+{
+  name: "ingest",
+  numWorkerThreads: 1,
+  queueLength: 50,
+  stages: [
+    {
+      name: "maybeShout",
+      type: "com.kmwllc.brigade.stage.MaybeShout",
+      field: "name"
+    },
+    {
+      name: "dumpDoc",
+      type: "com.kmwllc.brigade.stage.DumpDoc",
+      output: "cond-exec-output.txt"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.DictionaryEE;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class DictionaryEETest {
 
 
     private Document getDocument(String input, String mgr) {
-        StageConfig sc = new StageConfig("test", "test");
+        StageConfig sc = new JsonStageConfig("test", "test");
         sc.setStringParam("inputField", "input");
         sc.setStringParam("outputField", "output");
         sc.setStringParam("dictionaryFile", "test-dict.csv");

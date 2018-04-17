@@ -5,6 +5,7 @@ import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -25,9 +26,10 @@ public class Workflow {
   private WorkflowWorker[] workers;
   private WorkflowConfig workflowConfig;
   public final static Logger log = LoggerFactory.getLogger(Workflow.class.getCanonicalName());
+  private Map<String, String> props;
 
   // constructor
-  public Workflow(WorkflowConfig workflowConfig)  {
+  public Workflow(WorkflowConfig workflowConfig, Map<String, String> props)  {
     // create each of the worker threads. each with their own copy of the stages
     numWorkerThreads = workflowConfig.getNumWorkerThreads();
     queueLength = workflowConfig.getQueueLength();
@@ -36,6 +38,7 @@ public class Workflow {
     // We need to load a config then we need to create each of the stages for the config
     // and add those to our stage list.
     this.name = workflowConfig.getName();
+    this.props = props;
   }
 
   // initialize the workflow
@@ -50,7 +53,7 @@ public class Workflow {
   private void initializeWorkerThread(int threadNum) throws Exception {
     WorkflowWorker worker = null;
     try {
-      worker = new WorkflowWorker(workflowConfig, queue);
+      worker = new WorkflowWorker(workflowConfig, queue, props);
     } catch (ClassNotFoundException e) {
       // TODO: better handling?
       log.warn("Error starting the worker thread. {}", e.getLocalizedMessage());

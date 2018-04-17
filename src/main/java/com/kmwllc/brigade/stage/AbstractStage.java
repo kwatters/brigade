@@ -5,7 +5,9 @@ import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is the base class for all stages in a pipeline.  The stages have a lifecycle 
@@ -18,6 +20,10 @@ import java.util.List;
  *
  */
 public abstract class AbstractStage {
+
+  private Map<String, String> props = new HashMap<>();
+  private String enabled;
+  private String skipIfField;
   
   // TODO: make sure the subclasses get the right logger..
   public final static Logger log = LoggerFactory.getLogger(AbstractStage.class.getCanonicalName());
@@ -26,6 +32,12 @@ public abstract class AbstractStage {
   // processDocument()
   protected boolean processOnlyNull = false;
 
+  public void init(StageConfig config) {
+    enabled = config.getStringParam("enabled");
+    skipIfField = config.getStringParam("skipIfField");
+    startStage(config);
+  }
+
   public abstract void startStage(StageConfig config);
 
   public abstract List<Document> processDocument(Document doc) throws Exception;
@@ -33,4 +45,20 @@ public abstract class AbstractStage {
   public abstract void stopStage();
 
   public abstract void flush();
+
+  public Map<String, String> getProps() {
+    return props;
+  }
+
+  public void setProps(Map<String, String> props) {
+    this.props = props;
+  }
+
+  public String getEnabled() {
+    return enabled;
+  }
+
+  public String getSkipIfField() {
+    return skipIfField;
+  }
 }

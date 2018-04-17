@@ -24,7 +24,7 @@ public class BrigadeUtils {
     		in = new FileInputStream(new File(fname)); 
     	} else {
         	// if not. try the classpath.
-        	in = BrigadeRunner.class.getClassLoader().getResourceAsStream(fname);
+        	in = BrigadeUtils.class.getClassLoader().getResourceAsStream(fname);
         }
         props.load(in);
         in.close();
@@ -43,7 +43,7 @@ public class BrigadeUtils {
     		in = new FileInputStream(new File(fname)); 
     	} else {
         	// if not. try the classpath.
-        	in = BrigadeRunner.class.getClassLoader().getResourceAsStream(fname);
+        	in = BrigadeUtils.class.getClassLoader().getResourceAsStream(fname);
         }
         byte[] bytes = FileUtils.toByteArray(in);
         in.close();

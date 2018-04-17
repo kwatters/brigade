@@ -1,10 +1,14 @@
 package com.kmwllc.brigade.workflow;
 
+import com.kmwllc.brigade.config.json.JsonStageConfig;
+import com.kmwllc.brigade.config.json.JsonWorkflowConfig;
 import org.junit.Test;
 
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
+
+import java.util.HashMap;
 
 public class WorkflowServerTest {
 
@@ -14,7 +18,7 @@ public class WorkflowServerTest {
 		WorkflowConfig wC = createWorkflow();
 		WorkflowServer ws = WorkflowServer.getInstance();
 		try {
-			ws.addWorkflow(wC);
+			ws.addWorkflow(wC, new HashMap<>());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -44,18 +48,14 @@ public class WorkflowServerTest {
 	
 	public WorkflowConfig createWorkflow() throws ClassNotFoundException {
 		// Create a workflow config
-		WorkflowConfig wC = new WorkflowConfig("testWorkflow");
-		wC.setName("ingest");
+		WorkflowConfig wC = new JsonWorkflowConfig("testWorkflow", 10, 100);
+		//wC.setName("ingest");
 		
-		StageConfig s1Conf = new StageConfig();
-		s1Conf.setStageClass("com.kmwllc.brigade.stage.SetStaticFieldValue");
-		s1Conf.setStageName("set title");
+		StageConfig s1Conf = new JsonStageConfig("set title", "com.kmwllc.brigade.stage.SetStaticFieldValue");
 		s1Conf.setStringParam("fieldName", "title");
 		s1Conf.setStringParam("value", "Hello World.");
 
-		StageConfig s2Conf = new StageConfig();
-		s2Conf.setStageName("Solr Sender");
-		s2Conf.setStageClass("com.kmwllc.brigade.stage.SendToSolr");
+		StageConfig s2Conf = new JsonStageConfig("Solr Sender", "com.kmwllc.brigade.stage.SendToSolr");
 		s2Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s2Conf.setStringParam("idField", "id");
 

@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.StaticTeaser;
 import org.junit.Test;
@@ -59,7 +60,7 @@ public class StaticTeaserTest {
 
 
     private Document getDocument(String input) {
-        StageConfig sc = new StageConfig("test", "test");
+        StageConfig sc = new JsonStageConfig("test", "test");
         List<String> inputs = new ArrayList<>();
         inputs.add("body");
         sc.setListParam("inputFields", inputs);

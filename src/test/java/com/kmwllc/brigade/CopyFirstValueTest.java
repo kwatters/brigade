@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.CopyFirstValue;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class CopyFirstValueTest {
 
         String input3 = "abc";
 
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         Map<String, String> ioMap = new HashMap<>();
         ioMap.put("input1", "output1");
         ioMap.put("input2", "output2");

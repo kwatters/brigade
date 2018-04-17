@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.DeleteFields;
 import org.junit.Test;
@@ -17,7 +18,7 @@ public class DeleteFieldsTest {
 
     @Test
     public void test() {
-        StageConfig config = new StageConfig("test", "test");
+        StageConfig config = new JsonStageConfig("test", "test");
         List<String> toDelete = new ArrayList<>();
         toDelete.add("b");
         toDelete.add("c");

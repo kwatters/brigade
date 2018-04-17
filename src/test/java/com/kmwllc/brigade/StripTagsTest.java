@@ -1,6 +1,7 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.document.Document;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class StripTagsTest {
 
         Map<String, String> ioMap = new HashMap<>();
         ioMap.put("input", "output");
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         stageConfig.setMapParam("ioMap", ioMap);
         com.kmwllc.brigade.stage.StripTags fte = new com.kmwllc.brigade.stage.StripTags();
         fte.startStage(stageConfig);
@@ -42,7 +43,7 @@ public class StripTagsTest {
 
         Map<String, String> ioMap = new HashMap<>();
         ioMap.put("input", "");
-        StageConfig stageConfig = new StageConfig("test", "test");
+        StageConfig stageConfig = new JsonStageConfig("test", "test");
         stageConfig.setMapParam("ioMap", ioMap);
         com.kmwllc.brigade.stage.StripTags fte = new com.kmwllc.brigade.stage.StripTags();
         fte.startStage(stageConfig);

@@ -1,6 +1,9 @@
 package com.kmwllc.brigade.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This represents the overall configuration for a brigade instance.  It includes
@@ -8,14 +11,16 @@ import java.util.ArrayList;
  *
  * @author kwatters
  */
-public class BrigadeConfig extends Config {
+public class BrigadeConfig {
 
-    private ArrayList<WorkflowConfig> workflowConfigs;
-    private ArrayList<ConnectorConfig> connectorConfigs;
+    private List<WorkflowConfig<?>> workflowConfigs;
+    private List<ConnectorConfig> connectorConfigs;
+    private Map<String, String> props;
 
     public BrigadeConfig() {
         workflowConfigs = new ArrayList<>();
         connectorConfigs = new ArrayList<>();
+        props = new HashMap<>();
     }
 
     public void addWorkflowConfig(WorkflowConfig wc) {
@@ -26,12 +31,19 @@ public class BrigadeConfig extends Config {
         connectorConfigs.add(cc);
     }
 
-    public ArrayList<WorkflowConfig> getWorkflowConfigs() {
+    public List<WorkflowConfig<?>> getWorkflowConfigs() {
         return workflowConfigs;
     }
 
-    public ArrayList<ConnectorConfig> getConnectorConfigs() {
+    public List<ConnectorConfig> getConnectorConfigs() {
         return connectorConfigs;
     }
 
+    public Map<String, String> getProps() {
+        return props;
+    }
+
+    public void setProps(Map<String, String> props) {
+        this.props = props;
+    }
 }
