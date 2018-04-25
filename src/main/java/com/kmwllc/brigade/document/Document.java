@@ -50,6 +50,12 @@ public class Document {
     data.put(fieldName, values);
   }
 
+  public void setFieldIfNotNull(String fieldName, Object value) {
+    if (value != null){
+      setField(fieldName, value);
+    }
+  }
+
   public void renameField(String oldField, String newField) {
     if (data.containsKey(oldField)) {
       // TODO: test me to make sure this is correct.

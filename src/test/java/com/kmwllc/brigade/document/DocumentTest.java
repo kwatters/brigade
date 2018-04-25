@@ -27,6 +27,19 @@ public class DocumentTest {
   }
 
   @Test
+  public void testSetFieldIfNotNull() {
+    Document d1 = new Document("1");
+    String a = "aaa";
+    d1.setFieldIfNotNull("a", a);
+    assertEquals("aaa", d1.getField("a").get(0));
+    a = null;
+    d1.setFieldIfNotNull("a", a);
+    assertEquals("aaa", d1.getField("a").get(0));
+    d1.setFieldIfNotNull("b", a);
+    assertNull(d1.getField("b"));
+  }
+
+  @Test
   public void testRenameField() {
     Document d1 = new Document("1");
     d1.setField("a", "aaa");

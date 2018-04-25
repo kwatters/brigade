@@ -47,7 +47,6 @@ public class CopyFirstValueTest {
         for (Long i2 : input2) {
             testDoc.addToField("input2", i2);
         }
-        testDoc.setField("input2", input2);
         testDoc.addToField("input3", input3);
         st.processDocument(testDoc);
 

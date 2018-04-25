@@ -43,7 +43,7 @@ public class LuwakQueryMatcherTest {
   @Test
   public void twoMatches() {
     document.setField("myField", "word1");
-    document.setField("myField", "word2");
+    document.addToField("myField", "word2");
     matcher.processDocument(document);
 
     ArrayList<Object> docField = document.getField(LUWAK_MATCHES_FIELD);
@@ -56,7 +56,7 @@ public class LuwakQueryMatcherTest {
   @Test
   public void scoring() {
     document.setField("myField", "word1");
-    document.setField("myField", "word2");
+    document.addToField("myField", "word2");
     matcher.processDocument(document);
 
     ArrayList<Object> docField = document.getField(LUWAK_MATCHES_FIELD);
