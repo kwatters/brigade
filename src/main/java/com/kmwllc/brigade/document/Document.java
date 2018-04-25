@@ -2,19 +2,19 @@ package com.kmwllc.brigade.document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
  * The basic class that represents a document flowing through brigade.
- * 
+ * <p>
  * Basic idea is that a document had a unique id and a map of key to list of
  * object pairs.
- * 
+ * <p>
  * Documents can also maintain a processing status on them so that if a stage fires and exception
  * the document can be marked as having some issue.
- * 
- * @author kwatters
  *
+ * @author kwatters
  */
 public class Document {
 
@@ -22,9 +22,9 @@ public class Document {
   private HashMap<String, ArrayList<Object>> data;
   // TODO: should this be moved? or maybe a more rich object?
   private ProcessingStatus status;
-  
+
   private ArrayList<Document> childrenDocs;
-  
+
 
   public Document(String id) {
     this.id = id;
@@ -45,14 +45,9 @@ public class Document {
   }
 
   public void setField(String fieldName, Object value) {
-    if (data.containsKey(fieldName)) {
-      data.get(fieldName).add(value);
-    } else {
-      ArrayList<Object> values = new ArrayList<>();
-      values.add(value);
-      data.put(fieldName, values);
-    }
-
+    ArrayList<Object> values = new ArrayList<>();
+    values.add(value);
+    data.put(fieldName, values);
   }
 
   public void renameField(String oldField, String newField) {
@@ -74,6 +69,14 @@ public class Document {
     }
   }
 
+  public String getFirstValueAsString(String fieldName) {
+    List<Object> s = data.get(fieldName);
+    if (s==null||s.isEmpty()) {
+      return null;
+    }
+    return s.get(0).toString();
+  }
+
   public String getId() {
     return id;
   }
@@ -88,7 +91,7 @@ public class Document {
 
   /**
    * Return a set of all fields on a given document. This is unordered.
-   * 
+   *
    * @return
    */
   public Set<String> getFields() {
@@ -111,7 +114,7 @@ public class Document {
   public HashMap<String, ArrayList<Object>> getData() {
     return data;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -156,7 +159,7 @@ public class Document {
         docToStr.append(" child=" + child.toString());
       }
     }
-    docToStr.append("]"); 
+    docToStr.append("]");
     return docToStr.toString();
   }
 
@@ -166,7 +169,7 @@ public class Document {
     }
     childrenDocs.add(child);
   }
-  
+
   public ArrayList<Document> getChildrenDocs() {
     return childrenDocs;
   }
@@ -174,7 +177,7 @@ public class Document {
   public void setChildrenDocs(ArrayList<Document> childrenDocs) {
     this.childrenDocs = childrenDocs;
   }
-  
+
   public int getNumberOfChildrenDocs() {
     if (childrenDocs == null) {
       return 0;
@@ -182,11 +185,11 @@ public class Document {
       return childrenDocs.size();
     }
   }
-  
+
   public void removeChildrenDocs() {
     childrenDocs = null;
   }
-  
+
   public boolean hasChildren() {
     if (childrenDocs == null) {
       return false;
@@ -198,6 +201,6 @@ public class Document {
       }
     }
   }
-  
-  
+
+
 }
