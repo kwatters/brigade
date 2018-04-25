@@ -25,9 +25,14 @@ public class BrigadeHelper extends ExternalResource {
     @Override
     protected void before() throws Throwable {
         super.before();
+        init();
+    }
+
+    public void init() {
         brigadeRunner = new BrigadeRunner(getStream(propertiesFile), getStream(connectorFile),
                 getStream(workflowFile));
     }
+
 
     private InputStream getStream(String fileName) {
         return BrigadeHelper.class.getClassLoader().getResourceAsStream(fileName);
