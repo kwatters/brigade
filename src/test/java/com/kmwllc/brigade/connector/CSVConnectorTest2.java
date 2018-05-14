@@ -3,6 +3,7 @@ package com.kmwllc.brigade.connector;
 import com.kmwllc.brigade.concurrency.DumpDocReader;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.util.BrigadeHelper;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -17,25 +18,28 @@ import static org.junit.Assert.fail;
  */
 public class CSVConnectorTest2 {
 
-    @Rule
-    public final BrigadeHelper brigadeHelper = new BrigadeHelper("conf/brigade.properties",
-            "conf/csv-connector.json", "conf/vanilla-workflow.json");
+  @Rule
+  public final BrigadeHelper brigadeHelper = new BrigadeHelper("conf/brigade.properties",
+          "conf/csv-connector.json", "conf/vanilla-workflow.json");
+  private File testFile = new File("csv-test-output.txt");
 
-    @Test
-    public void testCSV() {
-        File testFile = new File("csv-test-output.txt");
-        testFile.delete();
-        try {
-            brigadeHelper.exec();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+  @After
+  public void cleanup() {
+    testFile.delete();
+  }
 
-        List<Document> docs = new DumpDocReader().read(testFile);
-        assertEquals(4, docs.size());
-        assertEquals("Matt", docs.get(1).getField("author").get(0));
-        assertEquals("Meow Meow", docs.get(3).getField("text").get(0));
-        testFile.delete();
+  @Test
+  public void testCSV() {
+    try {
+      brigadeHelper.exec();
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail();
     }
+
+    List<Document> docs = new DumpDocReader().read(testFile);
+    assertEquals(4, docs.size());
+    assertEquals("Matt", docs.get(1).getField("author").get(0));
+    assertEquals("Meow Meow", docs.get(3).getField("text").get(0));
+  }
 }

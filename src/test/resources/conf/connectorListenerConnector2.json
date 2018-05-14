@@ -1,0 +1,9 @@
+{
+    name: "testFieldMapping",
+    type: "com.kmwllc.brigade.connector.CSVConnector",
+    filename: "connectorListenerTest.csv",
+    separator: ",",
+    firstRowAsColumns: true,
+    useRowAsId: true,
+    workflowName: "ingest"
+}

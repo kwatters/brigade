@@ -43,6 +43,7 @@ public class ConnectorServer {
       AbstractConnector connectorInst = (AbstractConnector) sc.newInstance();
       connectorInst.setWorkflowServer(WorkflowServer.getInstance());
       connectorInst.setConfig(config);
+      connectorInst.fireConnectorBegin(config);
       connectorInst.initialize();
       connectorMap.put(config.getConnectorName(), connectorInst);
       return connectorInst;

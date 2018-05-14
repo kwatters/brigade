@@ -8,11 +8,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kmwllc.brigade.config.ConfigException;
 import com.kmwllc.brigade.config.ConfigFactory;
 import com.kmwllc.brigade.config.ConnectorConfig;
+import com.kmwllc.brigade.event.ConnectorListener;
+import com.kmwllc.brigade.utils.FieldNameMapper;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.kmwllc.brigade.config.ConfigFactory.JSON;
@@ -27,11 +29,27 @@ public class JsonConnectorConfig implements ConnectorConfig {
 
     private Map<String, Object> config;
 
+    @JsonProperty("fieldNameMappers")
+    private List<String> fieldNameMapperClasses;
+
+    @JsonIgnore
+    private List<FieldNameMapper> fieldNameMappers;
+
+    @JsonProperty("connectorListeners")
+    private List<String> connectorListenerClasses;
+
+    @JsonIgnore
+    private List<ConnectorListener> connectorListeners;
+
     @JsonIgnore
     private ObjectMapper om = new ObjectMapper();
 
     public JsonConnectorConfig() {
         config = new HashMap<>();
+        fieldNameMapperClasses = new ArrayList<>();
+        fieldNameMappers = new ArrayList<>();
+        connectorListenerClasses = new ArrayList<>();
+        connectorListeners = new ArrayList<>();
         try {
             om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
         } catch (ConfigException e) {
@@ -53,6 +71,26 @@ public class JsonConnectorConfig implements ConnectorConfig {
     @Override
     public String getConnectorClass() {
         return connectorClass;
+    }
+
+    @Override
+    public List<String> getFieldNameMapperClasses() {
+        return fieldNameMapperClasses;
+    }
+
+    @Override
+    public List<FieldNameMapper> getFieldNameMappers() {
+        return fieldNameMappers;
+    }
+
+    @Override
+    public List<String> getConnectorListenerClasses() {
+        return connectorListenerClasses;
+    }
+
+    @Override
+    public List<ConnectorListener> getConnectorListeners() {
+        return connectorListeners;
     }
 
     @Override

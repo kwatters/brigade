@@ -5,14 +5,23 @@ import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.document.ProcessingStatus;
+import com.kmwllc.brigade.event.CallbackListener;
+import com.kmwllc.brigade.event.DocumentListener;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.stage.AbstractStage;
+import com.kmwllc.brigade.stage.Stage;
+import com.kmwllc.brigade.stage.StageExceptionMode;
+import com.kmwllc.brigade.stage.StageFailure;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import static com.kmwllc.brigade.stage.StageExceptionMode.NEXT_STAGE;
+import static com.kmwllc.brigade.stage.StageExceptionMode.NEXT_DOC;
+import static com.kmwllc.brigade.stage.StageExceptionMode.STOP_WORKFLOW;
 
 /**
  * WorkflowWorker : this is a list of stages that will poll the workflow queue
@@ -23,8 +32,11 @@ public class WorkflowWorker extends Thread {
   boolean processing = false;
   boolean running = false;
   boolean error = false;
-  private ArrayList<AbstractStage> stages;
+  private List<Stage> stages;
   private Map<String, String> props;
+  private List<DocumentListener> documentListeners = new ArrayList<>();
+  private List<CallbackListener> callbackListeners = new ArrayList<>();
+  private StageExceptionMode stageExceptionMode;
 
   private final LinkedBlockingQueue<Document> queue;
 
@@ -35,25 +47,10 @@ public class WorkflowWorker extends Thread {
     this.setName("WorkflowWorker-" + workflowConfig.getName());
     this.queue = queue;
     this.props = props;
-    stages = new ArrayList<>();
-    for (StageConfig stageConf : workflowConfig.getStages()) {
-      String stageClass = stageConf.getStageClass().trim();
-      String stageName = stageConf.getStageName();
-      log.info("Starting stage: {} class: {}", stageName, stageClass);
-      Class<?> sc = Workflow.class.getClassLoader().loadClass(stageClass);
-      try {
-        AbstractStage stageInst = (AbstractStage) sc.newInstance();
-        stageInst.setProps(props);
-        stageInst.init(stageConf);
-        addStage(stageInst);
-      } catch (InstantiationException e) {
-        log.warn("Error Creating Stage : {}", e);
-      } catch (IllegalAccessException e) {
-        log.warn("Error Creating Stage : {}", e);
-      }
-    }
+    stages = workflowConfig.getStages();
   }
 
+  @Override
   public void run() {
     Document doc = null;
     running = true;
@@ -68,17 +65,23 @@ public class WorkflowWorker extends Thread {
           processing = true;
           // process from the start of the workflow
           processDocumentInternal(doc, 0);
+
+          if (doc.hasFailures()) {
+            fireDocFail(doc.getId(), doc.getFailures());
+          } else {
+            fireDocComplete(doc.getId());
+          }
+          fireOnDocument(doc);
           processing = false;
         }
       } catch (Exception e) {
         // TODO: handle these properly
-        log.warn("Workflow Worker Died! {}", e.getMessage());
-        e.printStackTrace();
+        log.warn("Workflow Worker Died! {}", e);
+        //e.printStackTrace();
         running = false;
         processing = false;
         error = true;
         queue.clear();
-        throw new RuntimeException("Error in stage");
       }
     }
   }
@@ -95,18 +98,41 @@ public class WorkflowWorker extends Thread {
     return error;
   }
 
+
+
   public void processDocumentInternal(Document doc, int stageOffset) throws Exception {
     // TODO: what to do...
     int i = 0;
-    for (AbstractStage s : stages.subList(i, stages.size())) {
+    for (Stage s : stages.subList(i, stages.size())) {
       if (!prereq(s, props, doc)) {
         continue;
       }
+
+      // Override only if not set
+      if (s.getStageExceptionMode() == null) {
+        s.setStageExceptionMode(stageExceptionMode);
+      }
+
       // create a pool of stages, so that when you call processDocument
       // or each thread should have it's own pool?
       List<Document> childDocs = null;
       synchronized (doc) {
-        childDocs = s.processDocument(doc);
+        try {
+          childDocs = s.processDocument(doc);
+        } catch (Exception e) {
+          StageFailure sf = new StageFailure(s.getName(), e);
+          doc.addFailure(sf);
+          if (s.getStageExceptionMode().equals(NEXT_STAGE)) {
+            continue;
+          } else if (s.getStageExceptionMode().equals(STOP_WORKFLOW)) {
+            fireDocFail(doc.getId(), doc.getFailures());
+            fireOnDocument(doc);
+            throw new Exception(e);
+          } else if (s.getStageExceptionMode().equals(NEXT_DOC)) {
+            doc.setStatus(ProcessingStatus.DROP);
+            return;
+          }
+        }
       }
       i++;
       if (childDocs != null) {
@@ -128,12 +154,12 @@ public class WorkflowWorker extends Thread {
   }
 
   public void flush() {
-    for (AbstractStage s : stages) {
+    for (Stage s : stages) {
       s.flush();
     }
   }
 
-  private boolean prereq(AbstractStage s, Map<String, String> props, Document d) {
+  private boolean prereq(Stage s, Map<String, String> props, Document d) {
     String enabledProp = s.getEnabled();
     boolean propDisabled = !Strings.isNullOrEmpty(enabledProp) && props.get(enabledProp) != null
             && props.get(enabledProp).equalsIgnoreCase("false");
@@ -144,5 +170,49 @@ public class WorkflowWorker extends Thread {
     boolean fieldDisabled = !Strings.isNullOrEmpty(skipIfField) && d.hasField(skipIfField)
             && d.getField(skipIfField).get(0).toString().equalsIgnoreCase("true");
     return !fieldDisabled;
+  }
+
+  public List<DocumentListener> getDocumentListeners() {
+    return documentListeners;
+  }
+
+  public void setDocumentListeners(List<DocumentListener> documentListeners) {
+    this.documentListeners = documentListeners;
+  }
+
+  public List<CallbackListener> getCallbackListeners() {
+    return callbackListeners;
+  }
+
+  public void setCallbackListeners(List<CallbackListener> callbackListeners) {
+    this.callbackListeners = callbackListeners;
+  }
+
+  public void addDocumentListener(DocumentListener l) {
+    documentListeners.add(l);
+  }
+
+  public void addCallbackListener(CallbackListener l) {
+    callbackListeners.add(l);
+  }
+
+  private void fireDocComplete(String docId) {
+    callbackListeners.forEach(l -> l.docComplete(docId));
+  }
+
+  private void fireDocFail(String docId, List<StageFailure> failures) {
+    callbackListeners.forEach(l -> l.docFail(docId, failures));
+  }
+
+  private void fireOnDocument(Document doc) {
+    documentListeners.forEach(l -> l.onDocument(doc));
+  }
+
+  public StageExceptionMode getStageExceptionMode() {
+    return stageExceptionMode;
+  }
+
+  public void setStageExceptionMode(StageExceptionMode stageExceptionMode) {
+    this.stageExceptionMode = stageExceptionMode;
   }
 }

@@ -2,7 +2,6 @@ package com.kmwllc.brigade.workflow;
 
 import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.config.json.JsonWorkflowConfig;
-import org.junit.Test;
 
 import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.config.WorkflowConfig;
@@ -59,8 +58,8 @@ public class WorkflowServerTest {
 		s2Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s2Conf.setStringParam("idField", "id");
 
-		wC.addStage(s1Conf);
-		wC.addStage(s2Conf);
+		wC.addStageConfig(s1Conf);
+		wC.addStageConfig(s2Conf);
 
 		return wC;
 	}

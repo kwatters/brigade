@@ -1,9 +1,11 @@
 package com.kmwllc.brigade.util;
 
+import com.kmwllc.brigade.config.*;
 import com.kmwllc.brigade.utils.BrigadeRunner;
 import org.junit.rules.ExternalResource;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Created by matt on 3/27/17.
@@ -11,31 +13,40 @@ import java.io.InputStream;
 public class BrigadeHelper extends ExternalResource {
 
     private BrigadeRunner brigadeRunner;
-
-    private final String workflowFile;
-    private final String connectorFile;
-    private final String propertiesFile;
+    private Optional<String> propertiesFile = Optional.empty();
+    private Optional<String> connectorFile = Optional.empty();
+    private Optional<String> workflowFile = Optional.empty();
+    private Optional<BrigadeProperties> properties = Optional.empty();
+    private Optional<ConnectorConfig> connector = Optional.empty();
+    private Optional<WorkflowConfig<StageConfig>> workflow = Optional.empty();
 
     public BrigadeHelper(String propertiesFile, String connectorFile, String workflowFile) {
-        this.propertiesFile = propertiesFile;
-        this.connectorFile = connectorFile;
-        this.workflowFile = workflowFile;
+        try {
+            init(propertiesFile, connectorFile, workflowFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ConfigException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void before() throws Throwable {
         super.before();
-        init();
+        if (properties.isPresent() && connector.isPresent() && workflow.isPresent()) {
+            init(properties.get(), connector.get(), workflow.get());
+        } else if (propertiesFile.isPresent() && connectorFile.isPresent() && workflowFile.isPresent()) {
+            init(propertiesFile.get(), connectorFile.get(), workflowFile.get());
+        }
     }
 
-    public void init() {
-        brigadeRunner = new BrigadeRunner(getStream(propertiesFile), getStream(connectorFile),
-                getStream(workflowFile));
+    public void init(String propertiesFile, String connectorFile, String workflowFile)
+            throws IOException, ConfigException {
+        brigadeRunner = BrigadeRunner.init(propertiesFile, connectorFile, workflowFile);
     }
 
-
-    private InputStream getStream(String fileName) {
-        return BrigadeHelper.class.getClassLoader().getResourceAsStream(fileName);
+    public void init(BrigadeProperties bp, ConnectorConfig cc, WorkflowConfig<StageConfig> wc) {
+        brigadeRunner = new BrigadeRunner(bp, cc, wc);
     }
 
     @Override

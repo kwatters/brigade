@@ -7,29 +7,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kmwllc.brigade.config.ConfigException;
 import com.kmwllc.brigade.config.ConfigFactory;
 import com.kmwllc.brigade.config.WorkflowConfig;
+import com.kmwllc.brigade.stage.Stage;
+import com.kmwllc.brigade.stage.StageExceptionMode;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
 public class JsonWorkflowConfig implements WorkflowConfig<JsonStageConfig> {
-    private List<JsonStageConfig> stages;
+    private List<JsonStageConfig> stageConfigs;
     private String name;
     private int numWorkerThreads;
     private int queueLength;
+    private String stageExceptionModeClass;
+    private StageExceptionMode stageExceptionMode;
     private Map<String, Object> config;
+    private List<Stage> stages;
 
     @JsonIgnore
     private ObjectMapper om;
 
     public JsonWorkflowConfig() {
         config = new HashMap<>();
+        stageConfigs = new ArrayList<>();
         stages = new ArrayList<>();
         try {
             om = ((JsonConfigFactory)ConfigFactory.instance(JSON)).getObjectMapper();
@@ -46,8 +47,8 @@ public class JsonWorkflowConfig implements WorkflowConfig<JsonStageConfig> {
     }
 
     @Override
-    public List<JsonStageConfig> getStages() {
-        return stages;
+    public List<JsonStageConfig> getStageConfigs() {
+        return stageConfigs;
     }
 
     @Override
@@ -66,8 +67,28 @@ public class JsonWorkflowConfig implements WorkflowConfig<JsonStageConfig> {
     }
 
     @Override
-    public void addStage(JsonStageConfig stage) {
-        stages.add(stage);
+    public void addStageConfig(JsonStageConfig stage) {
+        stageConfigs.add(stage);
+    }
+
+    @Override
+    public List<Stage> getStages() {
+        return stages;
+    }
+
+    @Override
+    public String getStageExecutionModeClass() {
+        return stageExceptionModeClass;
+    }
+
+    @Override
+    public StageExceptionMode getStageExecutionMode() {
+        return stageExceptionMode;
+    }
+
+    @Override
+    public void setStageExceptionMode(StageExceptionMode stageExceptionMode) {
+        this.stageExceptionMode = stageExceptionMode;
     }
 
     @Override

@@ -1,16 +1,12 @@
 <com.kmwllc.brigade.config.WorkflowConfig>
     <name>ingest</name>
-    <endpointConfig>
-        <endpointName>mock</endpointName>
-        <endpointClass>com.kmwllc.brigade.util.MockEndpoint</endpointClass>
-        <config/>
-    </endpointConfig>
-    <stages>
+    <stageConfigs>
         <com.kmwllc.brigade.config.StageConfig>
             <stageName>badStage</stageName>
             <stageClass>com.evil.BadStage</stageClass>
             <config>
             </config>
+            <stageExceptionModeClass>STOP_WORKFLOW</stageExceptionModeClass>
         </com.kmwllc.brigade.config.StageConfig>
         <com.kmwllc.brigade.config.StageConfig>
             <stageName>index</stageName>
@@ -26,7 +22,7 @@
                 </entry>
             </config>
         </com.kmwllc.brigade.config.StageConfig>
-    </stages>
+    </stageConfigs>
     <numWorkerThreads>1</numWorkerThreads>
     <queueLength>50</queueLength>
 </com.kmwllc.brigade.config.WorkflowConfig>

@@ -3,6 +3,7 @@ package com.kmwllc.brigade.connector;
 import com.kmwllc.brigade.concurrency.DumpDocReader;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.util.BrigadeHelper;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -20,11 +21,15 @@ public class LegacyCSVConnectorTest {
     @Rule
     public final BrigadeHelper brigadeHelper = new BrigadeHelper("conf/brigade.properties",
             "conf/csv-connector.xml", "conf/vanilla-workflow.xml");
+    private File testFile = new File("csv-test-output.txt");
+
+    @After
+    public void cleanup() {
+        testFile.delete();
+    }
 
     @Test
     public void testCSV() {
-        File testFile = new File("csv-test-output.txt");
-        testFile.delete();
         try {
             brigadeHelper.exec();
         } catch (Exception e) {
@@ -36,6 +41,5 @@ public class LegacyCSVConnectorTest {
         assertEquals(4, docs.size());
         assertEquals("Matt", docs.get(1).getField("author").get(0));
         assertEquals("Meow Meow", docs.get(3).getField("text").get(0));
-        testFile.delete();
     }
 }

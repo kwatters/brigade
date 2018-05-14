@@ -1,5 +1,7 @@
 package com.kmwllc.brigade.document;
 
+import com.kmwllc.brigade.stage.StageFailure;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,12 +26,14 @@ public class Document {
   private ProcessingStatus status;
 
   private ArrayList<Document> childrenDocs;
+  private List<StageFailure> failures;
 
 
   public Document(String id) {
     this.id = id;
     data = new HashMap<>();
     status = ProcessingStatus.OK;
+    failures = new ArrayList<>();
   }
 
   public ArrayList<Object> getField(String fieldName) {
@@ -208,5 +212,19 @@ public class Document {
     }
   }
 
+  public List<StageFailure> getFailures() {
+    return failures;
+  }
 
+  public void setFailures(List<StageFailure> failures) {
+    this.failures = failures;
+  }
+
+  public void addFailure(StageFailure failure) {
+    failures.add(failure);
+  }
+
+  public boolean hasFailures() {
+    return failures.size() > 0;
+  }
 }

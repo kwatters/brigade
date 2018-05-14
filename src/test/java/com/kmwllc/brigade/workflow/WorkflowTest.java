@@ -2,7 +2,6 @@ package com.kmwllc.brigade.workflow;
 
 import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.config.json.JsonWorkflowConfig;
-import org.junit.Test;
 import org.slf4j.Logger;
 
 import com.kmwllc.brigade.config.StageConfig;
@@ -31,8 +30,8 @@ public class WorkflowTest {
 		s2Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s2Conf.setStringParam("idField", "id");
 
-		wC.addStage(s1Conf);
-		wC.addStage(s2Conf);
+		wC.addStageConfig(s1Conf);
+		wC.addStageConfig(s2Conf);
 
 		// Create a workflow
 		Workflow w = new Workflow(wC, new HashMap<>());

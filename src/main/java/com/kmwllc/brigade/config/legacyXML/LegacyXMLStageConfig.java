@@ -2,6 +2,7 @@ package com.kmwllc.brigade.config.legacyXML;
 
 import com.kmwllc.brigade.config.ConfigException;
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.stage.StageExceptionMode;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
@@ -21,6 +22,8 @@ public class LegacyXMLStageConfig implements StageConfig {
     private String stageName;
     private String stageClass;
     private Map<String, Object> config;
+    private String stageExceptionModeClass;
+    private StageExceptionMode stageExceptionMode;
 
     public LegacyXMLStageConfig() {
         config = new HashMap<>();
@@ -40,6 +43,21 @@ public class LegacyXMLStageConfig implements StageConfig {
     @Override
     public String getStageClass() {
         return stageClass;
+    }
+
+    @Override
+    public String getStageExecutionModeClass() {
+        return stageExceptionModeClass;
+    }
+
+    @Override
+    public StageExceptionMode getStageExecutionMode() {
+        return stageExceptionMode;
+    }
+
+    @Override
+    public void setStageExceptionMode(StageExceptionMode stageExceptionMode) {
+        this.stageExceptionMode = stageExceptionMode;
     }
 
     @Override

@@ -2,13 +2,18 @@ package com.kmwllc.brigade.connector;
 
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.event.CallbackListener;
+import com.kmwllc.brigade.event.ConnectorEventListener;
+import com.kmwllc.brigade.event.DocumentListener;
 import com.kmwllc.brigade.interfaces.DocumentConnector;
 import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.stage.StageFailure;
 import com.kmwllc.brigade.workflow.WorkflowMessage;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +21,7 @@ import java.util.UUID;
  * AbstractConnector - base class for implementing a new document connector
  * service.
  */
-public abstract class AbstractConnector implements DocumentConnector {
+public abstract class AbstractConnector implements DocumentConnector, DocumentListener, CallbackListener {
 
     public final static Logger log = LoggerFactory.getLogger(AbstractConnector.class.getCanonicalName());
     protected ConnectorState state = ConnectorState.OFF;
@@ -37,10 +42,18 @@ public abstract class AbstractConnector implements DocumentConnector {
     private boolean useJobId = true;
     private String versionIdField = "version_id";
 
+    private List<ConnectorEventListener> connectorEventListeners = new ArrayList<>();
+    private List<DocumentListener> documentListeners = new ArrayList<>();
+    private List<CallbackListener> callbackListeners = new ArrayList<>();
+
     public AbstractConnector() {
     }
 
-    public abstract void setConfig(ConnectorConfig config);
+    public void setConfig(ConnectorConfig config) {
+        connectorEventListeners.addAll(config.getConnectorListeners());
+        documentListeners.addAll(config.getConnectorListeners());
+        callbackListeners.addAll(config.getConnectorListeners());
+    }
 
     public void start() throws InterruptedException {
 
@@ -52,12 +65,37 @@ public abstract class AbstractConnector implements DocumentConnector {
         startTime = System.currentTimeMillis();
         try {
             startCrawling();
+            state = ConnectorState.STOPPED;
         } catch (Exception e) {
             log.warn("Caught exception: {}", e);
             state = ConnectorState.ERROR;
+            throw new InterruptedException("Connector interrupted due to exception");
         } finally {
-            state = ConnectorState.STOPPED;
+            fireConnectorEnd();
         }
+    }
+
+    public void fireConnectorBegin(ConnectorConfig cc) {
+        connectorEventListeners.forEach(l -> l.connectorBegin(cc));
+    }
+
+    public void fireConnectorEnd() {
+        connectorEventListeners.forEach(l -> l.connectorEnd());
+    }
+
+    @Override
+    public void docComplete(String docId) {
+        callbackListeners.forEach(l -> l.docComplete(docId));
+    }
+
+    @Override
+    public void docFail(String docId, List<StageFailure> failures) {
+        callbackListeners.forEach(l -> l.docFail(docId, failures));
+    }
+
+    @Override
+    public void onDocument(Document doc) {
+        documentListeners.forEach(l -> l.onDocument(doc));
     }
 
     public abstract void initialize();
@@ -158,5 +196,19 @@ public abstract class AbstractConnector implements DocumentConnector {
         return jobId;
     }
 
+    public List<ConnectorEventListener> getConnectorEventListeners() {
+        return connectorEventListeners;
+    }
 
+    public void setConnectorEventListeners(List<ConnectorEventListener> connectorEventListeners) {
+        this.connectorEventListeners = connectorEventListeners;
+    }
+
+    public void addConnectorEventListener(ConnectorEventListener l) {
+        connectorEventListeners.add(l);
+    }
+
+    public void removeConnectorEventListener(ConnectorEventListener l) {
+        connectorEventListeners.remove(l);
+    }
 }

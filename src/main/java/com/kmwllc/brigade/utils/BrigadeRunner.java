@@ -1,98 +1,77 @@
 package com.kmwllc.brigade.utils;
 
 import com.kmwllc.brigade.Brigade;
-import com.kmwllc.brigade.config.BrigadeConfig;
-import com.kmwllc.brigade.config.ConnectorConfig;
-import com.kmwllc.brigade.config.WorkflowConfig;
-import com.kmwllc.brigade.config.ConfigFactory;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import com.kmwllc.brigade.config.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-
-import static com.kmwllc.brigade.config.ConfigFactory.JSON;
-import static com.kmwllc.brigade.config.ConfigFactory.LEGACY_XML;
 
 /**
  * Created by matt on 3/22/17.
  */
 public class BrigadeRunner {
 
-  private final InputStream workflowFile;
-  private final InputStream connectorFile;
-  private final InputStream propertiesFile;
+  private final BrigadeProperties brigadeProperties;
+  private final ConnectorConfig connectorConfig;
+  private final WorkflowConfig<StageConfig> workflowConfig;
 
-  public BrigadeRunner(InputStream propertiesFile, InputStream connectorFile, InputStream workflowFile) {
-    this.propertiesFile = propertiesFile;
-    this.connectorFile = connectorFile;
-    this.workflowFile = workflowFile;
+  public static BrigadeRunner init(String propertiesFile, String connectorFile, String workflowFile)
+          throws IOException, ConfigException {
+    BrigadeProperties bp = null;
+    ConnectorConfig cc = null;
+    WorkflowConfig<StageConfig> wc = null;
+    if (isFile(propertiesFile)) {
+      bp = BrigadeProperties.fromFile(propertiesFile);
+    } else {
+      bp = BrigadeProperties.fromStream(getStream(propertiesFile));
+    }
+    // bootstrap existing properties
+    if (isFile(propertiesFile)) {
+      bp = BrigadeProperties.fromFile(propertiesFile, bp);
+    } else {
+      bp = BrigadeProperties.fromStream(getStream(propertiesFile), bp);
+    }
+
+    if (isFile(connectorFile)) {
+      cc = ConnectorConfig.fromFile(connectorFile, bp);
+    } else {
+      cc = ConnectorConfig.fromStream(getStream(connectorFile), bp);
+    }
+
+    if (isFile(workflowFile)) {
+      wc = WorkflowConfig.fromFile(workflowFile, bp);
+    } else {
+      wc = WorkflowConfig.fromStream(getStream(workflowFile), bp);
+    }
+
+    return new BrigadeRunner(bp, cc, wc);
   }
 
-  // Naive way to check format.  Good enough for now...
-  private String sniffConfigFormat(String s) throws Exception {
-    char first = firstChar(s);
-    switch (first) {
-      case '<':
-        return LEGACY_XML;
-      case '{':
-        return JSON;
-        default:
-          throw new Exception("Unknown config format");
-    }
+  public BrigadeRunner(BrigadeProperties brigadeProperties, ConnectorConfig connectorConfig,
+                       WorkflowConfig<StageConfig> workflowConfig) {
+    this.brigadeProperties = brigadeProperties;
+    this.connectorConfig = connectorConfig;
+    this.workflowConfig = workflowConfig;
   }
 
-  // Get the first non-whitespace char
-  private char firstChar(String s){
-    char[] chars = s.toCharArray();
-    for (int i = 0; i < chars.length; i++) {
-      if (!Character.isWhitespace(chars[i])) {
-        return chars[i];
-      }
-    }
-    return ' ';
+  private static boolean isFile(String fileName) {
+    File f = new File(fileName);
+    return f.exists();
+  }
+
+  private static InputStream getStream(String fileName) {
+    InputStream in =  BrigadeRunner.class.getClassLoader().getResourceAsStream(fileName);
+    return in;
   }
 
   public void exec() throws Exception {
-    Map<String, String> propMap = null;
-    try {
-      propMap = BrigadeUtils.loadPropertiesAsMap(propertiesFile);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    String connectorString = null;
-    try {
-      connectorString = BrigadeUtils.fileToString(connectorFile);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    String workflowString = null;
-    try {
-      workflowString = BrigadeUtils.fileToString(workflowFile);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    StrSubstitutor sub = new StrSubstitutor(propMap);
-    connectorString = sub.replace(connectorString);
-    connectorString = sub.replaceSystemProperties(connectorString);
-    String connectorConfigFormat = sniffConfigFormat(connectorString);
-
-    workflowString = sub.replace(workflowString);
-    workflowString = sub.replaceSystemProperties(workflowString);
-    String workflowConfigFormat = sniffConfigFormat(workflowString);
-
-    ConfigFactory connectorConfigFactory = ConfigFactory.instance(connectorConfigFormat);
-    ConnectorConfig connectorConfig = connectorConfigFactory.deserializeConnector(connectorString);
-
-    ConfigFactory workflowConfigFactory = ConfigFactory.instance(workflowConfigFormat);
-    WorkflowConfig workflowConfig = workflowConfigFactory.deserializeWorkflow(workflowString);
 
     // init the brigade config!
     BrigadeConfig config = new BrigadeConfig();
     config.addConnectorConfig(connectorConfig);
     config.addWorkflowConfig(workflowConfig);
-    config.setProps(propMap);
+    config.setProps(brigadeProperties);
 
     // Start up the Brigade Server
     Brigade brigadeServer = Brigade.getInstance();
@@ -105,6 +84,7 @@ public class BrigadeRunner {
           brigadeServer.startConnector(connectorConfig.getConnectorName());
         } catch (InterruptedException e) {
           e.printStackTrace();
+          throw e;
         }
 
         // TODO: this should do a flush! and then shutdown..
@@ -112,6 +92,7 @@ public class BrigadeRunner {
           brigadeServer.waitForConnector(connectorConfig.getConnectorName());
         } catch (InterruptedException e) {
           e.printStackTrace();
+          throw e;
         }
       }
     } catch (Exception e) {

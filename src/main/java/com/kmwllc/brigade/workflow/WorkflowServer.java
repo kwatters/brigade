@@ -57,4 +57,8 @@ public class WorkflowServer {
     return ws;
   }
 
+  public Workflow getWorkflow(String name) {
+    return workflowMap.get(name);
+  }
+
 }

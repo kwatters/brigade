@@ -1,11 +1,13 @@
 package com.kmwllc.brigade;
 
 import com.kmwllc.brigade.config.*;
+import com.kmwllc.brigade.connector.AbstractConnector;
 import com.kmwllc.brigade.connector.ConnectorServer;
 import com.kmwllc.brigade.connector.ConnectorState;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import com.kmwllc.brigade.utils.BrigadeRunner;
 import com.kmwllc.brigade.utils.FileUtils;
+import com.kmwllc.brigade.workflow.Workflow;
 import com.kmwllc.brigade.workflow.WorkflowServer;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -59,6 +61,15 @@ public class Brigade {
     ConnectorServer cS = ConnectorServer.getInstance();
     for (ConnectorConfig cc : config.getConnectorConfigs()) {
       cS.addConnector(cc);
+    }
+
+    for (ConnectorConfig cc : config.getConnectorConfigs()) {
+      AbstractConnector c = ConnectorServer.getInstance().getConnector(cc.getConnectorName());
+      // Attach connector to WF as listener
+      String workflowName = cc.getStringParam("workflowName");
+      Workflow wf = WorkflowServer.getInstance().getWorkflow(workflowName);
+      wf.addCallbackListener(c);
+      wf.addDocumentListener(c);
     }
   }
 
@@ -151,7 +162,7 @@ public class Brigade {
    * @throws IOException
    * @throws ParseException
    */
-  public static void main(String[] args) throws InterruptedException, IOException, ParseException, ConfigException {
+  public static void main(String[] args) throws InterruptedException, IOException, ParseException, ConfigException, ClassNotFoundException {
 
     // create Options object
     Options options = new Options();
@@ -177,8 +188,8 @@ public class Brigade {
     String connectorFile = cmd.getOptionValue("c");
     String workflowFile = cmd.getOptionValue("w");
 
-    BrigadeRunner br = new BrigadeRunner(new FileInputStream(propertiesFile), new FileInputStream(connectorFile),
-            new FileInputStream(workflowFile));
+    BrigadeRunner br = BrigadeRunner.init(propertiesFile, connectorFile, workflowFile);
+
     try {
       br.exec();
     } catch (Exception e) {
