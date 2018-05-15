@@ -15,8 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A connector configuration that at a minimum takes a name of the connector
- * and the implementing class for that connector.
+ * Implementation of Stage config that support the old XML format used by earlier versions of brigade.
+ * WorkflowConfig interface is extended with generic parameter that enforces stages in workflow use
+ * Legacy XML configuration.
  *
  * @author kwatters
  */

@@ -18,6 +18,9 @@ import java.util.Map;
 
 import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
+/**
+ * Implementation of StageConfig for Json representation.  This uses Jackson to serialize/deserialize
+ */
 public class JsonStageConfig implements StageConfig {
 
   @JsonProperty("name")

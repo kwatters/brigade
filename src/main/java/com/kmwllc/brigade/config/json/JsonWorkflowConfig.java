@@ -15,108 +15,113 @@ import java.util.*;
 
 import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
+/**
+ * Implementation of WorkflowConfig for Json representation.  This uses Jackson for
+ * serialization/deserialization.  This extends WorkflowConfig's generic parameter
+ * to enforce a collections of stages that use the Json representation (JsonStageConfig).
+ */
 public class JsonWorkflowConfig implements WorkflowConfig<JsonStageConfig> {
-    private List<JsonStageConfig> stageConfigs;
-    private String name;
-    private int numWorkerThreads;
-    private int queueLength;
-    private String stageExceptionModeClass;
-    private StageExceptionMode stageExceptionMode;
-    private Map<String, Object> config;
-    private List<Stage> stages;
+  private List<JsonStageConfig> stageConfigs;
+  private String name;
+  private int numWorkerThreads;
+  private int queueLength;
+  private String stageExceptionModeClass;
+  private StageExceptionMode stageExceptionMode;
+  private Map<String, Object> config;
+  private List<Stage> stages;
 
-    @JsonIgnore
-    private ObjectMapper om;
+  @JsonIgnore
+  private ObjectMapper om;
 
-    public JsonWorkflowConfig() {
-        config = new HashMap<>();
-        stageConfigs = new ArrayList<>();
-        stages = new ArrayList<>();
-        try {
-            om = ((JsonConfigFactory)ConfigFactory.instance(JSON)).getObjectMapper();
-        } catch (ConfigException e) {
-            e.printStackTrace();
-        }
+  public JsonWorkflowConfig() {
+    config = new HashMap<>();
+    stageConfigs = new ArrayList<>();
+    stages = new ArrayList<>();
+    try {
+      om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
+    } catch (ConfigException e) {
+      e.printStackTrace();
     }
+  }
 
-    public JsonWorkflowConfig(String name, int numWorkerThreads, int queueLength) {
-        this();
-        this.name = name;
-        this.numWorkerThreads = numWorkerThreads;
-        this.queueLength = queueLength;
-    }
+  public JsonWorkflowConfig(String name, int numWorkerThreads, int queueLength) {
+    this();
+    this.name = name;
+    this.numWorkerThreads = numWorkerThreads;
+    this.queueLength = queueLength;
+  }
 
-    @Override
-    public List<JsonStageConfig> getStageConfigs() {
-        return stageConfigs;
-    }
+  @Override
+  public List<JsonStageConfig> getStageConfigs() {
+    return stageConfigs;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    public int getNumWorkerThreads() {
-        return numWorkerThreads;
-    }
+  @Override
+  public int getNumWorkerThreads() {
+    return numWorkerThreads;
+  }
 
-    @Override
-    public int getQueueLength() {
-        return queueLength;
-    }
+  @Override
+  public int getQueueLength() {
+    return queueLength;
+  }
 
-    @Override
-    public void addStageConfig(JsonStageConfig stage) {
-        stageConfigs.add(stage);
-    }
+  @Override
+  public void addStageConfig(JsonStageConfig stage) {
+    stageConfigs.add(stage);
+  }
 
-    @Override
-    public List<Stage> getStages() {
-        return stages;
-    }
+  @Override
+  public List<Stage> getStages() {
+    return stages;
+  }
 
-    @Override
-    public String getStageExecutionModeClass() {
-        return stageExceptionModeClass;
-    }
+  @Override
+  public String getStageExecutionModeClass() {
+    return stageExceptionModeClass;
+  }
 
-    @Override
-    public StageExceptionMode getStageExecutionMode() {
-        return stageExceptionMode;
-    }
+  @Override
+  public StageExceptionMode getStageExecutionMode() {
+    return stageExceptionMode;
+  }
 
-    @Override
-    public void setStageExceptionMode(StageExceptionMode stageExceptionMode) {
-        this.stageExceptionMode = stageExceptionMode;
-    }
+  @Override
+  public void setStageExceptionMode(StageExceptionMode stageExceptionMode) {
+    this.stageExceptionMode = stageExceptionMode;
+  }
 
-    @Override
-    @JsonAnyGetter
-    public Map<String, Object> getConfig() {
-        return config;
-    }
+  @Override
+  @JsonAnyGetter
+  public Map<String, Object> getConfig() {
+    return config;
+  }
 
-    @JsonAnySetter
-    public void put(String key, Object val) {
-        config.put(key, val);
-    }
+  @JsonAnySetter
+  public void put(String key, Object val) {
+    config.put(key, val);
+  }
 
-    @Override
-    public void serialize(Writer w) throws ConfigException {
-        try {
-            om.writerWithDefaultPrettyPrinter().writeValue(w, this);
-        } catch (IOException e) {
-            throw new ConfigException("Error serializing config", e);
-        }
+  @Override
+  public void serialize(Writer w) throws ConfigException {
+    try {
+      om.writerWithDefaultPrettyPrinter().writeValue(w, this);
+    } catch (IOException e) {
+      throw new ConfigException("Error serializing config", e);
     }
+  }
 
-    @Override
-    public WorkflowConfig deserialize(Reader r) throws ConfigException {
-        try {
-            return om.readValue(r, JsonWorkflowConfig.class);
-        } catch (IOException e) {
-            throw new ConfigException("Error deserializing config", e);
-        }
+  @Override
+  public WorkflowConfig deserialize(Reader r) throws ConfigException {
+    try {
+      return om.readValue(r, JsonWorkflowConfig.class);
+    } catch (IOException e) {
+      throw new ConfigException("Error deserializing config", e);
     }
+  }
 }

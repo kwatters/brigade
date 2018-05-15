@@ -19,106 +19,110 @@ import java.util.Map;
 
 import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
+/**
+ * Implementation of ConnectorConfig for Json representation.  This uses Jackson to handle serialization/
+ * deserialization.
+ */
 public class JsonConnectorConfig implements ConnectorConfig {
 
-    @JsonProperty("name")
-    private String connectorName;
+  @JsonProperty("name")
+  private String connectorName;
 
-    @JsonProperty("type")
-    private String connectorClass;
+  @JsonProperty("type")
+  private String connectorClass;
 
-    private Map<String, Object> config;
+  private Map<String, Object> config;
 
-    @JsonProperty("fieldNameMappers")
-    private List<String> fieldNameMapperClasses;
+  @JsonProperty("fieldNameMappers")
+  private List<String> fieldNameMapperClasses;
 
-    @JsonIgnore
-    private List<FieldNameMapper> fieldNameMappers;
+  @JsonIgnore
+  private List<FieldNameMapper> fieldNameMappers;
 
-    @JsonProperty("connectorListeners")
-    private List<String> connectorListenerClasses;
+  @JsonProperty("connectorListeners")
+  private List<String> connectorListenerClasses;
 
-    @JsonIgnore
-    private List<ConnectorListener> connectorListeners;
+  @JsonIgnore
+  private List<ConnectorListener> connectorListeners;
 
-    @JsonIgnore
-    private ObjectMapper om = new ObjectMapper();
+  @JsonIgnore
+  private ObjectMapper om = new ObjectMapper();
 
-    public JsonConnectorConfig() {
-        config = new HashMap<>();
-        fieldNameMapperClasses = new ArrayList<>();
-        fieldNameMappers = new ArrayList<>();
-        connectorListenerClasses = new ArrayList<>();
-        connectorListeners = new ArrayList<>();
-        try {
-            om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
-        } catch (ConfigException e) {
-            e.printStackTrace();
-        }
+  public JsonConnectorConfig() {
+    config = new HashMap<>();
+    fieldNameMapperClasses = new ArrayList<>();
+    fieldNameMappers = new ArrayList<>();
+    connectorListenerClasses = new ArrayList<>();
+    connectorListeners = new ArrayList<>();
+    try {
+      om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
+    } catch (ConfigException e) {
+      e.printStackTrace();
     }
+  }
 
-    public JsonConnectorConfig(String connectorName, String connectorClass) {
-        this();
-        this.connectorName = connectorName;
-        this.connectorClass = connectorClass;
-    }
+  public JsonConnectorConfig(String connectorName, String connectorClass) {
+    this();
+    this.connectorName = connectorName;
+    this.connectorClass = connectorClass;
+  }
 
-    @Override
-    public String getConnectorName() {
-        return connectorName;
-    }
+  @Override
+  public String getConnectorName() {
+    return connectorName;
+  }
 
-    @Override
-    public String getConnectorClass() {
-        return connectorClass;
-    }
+  @Override
+  public String getConnectorClass() {
+    return connectorClass;
+  }
 
-    @Override
-    public List<String> getFieldNameMapperClasses() {
-        return fieldNameMapperClasses;
-    }
+  @Override
+  public List<String> getFieldNameMapperClasses() {
+    return fieldNameMapperClasses;
+  }
 
-    @Override
-    public List<FieldNameMapper> getFieldNameMappers() {
-        return fieldNameMappers;
-    }
+  @Override
+  public List<FieldNameMapper> getFieldNameMappers() {
+    return fieldNameMappers;
+  }
 
-    @Override
-    public List<String> getConnectorListenerClasses() {
-        return connectorListenerClasses;
-    }
+  @Override
+  public List<String> getConnectorListenerClasses() {
+    return connectorListenerClasses;
+  }
 
-    @Override
-    public List<ConnectorListener> getConnectorListeners() {
-        return connectorListeners;
-    }
+  @Override
+  public List<ConnectorListener> getConnectorListeners() {
+    return connectorListeners;
+  }
 
-    @Override
-    @JsonAnyGetter
-    public Map<String, Object> getConfig() {
-        return config;
-    }
+  @Override
+  @JsonAnyGetter
+  public Map<String, Object> getConfig() {
+    return config;
+  }
 
-    @JsonAnySetter
-    public void put(String key, Object val) {
-        config.put(key, val);
-    }
+  @JsonAnySetter
+  public void put(String key, Object val) {
+    config.put(key, val);
+  }
 
-    @Override
-    public void serialize(Writer w) throws ConfigException {
-        try {
-            om.writerWithDefaultPrettyPrinter().writeValue(w, this);
-        } catch (IOException e) {
-            throw new ConfigException("Error serializing config", e);
-        }
+  @Override
+  public void serialize(Writer w) throws ConfigException {
+    try {
+      om.writerWithDefaultPrettyPrinter().writeValue(w, this);
+    } catch (IOException e) {
+      throw new ConfigException("Error serializing config", e);
     }
+  }
 
-    @Override
-    public ConnectorConfig deserialize(Reader r) throws ConfigException {
-        try {
-            return om.readValue(r, JsonConnectorConfig.class);
-        } catch (IOException e) {
-            throw new ConfigException("Error deserializing config", e);
-        }
+  @Override
+  public ConnectorConfig deserialize(Reader r) throws ConfigException {
+    try {
+      return om.readValue(r, JsonConnectorConfig.class);
+    } catch (IOException e) {
+      throw new ConfigException("Error deserializing config", e);
     }
+  }
 }

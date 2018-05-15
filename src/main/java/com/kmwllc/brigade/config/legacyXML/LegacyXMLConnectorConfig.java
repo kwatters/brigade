@@ -15,10 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A connector configuration that at a minimum takes a name of the connector
- * and the implementing class for that connector.
- *
- * @author kwatters
+ * Implementation of ConnectorConfig that supports the legacy XML format used by earlier
+ * versions of brigade.
  */
 public class LegacyXMLConnectorConfig implements ConnectorConfig {
 
@@ -35,6 +33,7 @@ public class LegacyXMLConnectorConfig implements ConnectorConfig {
     }
 
     public void init() {
+        // For some reason, these collections map to null if not populated when deserialized from XStream.
         if (config == null) {
             config = new HashMap<>();
         }
@@ -100,6 +99,7 @@ public class LegacyXMLConnectorConfig implements ConnectorConfig {
     public ConnectorConfig deserialize(Reader r) throws ConfigException {
         Object o = (new XStream(new StaxDriver())).fromXML(r);
         LegacyXMLConnectorConfig cc = (LegacyXMLConnectorConfig) o;
+        // need to call init() here; otherwise empty collections are left as null..
         cc.init();
         return (ConnectorConfig) o;
     }
