@@ -15,6 +15,11 @@ import java.util.Set;
  * <p>
  * Documents can also maintain a processing status on them so that if a stage fires and exception
  * the document can be marked as having some issue.
+ * <p>
+ *   Documents also maintain a list of StageFailures which may be accrued as the document makes
+ *   its way through a pipeline.  How these failures are handled is determined by the StageExecutionMode
+ *   of the pipeline and/or current stage being processed.
+ * </p>
  *
  * @author kwatters
  */
@@ -36,6 +41,11 @@ public class Document {
     failures = new ArrayList<>();
   }
 
+  /**
+   * Get contents of field in this document or null if the document does not contain the field
+   * @param fieldName Name of field
+   * @return List of contents or null if field not found
+   */
   public ArrayList<Object> getField(String fieldName) {
     if (data.containsKey(fieldName)) {
       return data.get(fieldName);
@@ -44,22 +54,43 @@ public class Document {
     }
   }
 
+  /**
+   * Set field values to the specified list for specified field name.
+   * @param fieldName Name of field
+   * @param value List of contents
+   */
   public void setField(String fieldName, ArrayList<Object> value) {
     data.put(fieldName, value);
   }
 
+  /**
+   * Set field value to a single object for specified field name.  In the background, This constructs
+   * a list with one element and sets that as the values for the field.
+   * @param fieldName Name of field
+   * @param value Content for field
+   */
   public void setField(String fieldName, Object value) {
     ArrayList<Object> values = new ArrayList<>();
     values.add(value);
     data.put(fieldName, values);
   }
 
+  /**
+   * Convenience method which only sets field to value if the specified value is not null.
+   * @param fieldName Name of field
+   * @param value Value for field
+   */
   public void setFieldIfNotNull(String fieldName, Object value) {
     if (value != null){
       setField(fieldName, value);
     }
   }
 
+  /**
+   * Change the name of a field, keeping contents the same
+   * @param oldField original field name
+   * @param newField new name for field
+   */
   public void renameField(String oldField, String newField) {
     if (data.containsKey(oldField)) {
       // TODO: test me to make sure this is correct.
@@ -69,6 +100,11 @@ public class Document {
 
   }
 
+  /**
+   * Add specified value to the specified field.  If field is not currently in document, add it.
+   * @param fieldName Name of field
+   * @param value Value to add to field contents
+   */
   public void addToField(String fieldName, Object value) {
     if (data.containsKey(fieldName) && (data.get(fieldName) != null)) {
       data.get(fieldName).add(value);
@@ -79,6 +115,12 @@ public class Document {
     }
   }
 
+  /**
+   * Get the first value for specified field cast as a String.  Returns null if the field is not
+   * in the document
+   * @param fieldName Name of field
+   * @return First value for field cast as a String
+   */
   public String getFirstValueAsString(String fieldName) {
     List<Object> s = data.get(fieldName);
     if (s==null||s.isEmpty()) {
@@ -87,14 +129,27 @@ public class Document {
     return s.get(0).toString();
   }
 
+  /**
+   * Get the unique ID for this document
+   * @return Document id
+   */
   public String getId() {
     return id;
   }
 
+  /**
+   * Set unique Id of document to the specified value
+   * @param id New document id
+   */
   public void setId(String id) {
     this.id = id;
   }
 
+  /**
+   * Answer whether document contains specified field
+   * @param fieldName Name of field
+   * @return whether the document contains this field
+   */
   public boolean hasField(String fieldName) {
     return data.containsKey(fieldName);
   }
@@ -102,25 +157,41 @@ public class Document {
   /**
    * Return a set of all fields on a given document. This is unordered.
    *
-   * @return
+   * @return Set of fields
    */
   public Set<String> getFields() {
     return data.keySet();
   }
 
+  /**
+   * Remove field with specified name from the document
+   * @param fieldName Name of field to remove
+   */
   public void removeField(String fieldName) {
     data.remove(fieldName);
 
   }
 
+  /**
+   * Get processing status for this document
+   * @return status
+   */
   public ProcessingStatus getStatus() {
     return status;
   }
 
+  /**
+   * Set processing status for this document to specified value
+   * @param status status
+   */
   public void setStatus(ProcessingStatus status) {
     this.status = status;
   }
 
+  /**
+   * Get the Map that contains all fields and their contents
+   * @return Map of fieldNames -> field contents
+   */
   public HashMap<String, ArrayList<Object>> getData() {
     return data;
   }
@@ -180,14 +251,26 @@ public class Document {
     childrenDocs.add(child);
   }
 
+  /**
+   * Get any child documents of this document
+   * @return List of child documents
+   */
   public ArrayList<Document> getChildrenDocs() {
     return childrenDocs;
   }
 
+  /**
+   * Set the list of child documents to the specified list.
+   * @param childrenDocs What the child documents are to be
+   */
   public void setChildrenDocs(ArrayList<Document> childrenDocs) {
     this.childrenDocs = childrenDocs;
   }
 
+  /**
+   * Get the number of child documents
+   * @return number of docs
+   */
   public int getNumberOfChildrenDocs() {
     if (childrenDocs == null) {
       return 0;
@@ -196,10 +279,17 @@ public class Document {
     }
   }
 
+  /**
+   * Remove all child documents from this document
+   */
   public void removeChildrenDocs() {
     childrenDocs = null;
   }
 
+  /**
+   * Answer whether this document has any child documents
+   * @return whether this document has any child documents
+   */
   public boolean hasChildren() {
     if (childrenDocs == null) {
       return false;
@@ -212,18 +302,34 @@ public class Document {
     }
   }
 
+  /**
+   * Get all StageFailures which have been accrued by this document.
+   * @return List of failures
+   */
   public List<StageFailure> getFailures() {
     return failures;
   }
 
+  /**
+   * Set the list of StageFailures to the specified list.
+   * @param failures List of failures
+   */
   public void setFailures(List<StageFailure> failures) {
     this.failures = failures;
   }
 
+  /**
+   * Add the given failure to the list of failures for this document
+   * @param failure Failure object to add
+   */
   public void addFailure(StageFailure failure) {
     failures.add(failure);
   }
 
+  /**
+   * Answer whether this document has accrued any failures
+   * @return whether this document has accrued any failures
+   */
   public boolean hasFailures() {
     return failures.size() > 0;
   }

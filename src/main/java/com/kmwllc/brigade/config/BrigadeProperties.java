@@ -10,6 +10,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * BrigadeProperties is a wrapper around a String->String Map that also supports the polymorphic
+ * configuration build capabilities (fromFile, fromStream).  BrigadeProperties has the further
+ * capability of "bootstrapping" a set of properties where a values are derived from a previously
+ * set value.  For example given the following set of properties:<br/><ul>
+ * <li>filePath = /home/matt</li>
+ * <li>downloadFolder = ${filePath}/downloads</li></ul><br/>
+ * The second entry can be resolved to<ul>
+ * <li>downloadFolder = /home/matt/downloads</li></ul><br/>
+ * Once built, properties may be modified in code up until the point they are passed to a BrigadeRunner
+ * and BrigadeRunner.exec() is called.  The properties may be passed to ConnectorConfig and WorkflowConfig
+ * and used there to resolve parameters.  Properties in BrigadeProperties may be overridden by setting
+ * a Java system property of the same name (either by calling System.setProperty() or as a -D flag when
+ * invoking Brigade from the command line).
+ */
 public class BrigadeProperties extends HashMap<String, String> implements ConfigBuilder<BrigadeProperties>,
         Config<BrigadeProperties> {
 
@@ -40,24 +55,66 @@ public class BrigadeProperties extends HashMap<String, String> implements Config
     return output;
   }
 
+  /**
+   * Build a BrigadeProperties object from the referenced stream.  Bootstrap variable expansion using passed-in
+   * instance of BrigadeProperties
+   *
+   * @param in Stream containing properties
+   * @param bp Instance to bootstrap against
+   * @return BrigadeProperties object
+   * @throws IOException if error reading stream
+   * @throws ConfigException if error in instantiating config
+   */
   public static BrigadeProperties fromStream(InputStream in, BrigadeProperties bp)
           throws IOException, ConfigException {
     return new BrigadeProperties().buildFromStream(in, Optional.of(bp));
   }
 
+  /**
+   * Build a BrigadeProperties object from the referenced stream without bootstrapping.
+   * @param in Stream containing properties
+   * @return BrigadeProperties object
+   * @throws IOException if error reading stream
+   * @throws ConfigException if error in instantiating config
+   */
   public static BrigadeProperties fromStream(InputStream in) throws IOException, ConfigException {
     return new BrigadeProperties().buildFromStream(in, Optional.empty());
   }
 
+  /**
+   * Build a BrigadeProperties object from the reference file, using referenced properties instance to
+   * resolve variables.
+   * @param fileName Path to the file
+   * @param bp Instance to expand variables against
+   * @return BrigadeProperties object
+   * @throws IOException if error reading file
+   * @throws ConfigException if error in instantiating config
+   */
   public static BrigadeProperties fromFile(String fileName, BrigadeProperties bp)
           throws IOException, ConfigException {
     return new BrigadeProperties().buildFromFile(fileName, Optional.of(bp));
   }
 
+  /**
+   * Build a BrigadeProperties object from the referenced file without bootstrapping.
+   * @param fileName Path to the file
+   * @return BrigadeProperties object
+   * @throws IOException if error reading file
+   * @throws ConfigException if error in instantiating config
+   */
   public static BrigadeProperties fromFile(String fileName) throws IOException, ConfigException {
     return new BrigadeProperties().buildFromFile(fileName, Optional.empty());
   }
 
+  /**
+   * Build a BrigadeProperties object from the referenced file.  If bootstrap=true, use the file itself to resolve
+   * variable names.  This is done internally by processing the properties file twice.
+   * @param fileName Path to the file
+   * @param bootstrap Whether to use the file for variable expansion
+   * @return BrigadeProperties object
+   * @throws IOException if error reading file
+   * @throws ConfigException if error in instantiating config
+   */
   public static BrigadeProperties fromFile(String fileName, boolean bootstrap) throws IOException, ConfigException {
     BrigadeProperties bp = new BrigadeProperties().buildInternal(new FileInputStream(fileName), Optional.empty());
     if (!bootstrap) {
@@ -66,6 +123,16 @@ public class BrigadeProperties extends HashMap<String, String> implements Config
     return new BrigadeProperties().buildInternal(new FileInputStream(fileName), Optional.of(bp));
   }
 
+  /**
+   * Build a BrigadeProperties object from the referenced stream.  If bootstrap=true, use the stream itself
+   * to resolve variable names.  This is done internally by processing/serializing the stream and then using
+   * the serialization to expand variables.
+   * @param stream Stream containing properties
+   * @param bootstrap Whether to use the stream for variable expansion
+   * @return BrigadeProperties object
+   * @throws IOException if error reading stream
+   * @throws ConfigException if error instantiating config
+   */
   public static BrigadeProperties fromStream(InputStream stream, boolean bootstrap)
           throws IOException, ConfigException {
     BrigadeProperties init = new BrigadeProperties().buildFromStream(stream, Optional.empty());

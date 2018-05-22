@@ -157,7 +157,13 @@ public class Brigade {
   }
 
   /**
-   * @param args
+   * Invoke Brigade from the command line.  The flags specify paths to configuration objects; these
+   * are resolved by calling BrigadeRunner.init().  For each configuration path, if there is a physical
+   * file at that path, a configuration object will be built from the file.  If there is not a physical
+   * file, BrigadeRunner will attempt to build the configuration object by streaming a resource from the
+   * classpath.  If this fails, an exception is thrown.  Once a BrigadeRunner is assembled, it is executed
+   * and the program exits.
+   * @param args User supplied args
    * @throws InterruptedException
    * @throws IOException
    * @throws ParseException

@@ -1,5 +1,14 @@
 package com.kmwllc.brigade.stage;
 
+/**
+ * Represents a failure that occurred in a stage during pipeline processing.
+ * Holds the following properties:<ul>
+ *   <li>stageName - Name of the stage from which the failure occurred</li>
+ *   <li>exception - Exception that was thrown by the stage</li>
+ *   <li>timestamp - Time the exception occurred (this defaults to current time)</li>
+ * </ul>
+ * Each document maintains a list of StageFailures as it progresses through the pipeline
+ */
 public class StageFailure {
   private String stageName;
   private Exception exception;

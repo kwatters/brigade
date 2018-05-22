@@ -43,12 +43,12 @@ public class LegacyXMLStageConfig implements StageConfig {
     }
 
     @Override
-    public String getStageExecutionModeClass() {
+    public String getStageExceptionModeClass() {
         return stageExceptionModeClass;
     }
 
     @Override
-    public StageExceptionMode getStageExecutionMode() {
+    public StageExceptionMode getStageExceptionMode() {
         return stageExceptionMode;
     }
 

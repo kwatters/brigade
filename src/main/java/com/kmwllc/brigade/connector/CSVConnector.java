@@ -34,6 +34,7 @@ public class CSVConnector extends AbstractConnector {
 
   @Override
   public void setConfig(ConnectorConfig config) {
+    // be sure to call super method as it will attach the listeners
     super.setConfig(config);
     workflowName = config.getProperty("workflowName");
 
@@ -50,6 +51,7 @@ public class CSVConnector extends AbstractConnector {
     fieldNameMappers = config.getFieldNameMappers();
   }
 
+  @Override
   public void initialize() {
     numFields = columns.length;
     for (int i = 0; i < numFields; i++) {
@@ -85,6 +87,7 @@ public class CSVConnector extends AbstractConnector {
     // pick out which column has the primary key / id field.
     initialize();
 
+    // Perform fieldNameMapping on the header
     for (int i = 0; i < columns.length; i++) {
       String mappedColumn = columns[i];
       if (fieldNameMappers != null) {

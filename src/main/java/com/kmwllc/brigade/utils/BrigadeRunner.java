@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * Represents a Brigade "job" to be run on the Brigade server.  It includes all the config
+ * objects which govern execution of the pipeline.
+ * <p>
+ * Calling exec() will begin execution of the pipeline.  At this point, all the configuration objects
+ * are "frozen".  Changes made to them after this point will not be reflected in the pipeline execution.
  * Created by matt on 3/22/17.
  */
 public class BrigadeRunner {
@@ -16,6 +21,23 @@ public class BrigadeRunner {
   private final ConnectorConfig connectorConfig;
   private final WorkflowConfig<StageConfig> workflowConfig;
 
+  /**
+   * Convenience invocation of BrigadeRunner which builds from given configurations.  This is how
+   * BrigadeRunner is invoked when Brigade is run from the command line.
+   * <p>
+   * Note that it is not clear whether we are building the configurations from a file or stream and so
+   * the following logic is performed for each of propertiesFile, connectorFile, workflowFile:<ul>
+   *   <li>If there is a file in the filesystem at the path given, build the config object from the file</li>
+   *   <li>If not, attempt to build from a stream of a classpath resource at the given path</li>
+   *   <li>An exception is thrown otherwise</li>
+   * </ul>
+   * @param propertiesFile Path to properties
+   * @param connectorFile Path to connector config
+   * @param workflowFile Path to workflow config
+   * @return BrigadeRunner instance ready to manipulate programmatically or exec
+   * @throws IOException If could not locate one of the paths to config object
+   * @throws ConfigException If an error occurs while instantiating a config object
+   */
   public static BrigadeRunner init(String propertiesFile, String connectorFile, String workflowFile)
           throws IOException, ConfigException {
     BrigadeProperties bp = null;
@@ -65,6 +87,12 @@ public class BrigadeRunner {
     return in;
   }
 
+  /**
+   * Begin executing the pipeline based upon configuration objects.  Once this is called, the configuration
+   * is "frozen" (ie. config settings cannot be changed programmatically)
+   *
+   * @throws Exception If an exception occurred while running the pipeline
+   */
   public void exec() throws Exception {
 
     // init the brigade config!

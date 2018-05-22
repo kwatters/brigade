@@ -18,6 +18,8 @@ import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 import static com.kmwllc.brigade.config.ConfigFactory.LEGACY_XML;
 
 /**
+ * Various utility methods used for configuring Brigade
+ *
  * Created by matt on 3/27/17.
  */
 public class BrigadeUtils {
@@ -114,6 +116,20 @@ public class BrigadeUtils {
     return ConfigFactory.instance(configFormat);
   }
 
+  /**
+   * Utility method that attaches a DocumentListener to the given configs.  This DocumentListener keeps
+   * documents in a list as they are processed.  BrigadeRunner is called with the enriched configs and
+   * the method returns the list of documents that were accrued.
+   * <p>
+   * NOTE: This method is not thread-safe.  If used, make sure that the pipeline is configured to run
+   * with only a single worker thread.
+   *
+   * @param bp BrigadeProperties object
+   * @param cc ConnectorConfig object
+   * @param wc WorkflowConfig object
+   * @return List of documents that were collected while running the pipeline
+   * @throws Exception if an Exception was thrown by the pipeline
+   */
   public static List<Document> runKeepingDocs(BrigadeProperties bp, ConnectorConfig cc, WorkflowConfig wc)
           throws Exception {
     List<Document> docs = new ArrayList<>();

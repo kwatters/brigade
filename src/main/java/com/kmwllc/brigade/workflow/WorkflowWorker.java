@@ -71,6 +71,7 @@ public class WorkflowWorker extends Thread {
           } else {
             fireDocComplete(doc.getId());
           }
+          // On document is fired regardless of whether failures occurred
           fireOnDocument(doc);
           processing = false;
         }
@@ -125,6 +126,7 @@ public class WorkflowWorker extends Thread {
           if (s.getStageExceptionMode().equals(NEXT_STAGE)) {
             continue;
           } else if (s.getStageExceptionMode().equals(STOP_WORKFLOW)) {
+            // this will ultimately trigger the connector thread to be interrupted
             fireDocFail(doc.getId(), doc.getFailures());
             fireOnDocument(doc);
             throw new Exception(e);

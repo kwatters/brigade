@@ -9,6 +9,9 @@ import java.util.HashMap;
 
 /**
  * A singleton instance in the JVM that manages the currently defined and loaded Connectors.
+ * <br/><br/>
+ * ConnectorServer fires a ConnectorStart event when a connector is registered.  The connector
+ * delegates this event to whatever ConnectorEventListeners are registered with it.
  * 
  * @author kwatters
  *
@@ -25,7 +28,10 @@ public class ConnectorServer {
     connectorMap = new HashMap<>();
   }
 
-  // This is a singleton also
+  /**
+   * Get the singleton instance of the connector server
+   * @return THE ConnectorServer
+   */
   public static ConnectorServer getInstance() {
     if (instance ==null) {
       instance = new ConnectorServer();
@@ -35,6 +41,14 @@ public class ConnectorServer {
     }
   }
 
+  /**
+   * Register a connector with the ConnectorServer.  This method uses reflection to instantiate the specific
+   * class of Connector that is specified in the config.  It also associates the connector with the appropriate
+   * pipeline and fires a ConnectorBegin event
+   * @param config ConnectorConfig to build the Connector instance from
+   * @return A populated Connector object
+   * @throws ClassNotFoundException if the connector could not be built via reflection
+   */
   public AbstractConnector addConnector(ConnectorConfig config) throws ClassNotFoundException {
     String connectorClass = config.getConnectorClass().trim();
     log.info("Loading Connector :"  + config.getConnectorName() + " class=" + config.getConnectorClass());
@@ -53,6 +67,11 @@ public class ConnectorServer {
     }
   }
 
+  /**
+   * Get connector with specified name from registry of connectors or null if not found.
+   * @param connectorName Name of connector
+   * @return Connector or null if not found
+   */
   public AbstractConnector getConnector(String connectorName) {
     if (connectorMap.containsKey(connectorName)) {
       return connectorMap.get(connectorName);
@@ -61,6 +80,11 @@ public class ConnectorServer {
     }
   }
 
+  /**
+   * Answers whether a connector with the specified name is registered
+   * @param connectorName Name of connector to find
+   * @return whether we found the connector
+   */
   public boolean hasConnector(String connectorName) {
     if (connectorMap.containsKey(connectorName)) {
       return true;
@@ -69,6 +93,12 @@ public class ConnectorServer {
     }
   }
 
+  /**
+   * Get processing state for the connector with specified name.  Returns null if the connector
+   * is not found
+   * @param connectorName Name of connector
+   * @return Processing state of connector or null if the connector was not found
+   */
   public ConnectorState getConnectorState(String connectorName) {
     if (connectorMap.containsKey(connectorName)) {
       return connectorMap.get(connectorName).getState();
@@ -77,6 +107,10 @@ public class ConnectorServer {
     }
   }
 
+  /**
+   * Get names of all connectors registered with this server.
+   * @return Array containing names of connectors
+   */
   public String[] listConnectors() {
     int size = connectorMap.keySet().size();
     String[] names = new String[size];
@@ -84,6 +118,12 @@ public class ConnectorServer {
     return names;
   }
 
+  /**
+   * Start the connector with the specified name.  This method wraps the connector in a thread and
+   * starts it.  A warning will be issues if the connector is already running.  This should not be invoked
+   * directly by client code; it is automatically called during standard Brigade execution.
+   * @param connectorName
+   */
   public void startConnector(String connectorName) {
     if (!connectorMap.containsKey(connectorName)) {
       // TODO: unknown connector.  throw error?

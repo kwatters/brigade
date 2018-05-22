@@ -29,7 +29,6 @@ public class Workflow {
   private WorkflowConfig workflowConfig;
   public final static Logger log = LoggerFactory.getLogger(Workflow.class.getCanonicalName());
   private Map<String, String> props;
-  private volatile Throwable currEx = null;
   private List<DocumentListener> documentListeners = new ArrayList<>();
   private List<CallbackListener> callbackListeners = new ArrayList<>();
 
@@ -69,12 +68,6 @@ public class Workflow {
     worker.setDocumentListeners(documentListeners);
     worker.setStageExceptionMode(workflowConfig.getStageExecutionMode());
 
-//    worker.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//      @Override
-//      public void uncaughtException(Thread t, Throwable e) {
-//        currEx = e;
-//      }
-//    });
     worker.start();
     workers[threadNum] = worker;
   }
@@ -105,9 +98,6 @@ public class Workflow {
 
     // now wait for the threads to no longer be running
     while (true) {
-//      if (currEx != null) {
-//        throw new InterruptedException("Exception occurred");
-//      }
 
       boolean oneIsRunning = false;
       for (int i = 0; i < numWorkerThreads; i++) {

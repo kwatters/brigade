@@ -3,6 +3,7 @@ package com.kmwllc.brigade.config.json;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kmwllc.brigade.config.ConfigException;
 import com.kmwllc.brigade.config.ConfigFactory;
@@ -21,13 +22,22 @@ import static com.kmwllc.brigade.config.ConfigFactory.JSON;
  * to enforce a collections of stages that use the Json representation (JsonStageConfig).
  */
 public class JsonWorkflowConfig implements WorkflowConfig<JsonStageConfig> {
+  @JsonProperty("stages")
   private List<JsonStageConfig> stageConfigs;
+
   private String name;
   private int numWorkerThreads;
   private int queueLength;
+
+  @JsonProperty("stageExecutionMode")
   private String stageExceptionModeClass;
+
+  @JsonIgnore
   private StageExceptionMode stageExceptionMode;
+
   private Map<String, Object> config;
+
+  @JsonIgnore
   private List<Stage> stages;
 
   @JsonIgnore

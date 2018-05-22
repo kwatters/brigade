@@ -6,6 +6,10 @@ import com.kmwllc.brigade.stage.StageFailure;
 
 import java.util.List;
 
+/**
+ * Default no-op implementation of ConnectorListener.  This is intended as a base class that
+ * individual ConnectorListeners can extend without having to implement all the events.
+ */
 public class DefaultConnectorListener implements ConnectorListener {
   @Override
   public void docComplete(String docId) {
