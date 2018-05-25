@@ -6,7 +6,6 @@ import java.util.HashMap;
 import com.kmwllc.brigade.config.json.JsonConnectorConfig;
 import com.kmwllc.brigade.config.json.JsonStageConfig;
 import com.kmwllc.brigade.config.json.JsonWorkflowConfig;
-import org.junit.Test;
 
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.config.StageConfig;
@@ -32,9 +31,9 @@ public class DocumentSequenceConnectorTest {
 		s3Conf.setStringParam("solrUrl", "http://localhost:8983/solr");
 		s3Conf.setStringParam("idField", "id");
 
-		wC.addStage(s1Conf);
-		wC.addStage(s2Conf);
-		wC.addStage(s3Conf);
+		wC.addStageConfig(s1Conf);
+		wC.addStageConfig(s2Conf);
+		wC.addStageConfig(s3Conf);
 		// Create a workflow
 		
 		return wC;

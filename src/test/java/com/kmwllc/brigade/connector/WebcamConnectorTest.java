@@ -30,8 +30,8 @@ public class WebcamConnectorTest {
     // let's add a dl4j stage!
     StageConfig s2Conf = new JsonStageConfig("dl4j", "com.kmwllc.brigade.stage.Deeplearning4j");
 
-    wC.addStage(s1Conf);
-    wC.addStage(s2Conf);
+    wC.addStageConfig(s1Conf);
+    wC.addStageConfig(s2Conf);
     
     WorkflowServer ws = WorkflowServer.getInstance();
     ws.addWorkflow(wC, new HashMap<>());

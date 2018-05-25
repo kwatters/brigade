@@ -26,12 +26,7 @@ public class SendToSolrTest {
 
   @Test
   public void test() {
-    try {
-      FileUtils.deleteDirectory(new File("src/test/resources/test-solr/testing/data"));
-    } catch (IOException e) {
-      e.printStackTrace();
-      fail();
-    }
+//
     try {
       brigadeHelper.exec();
     } catch (Exception e) {
@@ -54,8 +49,17 @@ public class SendToSolrTest {
       e.printStackTrace();
       fail();
     }
-    SolrDocumentList results = qr.getResults();;
+    SolrDocumentList results = qr.getResults();
+    ;
 
     assertEquals(2, results.size());
+    try {
+      server.close();
+
+      FileUtils.deleteDirectory(new File("src/test/resources/test-solr/testing/data"));
+    } catch (IOException e) {
+      e.printStackTrace();
+      fail();
+    }
   }
 }

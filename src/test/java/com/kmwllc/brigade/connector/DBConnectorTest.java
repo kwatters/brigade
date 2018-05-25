@@ -4,6 +4,7 @@ import com.kmwllc.brigade.concurrency.DumpDocReader;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.util.BrigadeHelper;
 import com.kmwllc.brigade.util.DBHelper;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -26,11 +27,15 @@ public class DBConnectorTest {
     @Rule
     public final BrigadeHelper brigadeHelper = new BrigadeHelper("conf/brigade.properties",
             "conf/db-connector.xml", "conf/vanilla-workflow.xml");
+    private File testFile = new File("csv-test-output.txt");
+
+    @After
+    public void cleanup() {
+        testFile.delete();
+    }
 
     @Test
     public void testDB() {
-        File testFile = new File("csv-test-output.txt");
-        testFile.delete();
         try {
             brigadeHelper.exec();
         } catch (Exception e) {
@@ -42,7 +47,5 @@ public class DBConnectorTest {
         assertEquals(3, docs.size());
         assertEquals("Matt", docs.get(0).getField("name").get(0));
         assertEquals("Cat", docs.get(2).getField("type").get(0));
-
-        testFile.delete();
     }
 }

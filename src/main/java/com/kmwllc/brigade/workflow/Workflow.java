@@ -2,17 +2,19 @@ package com.kmwllc.brigade.workflow;
 
 import com.kmwllc.brigade.config.WorkflowConfig;
 import com.kmwllc.brigade.document.Document;
+import com.kmwllc.brigade.event.CallbackListener;
+import com.kmwllc.brigade.event.DocumentListener;
 import com.kmwllc.brigade.logging.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * 
  * Workflow : top level workflow class that controls the thread that do the work
  * of processing documents on each stage.
- *
  */
 public class Workflow {
 
@@ -27,13 +29,15 @@ public class Workflow {
   private WorkflowConfig workflowConfig;
   public final static Logger log = LoggerFactory.getLogger(Workflow.class.getCanonicalName());
   private Map<String, String> props;
+  private List<DocumentListener> documentListeners = new ArrayList<>();
+  private List<CallbackListener> callbackListeners = new ArrayList<>();
 
   // constructor
-  public Workflow(WorkflowConfig workflowConfig, Map<String, String> props)  {
+  public Workflow(WorkflowConfig workflowConfig, Map<String, String> props) {
     // create each of the worker threads. each with their own copy of the stages
     numWorkerThreads = workflowConfig.getNumWorkerThreads();
     queueLength = workflowConfig.getQueueLength();
-    queue = new LinkedBlockingQueue<Document>(queueLength);
+    queue = new LinkedBlockingQueue<>(queueLength);
     this.workflowConfig = workflowConfig;
     // We need to load a config then we need to create each of the stages for the config
     // and add those to our stage list.
@@ -57,13 +61,21 @@ public class Workflow {
     } catch (ClassNotFoundException e) {
       // TODO: better handling?
       log.warn("Error starting the worker thread. {}", e.getLocalizedMessage());
-     throw new Exception(e);
+      throw new Exception(e);
     }
+
+    worker.setCallbackListeners(callbackListeners);
+    worker.setDocumentListeners(documentListeners);
+    worker.setStageExceptionMode(workflowConfig.getStageExecutionMode());
+
     worker.start();
     workers[threadNum] = worker;
   }
 
   public void processDocument(Document doc) throws InterruptedException {
+//    if (currEx != null) {
+//      throw new InterruptedException("Exception occurred");
+//    }
     // put the document on the processing queue.
     if (doc != null) {
       queue.put(doc);
@@ -81,10 +93,12 @@ public class Workflow {
       }
     }
     while (!queue.isEmpty()) {
+
     }
 
     // now wait for the threads to no longer be running
     while (true) {
+
       boolean oneIsRunning = false;
       for (int i = 0; i < numWorkerThreads; i++) {
         oneIsRunning |= workers[i].isProcessing();
@@ -95,6 +109,9 @@ public class Workflow {
     }
     // Each worker will get flushed. (each worker flushes its stage)
     for (WorkflowWorker worker : workers) {
+      if (worker.isError()) {
+        throw new InterruptedException("Exception found during workflow.flush");
+      }
       worker.flush();
     }
     log.info("Workflow {} flushed.", name);
@@ -105,4 +122,27 @@ public class Workflow {
     return name;
   }
 
+  public List<DocumentListener> getDocumentListeners() {
+    return documentListeners;
+  }
+
+  public void setDocumentListeners(List<DocumentListener> documentListeners) {
+    this.documentListeners = documentListeners;
+  }
+
+  public List<CallbackListener> getCallbackListeners() {
+    return callbackListeners;
+  }
+
+  public void setCallbackListeners(List<CallbackListener> callbackListeners) {
+    this.callbackListeners = callbackListeners;
+  }
+
+  public void addDocumentListener(DocumentListener l) {
+    documentListeners.add(l);
+  }
+
+  public void addCallbackListener(CallbackListener l) {
+    callbackListeners.add(l);
+  }
 }

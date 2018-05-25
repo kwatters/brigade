@@ -147,17 +147,19 @@ public class SendToSolr extends AbstractStage {
       } finally {
         batch.clear();
       }
-    }
-    try {
-      if (issueCommit) {
-        log.info("Committing solr");
-        solrServer.commit();
+
+      try {
+        if (issueCommit) {
+          log.info("Committing solr");
+          solrServer.commit();
+        }
+      } catch (SolrServerException e) {
+        log.warn("Solr Exception Committing: {}", e);
+      } catch (IOException e) {
+        log.warn("IO Exception Committing: {}", e);
       }
-    } catch (SolrServerException e) {
-      log.warn("Solr Exception Committing: {}", e);
-    } catch (IOException e) {
-      log.warn("IO Exception Committing: {}", e);
     }
+
 
     if (versionLatest) {
       String versionSourceClause = "";

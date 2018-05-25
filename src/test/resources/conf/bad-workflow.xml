@@ -1,6 +1,6 @@
 <com.kmwllc.brigade.config.WorkflowConfig>
     <name>ingest</name>
-    <stages>
+    <stageConfigs>
         <com.kmwllc.brigade.config.StageConfig>
             <stageName>index</stageName>
             <stageClass>com.kmwllc.brigade.stage.NonExistent</stageClass>
@@ -15,7 +15,7 @@
                 </entry>
             </config>
         </com.kmwllc.brigade.config.StageConfig>
-    </stages>
+    </stageConfigs>
     <numWorkerThreads>1</numWorkerThreads>
     <queueLength>50</queueLength>
 </com.kmwllc.brigade.config.WorkflowConfig>

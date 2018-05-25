@@ -1,0 +1,10 @@
+{
+    name: "testFieldMapping",
+    type: "com.kmwllc.brigade.connector.CSVConnector",
+    filename: "fieldMappingTest.csv",
+    separator: ",",
+    firstRowAsColumns: true,
+    useRowAsId: true,
+    workflowName: "ingest",
+    fieldNameMappers: ["com.kmwllc.brigade.util.LowercaseFieldNames"]
+}

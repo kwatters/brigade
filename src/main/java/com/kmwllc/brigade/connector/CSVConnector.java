@@ -4,12 +4,14 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.kmwllc.brigade.config.ConnectorConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.logging.LoggerFactory;
+import com.kmwllc.brigade.utils.FieldNameMapper;
 import com.kmwllc.brigade.utils.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
 
 public class CSVConnector extends AbstractConnector {
 
@@ -24,6 +26,7 @@ public class CSVConnector extends AbstractConnector {
   private int skipRows = 0;
   private boolean firstRowAsColumns = false;
   private int limit = -1;
+  private List<FieldNameMapper> fieldNameMappers;
 
   public CSVConnector() {
     super();
@@ -31,6 +34,8 @@ public class CSVConnector extends AbstractConnector {
 
   @Override
   public void setConfig(ConnectorConfig config) {
+    // be sure to call super method as it will attach the listeners
+    super.setConfig(config);
     workflowName = config.getProperty("workflowName");
 
     setDocIdPrefix(config.getStringParam("docIdPrefix", ""));
@@ -43,8 +48,10 @@ public class CSVConnector extends AbstractConnector {
     useRowAsId = config.getBoolParam("useRowAsId", useRowAsId);
     skipRows = config.getIntegerParam("skipRows", skipRows);
     firstRowAsColumns = config.getBoolParam("firstRowAsColumns", firstRowAsColumns);
+    fieldNameMappers = config.getFieldNameMappers();
   }
 
+  @Override
   public void initialize() {
     numFields = columns.length;
     for (int i = 0; i < numFields; i++) {
@@ -79,6 +86,17 @@ public class CSVConnector extends AbstractConnector {
     }
     // pick out which column has the primary key / id field.
     initialize();
+
+    // Perform fieldNameMapping on the header
+    for (int i = 0; i < columns.length; i++) {
+      String mappedColumn = columns[i];
+      if (fieldNameMappers != null) {
+        for (FieldNameMapper fnm : fieldNameMappers) {
+          mappedColumn = fnm.mapFieldName(mappedColumn);
+        }
+      }
+      columns[i] = mappedColumn;
+    }
 
     int rowNum = 0;
     String[] nextLine;

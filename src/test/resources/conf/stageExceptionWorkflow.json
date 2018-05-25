@@ -1,0 +1,23 @@
+{
+  name: "ingest",
+  numWorkerThreads: 1,
+  queueLength: 50,
+  stages: [
+    {
+      name: "shout",
+      type: "com.kmwllc.brigade.stage.Shout",
+      field: "name"
+    },
+    {
+      name: "exceptBlaze",
+      type: "com.kmwllc.brigade.stage.ExceptName",
+      field: "name",
+      except: "Blaze"
+    },
+    {
+      name: "reverse",
+      type: "com.kmwllc.brigade.stage.Reverse",
+      field: "name"
+    }
+  ]
+}

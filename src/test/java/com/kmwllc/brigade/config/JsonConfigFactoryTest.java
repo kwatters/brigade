@@ -72,8 +72,8 @@ public class JsonConfigFactoryTest {
         stage1.getConfig().put("s1p1", "val1");
         JsonStageConfig stage2 = new JsonStageConfig("Stage2", "com.xyz.Stage2");
         stage2.getConfig().put("s2p1", "val3");
-        wf.addStage(stage1);
-        wf.addStage(stage2);
+        wf.addStageConfig(stage1);
+        wf.addStageConfig(stage2);
 
         StringWriter sw = new StringWriter();
         try {
@@ -116,13 +116,13 @@ public class JsonConfigFactoryTest {
         try {
             WorkflowConfig wc = cf.deserializeWorkflow(new StringReader(input));
             assertEquals("testWF", wc.getName());
-            assertEquals(2, wc.getStages().size());
-            StageConfig s1 = (StageConfig) wc.getStages().get(0);
+            assertEquals(2, wc.getStageConfigs().size());
+            StageConfig s1 = (StageConfig) wc.getStageConfigs().get(0);
             assertEquals("val2", s1.getStringParam("s1p2"));
             assertEquals("val1", s1.getStringParam("s1p1"));
             assertEquals("Stage1", s1.getStageName());
             assertEquals("com.xyz.Stage1", s1.getStageClass());
-            StageConfig s2 = (StageConfig) wc.getStages().get(1);
+            StageConfig s2 = (StageConfig) wc.getStageConfigs().get(1);
             assertEquals("val3", s2.getStringParam("s2p1"));
             assertEquals("Stage2", s2.getStageName());
             assertEquals("com.xyz.Stage2", s2.getStageClass());

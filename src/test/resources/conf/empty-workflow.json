@@ -1,0 +1,7 @@
+{
+  name: "ingest",
+  numWorkerThreads: 1,
+  queueLength: 50,
+  stages: [
+  ]
+}

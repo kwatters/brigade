@@ -38,9 +38,15 @@ public class DumpDoc extends AbstractStage {
                 out.write(field + ":");
                 Iterator<Object> vIter = doc.getField(field).iterator();
                 while (vIter.hasNext()) {
-                    out.write(vIter.next().toString());
-                    if (vIter.hasNext()) {
-                        out.write(",");
+                    Object next = vIter.next();
+                    if (next != null) {
+                        String s = next.toString();
+                        // HACK within a HACK :(
+                        s = s.replaceAll("\\R", "--linebreak--");
+                        out.write(s);
+                        if (vIter.hasNext()) {
+                            out.write(", ");
+                        }
                     }
                 }
                 out.write("\n");

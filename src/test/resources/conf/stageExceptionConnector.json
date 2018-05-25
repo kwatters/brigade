@@ -1,0 +1,10 @@
+{
+    name: "testStageException",
+    type: "com.kmwllc.brigade.connector.CSVConnector",
+    filename: "stageException.csv",
+    separator: ",",
+    firstRowAsColumns: true,
+    useRowAsId: true,
+    workflowName: "ingest",
+    connectorListeners: ["com.kmwllc.brigade.util.DocRetainer"]
+}

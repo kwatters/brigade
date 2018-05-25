@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kmwllc.brigade.config.ConfigException;
 import com.kmwllc.brigade.config.ConfigFactory;
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.stage.StageExceptionMode;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -17,70 +18,94 @@ import java.util.Map;
 
 import static com.kmwllc.brigade.config.ConfigFactory.JSON;
 
+/**
+ * Implementation of StageConfig for Json representation.  This uses Jackson to serialize/deserialize
+ */
 public class JsonStageConfig implements StageConfig {
 
-    @JsonProperty("name")
-    private String stageName;
+  @JsonProperty("name")
+  private String stageName;
 
-    @JsonProperty("type")
-    private String stageClass;
+  @JsonProperty("type")
+  private String stageClass;
 
-    private Map<String, Object> config;
+  private Map<String, Object> config;
 
-    @JsonIgnore
-    private ObjectMapper om;
+  @JsonProperty("stageExceptionMode")
+  private String stageExceptionModeClass;
 
-    public JsonStageConfig() {
-        config = new HashMap<>();
-        try {
-            om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
-        } catch (ConfigException e) {
-            e.printStackTrace();
-        }
+  @JsonIgnore
+  private StageExceptionMode stageExceptionMode;
+
+  @JsonIgnore
+  private ObjectMapper om;
+
+  public JsonStageConfig() {
+    config = new HashMap<>();
+    try {
+      om = ((JsonConfigFactory) ConfigFactory.instance(JSON)).getObjectMapper();
+    } catch (ConfigException e) {
+      e.printStackTrace();
     }
+  }
 
-    public JsonStageConfig(String stageName, String stageClass) {
-        this();
-        this.stageClass = stageClass;
-        this.stageName = stageName;
-    }
+  public JsonStageConfig(String stageName, String stageClass) {
+    this();
+    this.stageClass = stageClass;
+    this.stageName = stageName;
+  }
 
-    @Override
-    public String getStageName() {
-        return stageName;
-    }
+  @Override
+  public String getStageName() {
+    return stageName;
+  }
 
-    @Override
-    public String getStageClass() {
-        return stageClass;
-    }
+  @Override
+  public String getStageClass() {
+    return stageClass;
+  }
 
-    @Override
-    @JsonAnyGetter
-    public Map<String, Object> getConfig() {
-        return config;
-    }
+  @Override
+  public String getStageExceptionModeClass() {
+    return stageExceptionModeClass;
+  }
 
-    @JsonAnySetter
-    public void put(String key, Object val) {
-        config.put(key, val);
-    }
+  @Override
+  public StageExceptionMode getStageExceptionMode() {
+    return stageExceptionMode;
+  }
 
-    @Override
-    public void serialize(Writer w) throws ConfigException {
-        try {
-            om.writeValue(w, this);
-        } catch (IOException e) {
-            throw new ConfigException("Error serializing config", e);
-        }
-    }
+  @Override
+  public void setStageExceptionMode(StageExceptionMode stageExceptionMode) {
+    this.stageExceptionMode = stageExceptionMode;
+  }
 
-    @Override
-    public StageConfig deserialize(Reader r) throws ConfigException {
-        try {
-            return om.readValue(r, JsonStageConfig.class);
-        } catch (IOException e) {
-            throw new ConfigException("Error deserializing config", e);
-        }
+  @Override
+  @JsonAnyGetter
+  public Map<String, Object> getConfig() {
+    return config;
+  }
+
+  @JsonAnySetter
+  public void put(String key, Object val) {
+    config.put(key, val);
+  }
+
+  @Override
+  public void serialize(Writer w) throws ConfigException {
+    try {
+      om.writeValue(w, this);
+    } catch (IOException e) {
+      throw new ConfigException("Error serializing config", e);
     }
+  }
+
+  @Override
+  public StageConfig deserialize(Reader r) throws ConfigException {
+    try {
+      return om.readValue(r, JsonStageConfig.class);
+    } catch (IOException e) {
+      throw new ConfigException("Error deserializing config", e);
+    }
+  }
 }

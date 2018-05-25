@@ -2,6 +2,7 @@ package com.kmwllc.brigade.config.legacyXML;
 
 import com.kmwllc.brigade.config.ConfigException;
 import com.kmwllc.brigade.config.StageConfig;
+import com.kmwllc.brigade.stage.StageExceptionMode;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
@@ -11,16 +12,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A connector configuration that at a minimum takes a name of the connector
- * and the implementing class for that connector.
- *
- * @author kwatters
+ * Implementation of Stage config that support the old XML format used by earlier versions of brigade.
  */
 public class LegacyXMLStageConfig implements StageConfig {
 
     private String stageName;
     private String stageClass;
     private Map<String, Object> config;
+    private String stageExceptionModeClass;
+    private StageExceptionMode stageExceptionMode;
 
     public LegacyXMLStageConfig() {
         config = new HashMap<>();
@@ -40,6 +40,21 @@ public class LegacyXMLStageConfig implements StageConfig {
     @Override
     public String getStageClass() {
         return stageClass;
+    }
+
+    @Override
+    public String getStageExceptionModeClass() {
+        return stageExceptionModeClass;
+    }
+
+    @Override
+    public StageExceptionMode getStageExceptionMode() {
+        return stageExceptionMode;
+    }
+
+    @Override
+    public void setStageExceptionMode(StageExceptionMode stageExceptionMode) {
+        this.stageExceptionMode = stageExceptionMode;
     }
 
     @Override

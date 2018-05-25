@@ -9,7 +9,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.kmwllc.brigade.config.JsonHandlerConfig;
 import com.kmwllc.brigade.document.Document;
-import org.apache.xmlbeans.impl.common.ReaderInputStream;
+import org.apache.commons.io.input.ReaderInputStream;
 
 import java.io.IOException;
 import java.io.Reader;

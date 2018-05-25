@@ -1,0 +1,16 @@
+{
+  name: "ingest",
+  numWorkerThreads: 1,
+  queueLength: 50,
+  stages: [
+    {
+      name: "nameFromSysProp",
+      type: "com.kmwllc.brigade.stage.NameFromSysProp"
+    },
+    {
+      name: "dumpDoc",
+      type: "com.kmwllc.brigade.stage.DumpDoc",
+      output: "cond-exec-output.txt"
+    }
+  ]
+}
