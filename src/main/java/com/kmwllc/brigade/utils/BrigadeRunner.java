@@ -128,6 +128,8 @@ public class BrigadeRunner {
       brigadeServer.shutdown(false);
       throw e;
     }
+    
+    brigadeServer.shutdown(false);
 
     // System.exit(0);
   }
