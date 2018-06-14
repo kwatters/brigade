@@ -56,7 +56,7 @@ public class WorkflowWorker extends Thread {
     running = true;
     while (running) {
       try {
-        doc = queue.take();
+        doc = queue.poll();
         // when can this case happen
         if (doc == null) {
           log.info("Doc was null from workflow queue. setting running to false.");
@@ -75,6 +75,10 @@ public class WorkflowWorker extends Thread {
           fireOnDocument(doc);
           processing = false;
         }
+      } catch (InterruptedException ie) {
+        running = false;
+        processing = false;
+        break;
       } catch (Exception e) {
         // TODO: handle these properly
         log.warn("Workflow Worker Died! {}", e);
@@ -158,7 +162,7 @@ public class WorkflowWorker extends Thread {
   public void flush() {
     for (Stage s : stages) {
       s.flush();
-    }
+    }interrupt();
   }
 
   private boolean prereq(Stage s, Map<String, String> props, Document d) {

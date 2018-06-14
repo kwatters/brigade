@@ -17,20 +17,13 @@ import java.io.InputStream;
 import java.util.List;
 
 import static com.kmwllc.brigade.util.HasFieldWithValue.hasFieldWithValue;
+import static com.kmwllc.brigade.utils.BrigadeUtils.runKeepingDocs;
 import static org.junit.Assert.*;
 
 public class DynamicConfigTest {
 
-  private File testFile = new File("cond-exec-output.txt");
-
   private InputStream getStream(String path){
     return DynamicConfigTest.class.getClassLoader().getResourceAsStream(path);
-  }
-
-  @Before
-  @After
-  public void cleanupTestFile() {
-    testFile.delete();
   }
 
   @Test
@@ -39,17 +32,15 @@ public class DynamicConfigTest {
       BrigadeProperties bp = BrigadeProperties.fromStream(getStream("conf/condExec2.properties"), true);
       ConnectorConfig cc = ConnectorConfig.fromStream(getStream("conf/condExecConnector.json"), bp);
       WorkflowConfig wc = WorkflowConfig.fromStream(getStream("conf/condExecWorkflow.json"), bp);
-      BrigadeRunner br = new BrigadeRunner(bp, cc, wc);
-      br.exec();
+  
+      List<Document> docs = runKeepingDocs(bp, cc, wc);
+      assertEquals(2, docs.size());
+      assertThat(docs.get(0), hasFieldWithValue("name", "BLAZE"));
+      assertThat(docs.get(1), hasFieldWithValue("name", "SONNY"));
     } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
-
-    List<Document> docs = new DumpDocReader().read(testFile);
-    assertEquals(2, docs.size());
-    assertThat(docs.get(0), hasFieldWithValue("name", "BLAZE"));
-    assertThat(docs.get(1), hasFieldWithValue("name", "SONNY"));
   }
 
   @Test
@@ -60,19 +51,16 @@ public class DynamicConfigTest {
       BrigadeProperties bp = BrigadeProperties.fromStream(getStream("conf/condExec2.properties"), true);
       ConnectorConfig cc = ConnectorConfig.fromStream(getStream("conf/condExecConnector.json"), bp);
       WorkflowConfig wc = WorkflowConfig.fromStream(getStream("conf/condExecWorkflow.json"), bp);
-      // has to go before the DumpDoc stage
       wc.insertStage(repeatStage, wc.getStages().size() - 2);
-      BrigadeRunner br = new BrigadeRunner(bp, cc, wc);
-      br.exec();
+  
+      List<Document> docs = runKeepingDocs(bp, cc, wc);
+      assertEquals(2, docs.size());
+      assertThat(docs.get(0), hasFieldWithValue("name", "BLAZE BLAZE"));
+      assertThat(docs.get(1), hasFieldWithValue("name", "SONNY SONNY"));
     } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
-
-    List<Document> docs = new DumpDocReader().read(testFile);
-    assertEquals(2, docs.size());
-    assertThat(docs.get(0), hasFieldWithValue("name", "BLAZE BLAZE"));
-    assertThat(docs.get(1), hasFieldWithValue("name", "SONNY SONNY"));
   }
 
   @Test
@@ -82,16 +70,14 @@ public class DynamicConfigTest {
       ConnectorConfig cc = ConnectorConfig.fromStream(getStream("conf/condExecConnector.json"), bp);
       WorkflowConfig wc = WorkflowConfig.fromStream(getStream("conf/condExecWorkflow.json"), bp);
       wc.removeStage("maybeShout");
-      BrigadeRunner br = new BrigadeRunner(bp, cc, wc);
-      br.exec();
+  
+      List<Document> docs = runKeepingDocs(bp, cc, wc);
+      assertEquals(2, docs.size());
+      assertThat(docs.get(0), hasFieldWithValue("name", "Blaze"));
+      assertThat(docs.get(1), hasFieldWithValue("name", "Sonny"));
     } catch (Exception e) {
       e.printStackTrace();
       fail();
     }
-
-    List<Document> docs = new DumpDocReader().read(testFile);
-    assertEquals(2, docs.size());
-    assertThat(docs.get(0), hasFieldWithValue("name", "Blaze"));
-    assertThat(docs.get(1), hasFieldWithValue("name", "Sonny"));
   }
 }

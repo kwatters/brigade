@@ -119,6 +119,7 @@ public abstract class AbstractConnector implements DocumentConnector, DocumentLi
 
     @Override
     public void docFail(String docId, List<StageFailure> failures) {
+        state = ConnectorState.ERROR;
         callbackListeners.forEach(l -> l.docFail(docId, failures));
     }
 
