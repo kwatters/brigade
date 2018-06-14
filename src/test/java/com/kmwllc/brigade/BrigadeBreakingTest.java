@@ -45,16 +45,4 @@ public class BrigadeBreakingTest {
     // Shouldn't get to here
     fail();
   }
-
-  @Test
-  public void testBadStage() {
-    try {
-      brigadeHelper3.exec();
-    } catch (Exception e) {
-      assertTrue(true);
-      return;
-    }
-    // Shouldn't get to here
-    fail();
-  }
 }
