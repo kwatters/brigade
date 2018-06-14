@@ -56,7 +56,7 @@ public class WorkflowWorker extends Thread {
     running = true;
     while (running) {
       try {
-        doc = queue.poll();
+        doc = queue.take();
         // when can this case happen
         if (doc == null) {
           log.info("Doc was null from workflow queue. setting running to false.");
