@@ -433,4 +433,17 @@
 
 	</dependencies>
 
+<distributionManagement>
+    <snapshotRepository>
+        <id>snapshots</id>
+        <name>libs-snapshots</name>
+        <url>http://54.210.236.71:8081/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
+    <repository>
+        <id>central</id>
+        <name>jenkins-releases</name>
+        <url>http://54.210.236.71:8081/artifactory/libs-release-local</url>
+    </repository>
+  </distributionManagement>
+
 </project>
