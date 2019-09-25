@@ -7,6 +7,8 @@ import com.kmwllc.brigade.logging.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class JoiningDatabaseConnector extends AbstractConnector {
@@ -21,8 +23,8 @@ public class JoiningDatabaseConnector extends AbstractConnector {
   private String sql;
   private String postSql;
   private String idField;
-  private String joinSql;
-  private String joinField;
+  private List<String> otherSQLs;
+  private List<String> otherJoinFields;
   private Connection connection = null;
 
   @Override
@@ -37,8 +39,9 @@ public class JoiningDatabaseConnector extends AbstractConnector {
     postSql = config.getStringParam("postSql");
     sql = config.getStringParam("sql");
     idField = config.getStringParam("idField");
-    joinSql = config.getStringParam("joinSql");
-    joinField = config.getStringParam("joinField");
+    otherSQLs = config.getListParam("otherSQLs");
+    otherJoinFields = config.getListParam("otherJoinFields");
+        
     // TODO: move to base class functionality
     docIdPrefix = config.getStringParam("docIdPrefix");
   }
@@ -85,34 +88,9 @@ public class JoiningDatabaseConnector extends AbstractConnector {
       throw(e);
     }
 
-    // prepare the other sql query
-    ResultSet rs2 = null;
-    try {
-      // TODO: can we do this with forward only ?
-      log.info("Running other sql");
-      Statement state2 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-      rs2 = state2.executeQuery(joinSql);
-    } catch (SQLException e) {
-      e.printStackTrace();
-      setState(ConnectorState.ERROR);
-      throw(e);
-    }
-
-    log.info("Describing result sets...");
-
-    String[] columns = null;
-    String[] columns2 = null;
-    try {
-      // get column names for sql 
-      columns = getColumnNames(rs);
-      // get the column name map for the second result set.
-      columns2 = getColumnNames(rs2);
-    } catch (SQLException e) {
-      e.printStackTrace();
-      setState(ConnectorState.ERROR);
-      return;
-    }
-
+    
+    log.info("Describing primary set...");
+    String[] columns = getColumnNames(rs);
     int idColumn = -1;
     for (int i = 0; i < columns.length; i++) {
       if (columns[i].equalsIgnoreCase(idField)) {
@@ -121,6 +99,18 @@ public class JoiningDatabaseConnector extends AbstractConnector {
       }
     }
 
+	ArrayList<ResultSet> otherResults = new ArrayList<ResultSet>();
+	ArrayList<String[]> otherColumns = new ArrayList<String[]>();
+    for (String otherSQL : otherSQLs) {
+    	log.info("Describing other result set... {}", otherSQL );
+    	// prepare the other sql query 
+    	// TODO: run all sql statements in parallel.
+    	ResultSet rs2 = runJoinSQL(otherSQL);
+    	String[] columns2 = getColumnNames(rs2);
+    	otherResults.add(rs2);
+    	otherColumns.add(columns2);
+    }
+    
     log.info("Processing rows...");
     try {
       while (rs.next()) {
@@ -132,34 +122,12 @@ public class JoiningDatabaseConnector extends AbstractConnector {
           doc.addToField(columns[i].toLowerCase(), rs.getString(i + 1));
         }
         // this is the primary key that the result set is ordered by.
-        Integer joinId = rs.getInt(joinField);
+        Integer joinId = rs.getInt(idField);
         int childId = -1;
-        while (rs2.next()) {
-          // TODO: support non INT primary key
-          Integer otherJoinId = rs2.getInt(joinField);
-
-          if (otherJoinId < joinId) {
-            // advance until we get to the id on the right side that we want.
-            continue;
-          }
-          if (otherJoinId > joinId) {
-            // we've gone too far.. lets back up and break out , move forward the primary result set.
-            rs2.previous();
-            break;
-          }
-          childId++;
-          Document child = new Document(Integer.toString(childId));
-          for (String c : columns2) {
-            String fieldName = c.trim().toLowerCase();
-            String fieldValue = rs2.getString(c);
-            child.addToField(fieldName, fieldValue);
-          }
-          // add the accumulated child doc.
-          doc.addChildDocument(child);
-        }
-        // TODO: can we remove this?
-        if (!rs2.isLast()) {
-          rs2.previous();
+        int j = 0;
+        for (ResultSet otherResult : otherResults) {
+        	iterateOtherSQL(otherResult, otherColumns.get(j), doc, joinId, childId, otherJoinFields.get(j));
+        	j++;
         }
         // feed the accumulated document.
         feed(doc);
@@ -168,12 +136,66 @@ public class JoiningDatabaseConnector extends AbstractConnector {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    
+    // close all results
+    rs.close();
+    for (ResultSet ors : otherResults) {
+    	ors.close();
+    }
     // the post sql.
     runSql(postSql);
     flush();
     connection.close();
     setState(ConnectorState.STOPPED);
   }
+
+private void iterateOtherSQL(ResultSet rs2, String[] columns2, Document doc, Integer joinId, int childId, String joinField) throws SQLException {
+	while (rs2.next()) {
+	  // TODO: support non INT primary key
+	  Integer otherJoinId = rs2.getInt(joinField);
+
+	  if (otherJoinId < joinId) {
+	    // advance until we get to the id on the right side that we want.
+	    continue;
+	  }
+	  if (otherJoinId > joinId) {
+	    // we've gone too far.. lets back up and break out , move forward the primary result set.
+	    rs2.previous();
+	    break;
+	  }
+	  childId++;
+	  Document child = new Document(Integer.toString(childId));
+	  for (String c : columns2) {
+	    String fieldName = c.trim().toLowerCase();
+	    String fieldValue = rs2.getString(c);
+	    child.addToField(fieldName, fieldValue);
+	  }
+	  // add the accumulated child doc.
+	  doc.addChildDocument(child);
+	}
+	
+    // TODO: can we remove this?
+    if (!rs2.isLast()) {
+      rs2.previous();
+    }
+
+	
+}
+
+private ResultSet runJoinSQL(String sql) throws SQLException {
+	ResultSet rs2 = null;
+    try {
+      // TODO: can we do this with forward only ?
+      log.info("Running other sql");
+      Statement state2 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+      rs2 = state2.executeQuery(sql);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      setState(ConnectorState.ERROR);
+      throw(e);
+    }
+	return rs2;
+}
 
   /**
    * Return an array of column names.

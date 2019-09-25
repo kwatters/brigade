@@ -1,0 +1,55 @@
+<com.kmwllc.brigade.config.ConnectorConfig>
+    <connectorName>testDB</connectorName>
+    <connectorClass>com.kmwllc.brigade.connector.JoiningDatabaseConnector</connectorClass>
+    <config>
+        <entry>
+            <string>driver</string>
+            <string>org.h2.Driver</string>
+        </entry>
+        <entry>
+            <string>connectionString</string>
+            <string>jdbc:h2:mem:test</string>
+        </entry>
+        <entry>
+            <string>jdbcUser</string>
+            <string></string>
+        </entry>
+        <entry>
+            <string>jdbcPassword</string>
+            <string></string>
+        </entry>
+        <entry>
+            <string>idField</string>
+            <string>id</string>
+        </entry>
+        <entry>
+            <string>sql</string>
+            <string>select id, name, type from animal order by id asc</string>
+        </entry>
+
+		<entry>
+			<string>otherSQLs</string>
+			<list>
+				<string>select animal_id, name as meal_name from meal order by animal_id asc</string>
+				<string>select a.name as meta_name,d.val,d.animal_id from data d , attribute a where d.attr_id = a.id order by d.animal_id asc</string>
+			</list>
+		</entry>
+		
+		<entry>
+			<string>otherJoinFields</string>
+			<list>
+				<string>animal_id</string>
+				<string>animal_id</string>
+			</list>
+		</entry>
+
+<!-- 		<entry><string>joinField</string><string>id</string></entry>
+		<entry><string>joinSql</string><string>select animal_id as id, name from meal order by animal_id asc</string></entry>  -->        
+        
+        <entry>
+            <string>workflowName</string>
+            <string>ingest</string>
+        </entry>
+
+    </config>
+</com.kmwllc.brigade.config.ConnectorConfig>
