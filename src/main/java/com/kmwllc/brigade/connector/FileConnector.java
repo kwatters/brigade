@@ -78,7 +78,15 @@ public class FileConnector extends AbstractConnector implements FileVisitor<Path
 
   @Override
   public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-    throw exc;
+    // throw exc;
+    System.err.printf("Visiting failed for %s\n", file);
+    // TODO: send a placeholder doc that you know that you failed.
+    String docId = getDocIdPrefix() + file.toFile().getAbsolutePath();
+    Document doc = new Document(docId);
+    doc.setField("filename", file.toFile().getAbsolutePath());
+    doc.setField("exception", exc);
+    feed(doc);
+    return FileVisitResult.SKIP_SUBTREE;
   }
 
   @Override

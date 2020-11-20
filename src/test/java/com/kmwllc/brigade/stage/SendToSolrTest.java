@@ -14,6 +14,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -33,7 +35,9 @@ public class SendToSolrTest {
       e.printStackTrace();
       fail();
     }
-    CoreContainer container = new CoreContainer("src/test/resources/test-solr");
+    
+    Path solrHome = Paths.get("src/test/resources/test-solr");
+    CoreContainer container = container = CoreContainer.createAndLoad(solrHome);
 
     container.load();
     EmbeddedSolrServer server = new EmbeddedSolrServer(container, "testing");

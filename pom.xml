@@ -151,7 +151,7 @@
 		<dependency>
 			<artifactId>solr-solrj</artifactId>
 			<groupId>org.apache.solr</groupId>
-			<version>6.4.2</version>
+			<version>8.6.3</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -160,7 +160,7 @@
 		<dependency>
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-core</artifactId>
-			<version>6.4.2</version>
+			<version>8.6.3</version>
 		</dependency>
 
     <dependency>
@@ -221,12 +221,12 @@
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>1.2</version>
+			<version>1.24.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers</artifactId>
-			<version>1.2</version>
+			<version>1.24.1</version>
 		</dependency>
 		<!-- TODO: should we consider a different serializer? Right now this is 
 			only for configs. -->

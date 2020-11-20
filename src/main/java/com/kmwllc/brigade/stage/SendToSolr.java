@@ -13,6 +13,8 @@ import org.apache.solr.core.CoreContainer;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +65,7 @@ public class SendToSolr extends AbstractStage {
       if (useEmbedded) {
         solrServer = createEmbedded(embeddedConfDir, embeddedCollection);
       } else {
-        solrServer = new HttpSolrClient(solrUrl);
+    	solrServer = new HttpSolrClient.Builder().withBaseSolrUrl(solrUrl).build();
       }
     } else {
       log.info("Solr instance already created.");
@@ -71,7 +73,8 @@ public class SendToSolr extends AbstractStage {
   }
 
   private EmbeddedSolrServer createEmbedded(String confDir, String coll){
-    CoreContainer container = new CoreContainer(confDir);
+    Path solrHome = Paths.get(confDir);
+    CoreContainer container = CoreContainer.createAndLoad(solrHome);
     container.load();
     return new EmbeddedSolrServer(container, coll);
   }

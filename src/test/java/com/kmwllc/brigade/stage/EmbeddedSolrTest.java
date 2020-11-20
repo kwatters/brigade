@@ -15,6 +15,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,7 +29,9 @@ public class EmbeddedSolrTest {
   public void setUp() throws Exception {
     FileUtils.deleteDirectory(new File("src/test/resources/test-solr/testing/data"));
 
-    container = new CoreContainer("src/test/resources/test-solr");
+    Path solrHome = Paths.get("src/test/resources/test-solr");
+    container = CoreContainer.createAndLoad(solrHome);
+    // container = new CoreContainer(testSolrHome);
     container.load();
 
     server = new EmbeddedSolrServer(container, "testing");

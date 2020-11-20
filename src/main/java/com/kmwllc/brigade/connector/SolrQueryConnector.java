@@ -41,7 +41,7 @@ public class SolrQueryConnector extends AbstractConnector {
 	public void startCrawling() throws IOException {
 		HashSet<String> blackListFields = new HashSet<String>();
 		blackListFields.add("_version_");
-		HttpSolrClient client = new HttpSolrClient(solrUrl);
+		HttpSolrClient client = new HttpSolrClient.Builder().withBaseSolrUrl(solrUrl).build();
 		SolrQuery query = new SolrQuery(queryString);
 		query.set("rows", numRows);
 		if (params != null) {
