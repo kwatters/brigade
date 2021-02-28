@@ -9,16 +9,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.datavec.api.util.ClassPathResource;
 import org.datavec.image.loader.NativeImageLoader;
 import org.deeplearning4j.nn.graph.ComputationGraph;
-import org.deeplearning4j.nn.modelimport.keras.trainedmodels.Utils.ImageNetLabels;
+
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.deeplearning4j.zoo.PretrainedType;
 import org.deeplearning4j.zoo.ZooModel;
 import org.deeplearning4j.zoo.model.VGG16;
+import org.deeplearning4j.zoo.util.ClassPrediction;
+import org.deeplearning4j.zoo.util.imagenet.ImageNetLabels;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.VGG16ImagePreProcessor;
@@ -34,7 +35,7 @@ public class Deeplearning4j extends AbstractStage {
   private ComputationGraph vgg16;
   private String inputField = "bytes";
   private double confidenceThreshold = 0.75;
-  
+  transient private ImageNetLabels imageNetLabels = null;
   @Override
   public void startStage(StageConfig config)  {
     // TODO: load a proper model... o/w first we'll just use vgg16 as an example
@@ -98,10 +99,10 @@ public class Deeplearning4j extends AbstractStage {
   
   // This is for the Model Zoo support to load in the VGG16 model.  
   public void loadVGG16() throws IOException {
-    log.info("Loading the VGG16 Model.  Download is large 500+ MB.. this will be cached after it downloads");
-    ZooModel zooModel = new VGG16();
+    ZooModel zooModel = VGG16.builder().build();
     vgg16 = (ComputationGraph) zooModel.initPretrained(PretrainedType.IMAGENET);
     // TODO: return true/false if the model was loaded properly/successfully.
+    imageNetLabels = new ImageNetLabels();
   }
   
   
@@ -122,29 +123,37 @@ public class Deeplearning4j extends AbstractStage {
   
 //adapted from dl4j TrainedModels.VGG16 class.
  public Map<String, Double> decodeVGG16Predictions(INDArray predictions) {
-   LinkedHashMap<String, Double> recognizedObjects = new LinkedHashMap<String, Double>(); 
-   ArrayList<String> labels;
-   String predictionDescription = "";
-   int[] top5 = new int[5];
-   float[] top5Prob = new float[5];
-   labels = ImageNetLabels.getLabels();
-   //brute force collect top 5
-   int i = 0;
-   for (int batch = 0; batch < predictions.size(0); batch++) {
-       if (predictions.size(0) > 1) {
-           predictionDescription += String.valueOf(batch);
-       }
-       predictionDescription += " :";
-       INDArray currentBatch = predictions.getRow(batch).dup();
-       while (i < 5) {
-           top5[i] = Nd4j.argMax(currentBatch, 1).getInt(0, 0);
-           top5Prob[i] = currentBatch.getFloat(batch, top5[i]);
-           // interesting, this cast looses precision.. float to double.
-           recognizedObjects.put(labels.get(top5[i]), (double)top5Prob[i]);
-           currentBatch.putScalar(0, top5[i], 0);
-           predictionDescription += "\n\t" + String.format("%3f", top5Prob[i] * 100) + "%, " + labels.get(top5[i]);
-           i++;
-       }
+//   LinkedHashMap<String, Double> recognizedObjects = new LinkedHashMap<String, Double>(); 
+//   ArrayList<String> labels;
+//   String predictionDescription = "";
+//   int[] top5 = new int[5];
+//   float[] top5Prob = new float[5];
+//   labels = ImageNetLabels.getLabels();
+//   //brute force collect top 5
+//   int i = 0;
+//   for (int batch = 0; batch < predictions.size(0); batch++) {
+//       if (predictions.size(0) > 1) {
+//           predictionDescription += String.valueOf(batch);
+//       }
+//       predictionDescription += " :";
+//       INDArray currentBatch = predictions.getRow(batch).dup();
+//       while (i < 5) {
+//           top5[i] = Nd4j.argMax(currentBatch, 1).getInt(0, 0);
+//           top5Prob[i] = currentBatch.getFloat(batch, top5[i]);
+//           // interesting, this cast looses precision.. float to double.
+//           recognizedObjects.put(labels.get(top5[i]), (double)top5Prob[i]);
+//           currentBatch.putScalar(0, top5[i], 0);
+//           predictionDescription += "\n\t" + String.format("%3f", top5Prob[i] * 100) + "%, " + labels.get(top5[i]);
+//           i++;
+//       }
+//   }
+   
+   LinkedHashMap<String, Double> recognizedObjects = new LinkedHashMap<String, Double>();
+   // ArrayList<String> labels;
+   List<ClassPrediction> classes = imageNetLabels.decodePredictions(predictions, 10).get(0);
+   for (ClassPrediction label : classes) {
+     log.info(label.getLabel() + ":" + label.getProbability());
+     recognizedObjects.put(label.getLabel(), label.getProbability());
    }
    return recognizedObjects;
  }

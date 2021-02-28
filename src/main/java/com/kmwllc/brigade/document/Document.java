@@ -116,10 +116,10 @@ public class Document {
   }
 
   /**
-   * Get the first value for specified field cast as a String.  Returns null if the field is not
+   * Get the first value for specified field.  Returns null if the field is not
    * in the document
    * @param fieldName Name of field
-   * @return First value for field cast as a String
+   * @return First value for field as an object
    */
   public String getFirstValueAsString(String fieldName) {
     List<Object> s = data.get(fieldName);
@@ -129,6 +129,14 @@ public class Document {
     return s.get(0).toString();
   }
 
+  public Object getFirstValue(String fieldName) {
+    List<Object> s = data.get(fieldName);
+    if (s==null||s.isEmpty()) {
+      return null;
+    }
+    return s.get(0);
+  }
+  
   /**
    * Get the unique ID for this document
    * @return Document id
