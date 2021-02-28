@@ -1,8 +1,13 @@
 package com.kmwllc.brigade.stage;
 
 import static org.bytedeco.opencv.global.opencv_core.CV_32F;
+import static org.bytedeco.opencv.global.opencv_dnn.readNetFromDarknet;
 import static org.bytedeco.opencv.global.opencv_dnn.blobFromImage;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,6 +19,7 @@ import org.bytedeco.opencv.opencv_core.Scalar;
 import org.bytedeco.opencv.opencv_core.Size;
 import org.bytedeco.opencv.opencv_dnn.Net;
 
+import com.kmwllc.brigade.config.StageConfig;
 import com.kmwllc.brigade.document.Document;
 import com.kmwllc.brigade.stage.image.Classification;
 
@@ -28,6 +34,63 @@ public class YoloImage extends AbstractImageStage {
   private float confidenceThreshold = 0.25F;
   private boolean debug = false;
   ArrayList<String> classNames;
+  
+  public String darknetHome = "resource/OpenCV/yolo"; // FileIO.gluePaths(Service.getResourceDir(OpenCV.class),"yolo");
+  public String modelConfig = "yolov2.cfg";
+  public String modelWeights = "yolov2.weights";
+  public String modelNames = "coco.names";
+
+  
+  @Override
+  public void startStage(StageConfig config) {
+  	// TODO Auto-generated method stub
+	  
+	  // TODO: download/cache yolo model.
+	  // then.. load the network.
+	  
+	  loadYolo();
+  }
+  
+  private void loadYolo() {
+	    log.info("loadYolo - begin");
+
+	    try {
+	      net = readNetFromDarknet(darknetHome + File.separator + modelConfig, darknetHome + File.separator + modelWeights);
+	      log.info("Loaded yolo darknet model to opencv");
+	    } catch (Exception e) {
+	      log.error("readNetFromDarknet could not read", e);
+	      return;
+	    }
+	    // load the class names
+	    try {
+	      classNames = loadClassNames(darknetHome + File.separator + modelNames);
+	    } catch (IOException e) {
+	      log.warn("Error unable to load class names from file {}", modelNames, e);
+	      return;
+	    }
+	    log.info("Done loading model..");
+	    log.info("loadYolo - end");
+	  }
+
+  
+  private ArrayList<String> loadClassNames(String filename) throws IOException {
+	    log.info("loadClassNames - begin");
+	    ArrayList<String> names = new ArrayList<String>();
+	    FileReader fileReader = new FileReader(filename);
+	    BufferedReader bufferedReader = new BufferedReader(fileReader);
+	    String line;
+	    int i = 0;
+	    while ((line = bufferedReader.readLine()) != null) {
+	      names.add(line.trim());
+	      i++;
+	    }
+	    log.info("read {} names", i);
+	    fileReader.close();
+
+	    log.info("loadClassNames - end");
+	    return names;
+	  }
+
   
   @Override
   public HashMap<String, Object> processImage(Mat inputMat, Document doc) {
@@ -156,6 +219,8 @@ public class YoloImage extends AbstractImageStage {
     log.info("extractSubImage - end");
     return image;
   }
+
+
   
   
   
