@@ -6,7 +6,8 @@ import com.kmwllc.brigade.logging.LoggerFactory;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
+//import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 
@@ -42,7 +43,7 @@ public class SendToElastic extends AbstractStage {
     try {
       // TODO: support multiple hosts
       elasticClient = new PreBuiltTransportClient(Settings.EMPTY)
-          .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(elasticHost), elasticPort));
+          .addTransportAddress(new TransportAddress(InetAddress.getByName(elasticHost), elasticPort));
     } catch (UnknownHostException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

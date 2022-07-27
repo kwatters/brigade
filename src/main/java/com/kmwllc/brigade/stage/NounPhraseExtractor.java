@@ -99,13 +99,16 @@ public class NounPhraseExtractor extends AbstractStage {
             log.info("Empty sentence...");
             continue;
           }
-          String tokens[] = tokenizer.tokenize(sentence);
+          String[] tokens = tokenizer.tokenize(sentence);
           Span[] spans = nameFinder.find(tokens);
           // part of speech tagging
-          String posText = posTagger.tag(sentence);
-          // extract a triple from the sentence.
-          children.addAll(createTripleDocuments(doc.getId(), posText));
-          doc.addToField(posTextField, posText);
+          String[] tags = posTagger.tag(tokens);
+          children.addAll(createTripleDocuments(doc.getId(), tokens, tags));
+          StringBuilder posText = new StringBuilder();
+          for ( int i = 0; i < tags.length; i++) {
+        	  posText.append(tokens[i]).append("/").append(tags[i]).append(" ");
+          }
+          doc.addToField(posTextField, posText.toString().trim());
           for (Span span : spans) {
             String[] terms = Arrays.copyOfRange(tokens, span.getStart(), span.getEnd());
             String entity = StringUtils.join(terms, sep);
@@ -125,7 +128,7 @@ public class NounPhraseExtractor extends AbstractStage {
     return children;
   }
 
-  private List<Document> createTripleDocuments(String parentId, String posText) {
+  private List<Document> createTripleDocuments(String parentId, String[] tokens, String[] tags) {
     // TODO : implement a much better tuned grammar for parsing
     // subject/object/verb
     // this is very likely language dependent.
@@ -133,7 +136,7 @@ public class NounPhraseExtractor extends AbstractStage {
 
     // we'll look for the nouns, then the verbs, then the nouns again. (add an
     // end element to the sentence)
-    String[] parts = (posText + " END/END").split(" ");
+    // String[] parts = (posText + " END/END").split(" ");
     // System.out.println("#######################################");
 
     // we want to find the runs of n* and v* ...
@@ -148,14 +151,10 @@ public class NounPhraseExtractor extends AbstractStage {
     // state info for the iteration
     String prevPOS = "";
     boolean seenFirstVerb = false;
-    for (String part : parts) {
-      part = part.trim();
-      if (StringUtils.isEmpty(part) || !part.contains("/")) {
-        continue;
-      }
-      String[] subpart = part.split("/");
-      String word = subpart[0];
-      String pos = subpart[1];
+    int i = -1;
+    for (String word : tokens) {
+      i++;
+      String pos = tags[i];
       // System.out.println("WORD: " + word + " POS: " + pos + " PREV: " +
       // prevPOS);
       // NN to not NN ends nouns
